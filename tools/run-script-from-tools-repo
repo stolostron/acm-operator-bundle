@@ -1,0 +1,167 @@
+#!/usr/bin/env bash
+#
+# This script is the front end to the Konflux generate-bundle-contents process for
+# ACM and related operator bundles.  It is invoked as the businss logic for GitHub
+# actions triggered on PRs, etc.  Its job is to determine and clone the common tooling
+# repo at the right branch, and then imvoke the appropriate bundle-contents-generation
+# core logic that lives in that tools repo (so that it can be common across all of
+# our operator-bundle repos and branches).
+#
+# Ideally, this script will contain nothing that is specific to the particular bundle
+# (i.e. ACM, or MCE, or Stolostron, etc.) that is being built.  All of the necessary
+# per-product particulars are obtained ehter by ssourcing script fragment files with
+# fixed names, or by referring environment varibales passed into the  script. The goal
+# is that it should be the cast that this script is identical across all of our various
+# bundle-building repos and branches in those repos. Maintaining this goal  will make
+# any required maintanance easy (just drop identical copies everywhere). And hopefully,
+# this script is a sufficently "thin" shim that the there will be minimal need to update
+# those identical copies, as the real" logic livs in the single, common tools repo.
+#
+# Inocation dependencies:
+#
+# This script assumes that when its run, the current working directory is the
+# top directory of the bundle-image repository.
+#
+# Note on dev testing:
+#
+# When doing development, its handy to have a working clone of the tools repo
+# that doesn't keep getting overridden by the "git clone" that would normally
+# be done by this script.  To request this, do:
+#
+# export dev_test_mode=1"
+#
+# before running this script. When this env var is set, this script only clones
+# the tools repo if not already present locally, and doesn't  get rid of it
+# in cleanup.
+#
+# Author: joeg-pro
+
+start_cwd="$PWD"
+
+# The config-vars sourceable script fragment sets some shell/environment variables
+# that we nedd to figure out how to clone the common tools and config repo and
+# run the business logic script contained there.
+
+in_repo_config_file="${1:-./config/config-vars}"
+if [[ ! -f "$in_repo_config_file" ]]; then
+  echo "ERROR: Required in-repo config file ($in_repo_config_file) not found."
+  exit 3
+fi
+source "$in_repo_config_file"
+
+# Make sure all of the vars we expect config-vars to set are in fact set.....
+
+if [[ -z "$tools_repo" ]] || [[ -z "$tools_repo_branch" ]]; then
+  echo "ERROR: Config variables tools_repo and/or tools_repo branch are not set."
+  exit 3
+fi
+
+if [[ -z "$tools_repo_clone_dir" ]]; then
+  echo "ERROR: Config variable tools_repo_clone_dir is not set."
+  exit 3
+fi
+
+if [[ -z "$target_script" ]]; then
+  echo "ERROR: Config variable target_script is not set."
+  exit 3
+fi
+
+# We need access to the tools repo, which may be private. In order to allow for
+#a least-priviledge granting of permissions f desired, we will prefer to use a
+# token specified in env var GH_TOOLS_REPO_READER_TOKEN so that a token that
+# provides only read-only access to the tools repo can be used while allowing
+# another tokens with more/different permisssion to be used by the target workflow
+# logic (GH_WORKFLOW_TOKEN). But for convenience, we'll fall back to using a
+# workflow-specific token from GH_WORKFLOW_TOKEN, or even a token found in the
+# commonly-defined GITHUB_TOKEN env var if nothing more specific is found.
+
+if [[ -n "$GH_TOOLS_REPO_READER_TOKEN" ]]; then
+   tools_repo_access_token="$GH_TOOLS_REPO_READER_TOKEN"
+   echo "Using GH_TOOLS_REPO_READER_TOKEN for access to tools repo."
+elif [[ -n "$GH_WORKFLOW_TOKEN" ]]; then
+   tools_repo_access_token="$GH_WORKFLOW_TOKEN"
+   echo "Using GH_WORKFLOW_TOKEN for access to tools repo."
+elif [[ -n "$GITHUB_TOKEN" ]]; then
+   tools_repo_access_token="$GITHUB_TOKEN"
+   echo "Using GITHUB_TOKEN for access to tools repo."
+else
+  echo "ERROR: None of GH_TOOLS_REPO_READER_TOKEN, GH_WORKFLOW_TOKEN or GITHUB_TOKEN is set."
+  exit 3
+fi
+
+# Get our tools and configs.
+
+if [[ $dev_test_mode -eq 0 ]]; then
+   rm -rf "$tools_repo_clone_dir"
+fi
+if [[ ! -d "$tools_repo_clone_dir" ]]; then
+   save_git_ssh_cmd=$(git config --global --get core.sshCommand)
+   git config --global core.sshCommand 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+
+   # Optimized git clone logic that clones only the specified commit-SHA or branch names with
+   # no history as that is not useful to us. (Not possible with a direct "git clone" it seems.)
+   #
+   # Ref: https://stackoverflow.com/questions/31278902/how-to-shallow-clone-a-specific-commit-with-depth-1/43136160#43136160
+
+   mkdir -p "$tools_repo_clone_dir"
+   cd "$tools_repo_clone_dir"
+   tools_repo_clone_dir="$PWD"   # Ensuretools_repo_clone_dir an absolute pathname.
+   git config --global init.defaultBranch master
+   git config --global advice.detachedHead false
+   git init
+
+   # Rather than clone with an https URL that includes the token, instead clone
+   # generically and configure the git cline to add an Authenitcation header that
+   # specifies the endodedd "token:<TOKEN_VALUE>" auth info.
+
+   git remote add origin "https://github.com/$tools_repo"
+   basic_auth_creds="x-access-token:$tools_repo_access_token"
+   basic_auth_encoded=$(echo -n "$basic_auth_creds" | base64)
+   git config  "http.https://github.com/.extraheader" "Authorization: basic $basic_auth_encoded"
+
+   git fetch --depth 1 origin "$tools_repo_branch"
+   git_fetch_rc=$?
+
+   # In case we're run locally, be friendly and restore original Git SSH command
+   if [[ -n "$save_git_ssh_cmd" ]]; then
+      git config --global core.sshCommand "$save_git_ssh_cmd"
+   else
+      git config --global --unset core.sshCommand
+   fi
+   if [[ $git_fetch_rc -ne 0 ]]; then
+      echo "ERROR: Could not fetch tools repo."
+      exit 2
+  fi
+
+  git checkout FETCH_HEAD
+  git_checkout_rc=$?
+   if [[ $git_checkout_rc -ne 0 ]]; then
+      echo "ERROR: Could not checkout tools repo at FETCH_HEAD."
+      exit 2
+  fi
+else
+   echo "In dev-test mode, using already-cloned tools repo (at $tools_repo_clone_dir)."
+   cd "$tools_repo_clone_dir"
+   tools_repo_clone_dir="$PWD"   # Make tools_repo_clone_dir an absolute path
+fi
+
+cd "$start_cwd"
+
+# The actual work of the budnle generation process is hanled by a script (possibly common
+# across the various product bundles we produce) found in the tools repo. The name of that
+# script is provided by Variable target_script.
+
+target_script_path="$tools_repo_clone_dir/$target_script"
+if [[ ! -f "$target_script_path" ]]; then
+   echo "ERROR: Target script $target_script does not exist."
+   exit 2
+elif [[ ! -x "$target_script_path" ]]; then
+   echo "ERROR: Target script $target_script is not eecuable."
+   exit 2
+fi
+
+# Pass control to the core logic script.
+
+exec "$target_script_path" "$in_repo_config_file"
+# There is no return from this "exec", so cleanup and exit-code setting are up to the
+# tools-repo-resident logic we invoke. (Intentional, to keep this script as thin as possible.)
