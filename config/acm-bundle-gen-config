@@ -1,0 +1,37 @@
+
+# Note: Except where noted differently, all pathnames defined in config
+# vars are relative to the top of this Git repo.
+
+#--------------------------------------------------
+# Config properties likely unique for this product
+#--------------------------------------------------
+
+# Name of the OLM operator package
+olm_package="advanced-cluster-management"
+
+# List or range of COP versions this operator package should be published to:
+ocp_versions="v4.12-v4.17"
+
+# PAthnames of the scripts used to generate the unbound and unbound bundle manifests
+# for this product, and the config file the scripts need.
+
+unbound_bundle_manifests_gen_script="tools/bundle-manifests-gen/gen-unbound-acm-bundle.sh"
+bound_bundle_manifests_gen_script="tools/bundle-manifests-gen/gen-bound-acm-bundle.sh"
+bundle_manifests_gen_config_file="tools/bundle-manifests-gen/acm-bundle.config"
+
+# Pathname of the config file for the image manifest generation script
+# Note: This is relative to the top of the bundle repo (release branch).
+image_manifest_gen_config_file="config/acm-manifest-gen-config.json"
+
+add_iteration_suffix=1
+
+#----------------------------------------------------
+# Config properties likely the same for all products
+#----------------------------------------------------
+
+# Pathname of the script that has the core business logic to generate bundle contents.
+bundle_contents_gen_script=tools/konflux/bundle/generate-bundle-contents.sh
+
+# Pathname of the script that generates the image manifest.
+image_manifest_gen_script="tools/konflux/bundle/generate_konflux_manifest.py"
+
