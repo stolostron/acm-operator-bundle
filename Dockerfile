@@ -15,7 +15,7 @@ LABEL com.redhat.delivery.operator.bundle="true" \
 
 LABEL com.redhat.component="acm-operator-bundle-container" \
       name="rhacm2/acm-operator-bundle" \
-      version="2.12.0-1" \
+      version="2.12.0-2" \
       summary="acm-operator-bundle" \
       io.openshift.expose-services="" \
       io.openshift.tags="data,images" \
