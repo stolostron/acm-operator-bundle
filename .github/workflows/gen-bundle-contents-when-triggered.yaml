@@ -1,7 +1,7 @@
 # Place a copy of this GitHub Actions workflow in the main and
 # each release branch of each bundle repo.
 
-name: Gen Bundle Contents When Nudged
+name: Gen Bundle Contents When Triggered
 
 on:
   workflow_dispatch: {}
@@ -33,9 +33,9 @@ env:
   GH_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  process-nudge-pr:
-    runs-on: ubuntu-22.04
-    # FYI, the ubuntu-22.04 runner image includes Python 3.10
+  process-triggering-pr:
+    runs-on: ubuntu-24.04
+    # FYI, the ubuntu-24.04 runner image includes Python 3.12
 
     steps:
     - name: Checkout triggered repo main branch
@@ -77,14 +77,14 @@ jobs:
       with:
         # App id and key of a GitHub App that has been installed and given access
         # to the repos neded to do the core logic of the workflow.
-        app-id: ${{ vars.ACM_BUNDLE_BOT_APP_ID }}
-        private-key: ${{ secrets.ACM_BUNDLE_BOT_PRIVATE_KEY }}
+        app-id: ${{ vars.WORKFLOW_BOT_APP_ID }}
+        private-key: ${{ secrets.WORKFLOW_BOT_PRIVATE_KEY }}
         owner: ${{ github.repository_owner }}
 
-    - name: Process nudge PR
+    - name: Process triggering PR
       env:
         GH_CONTEXT: ${{ toJson(github) }}
-        GIT_USER:  ${{ vars.ACM_BUNDLE_BOT_GIT_USER }}
+        GIT_USER:  ${{ vars.WORKFLOW_BOT_GIT_USER }}
 
         # Use the TOOLS_REPO_READER_TOKEN GitHub token when initially cloning
         # the tools repo to obtain the common business logic there.
@@ -104,4 +104,4 @@ jobs:
 
         # We start with current directoey being the top of the workflow repo clone
         cd workflow
-        tools/run-script-from-tools-repo config/process-snapshot-pr-config-vars
+        tools/run-script-from-tools-repo config/config-vars
