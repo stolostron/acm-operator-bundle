@@ -8,7 +8,7 @@ metadata:
     categories: Integration & Delivery
     certified: 'true'
     support: Red Hat
-    createdAt: '2024-12-03T13:51:22Z'
+    createdAt: '2024-12-04T13:56:23Z'
     description: Advanced provisioning and management of OpenShift and Kubernetes clusters
     operatorframework.io/suggested-namespace: open-cluster-management
     operatorframework.io/initialization-resource: '{"apiVersion":"operator.open-cluster-management.io/v1",
@@ -24,8 +24,8 @@ metadata:
     features.operators.openshift.io/token-auth-aws: 'false'
     features.operators.openshift.io/token-auth-azure: 'false'
     features.operators.openshift.io/token-auth-gcp: 'false'
-    olm.skipRange: '>=2.11.0 <2.12.0-5'
-  name: advanced-cluster-management.v2.12.0-5
+    olm.skipRange: '>=2.11.0 <2.12.0-6'
+  name: advanced-cluster-management.v2.12.0-6
   namespace: placeholder
   labels:
     operatorframework.io/arch.amd64: supported
@@ -35,7 +35,7 @@ metadata:
     operatorframework.io/os.linux: supported
 spec:
   displayName: Advanced Cluster Management for Kubernetes
-  version: 2.12.0-5
+  version: 2.12.0-6
   provider:
     name: Red Hat
   maintainers:
@@ -2424,16 +2424,12 @@ spec:
                   value: registry.redhat.io/rhacm2/thanos-receive-controller@sha256:a1882475d1495bd0e859dde171a6abcdc9b4e144b1b2a871b1c768097c08fc62
                 - name: OPERAND_IMAGE_MULTICLUSTERHUB_OPERATOR
                   value: registry.redhat.io/rhacm2/multiclusterhub-operator@sha256:d79d3b5edb6658ae4e3b030ca8f9001d70852babf211ac32a88e567d3cecc4af
-                - name: OPERAND_IMAGE_OAUTH_PROXY_415_AND_BELOW
-                  value: registry.redhat.io/openshif4/golang-github-openshift-oauth-proxy-container@sha256:0000000000000000000000000000000000000000000000000000000000000000
-                - name: OPERAND_IMAGE_OAUTH_PROXY_416_AND_UP
-                  value: registry.redhat.io/openshif4/golang-github-openshift-oauth-proxy-container@sha256:0000000000000000000000000000000000000000000000000000000000000000
                 - name: OPERAND_IMAGE_CONFIGMAP_RELOADER
-                  value: registry.redhat.io/openshif4/configmap-reload-container@sha256:0000000000000000000000000000000000000000000000000000000000000000
+                  value: registry.redhat.io/openshift4/ose-configmap-reloader-rhel9@sha256:c67decf44185c2b536c2e4afd7adaff053157538c154722e6741e0052f4f2b26
                 - name: OPERAND_IMAGE_POSTGRESQL_13
-                  value: registry.redhat.io/openshif4/postgresql-13-container@sha256:0000000000000000000000000000000000000000000000000000000000000000
+                  value: registry.redhat.io/rhel8/postgresql-13@sha256:826a1a75f4186f36217b5c1f1aa270838c4b55b1021d33a4876566bfc3b8e629
                 - name: OPERATOR_VERSION
-                  value: 2.12.0-5
+                  value: 2.12.0-6
                 - name: OPERATOR_PACKAGE
                   value: advanced-cluster-management
                 image: registry.redhat.io/rhacm2/multiclusterhub-operator@sha256:d79d3b5edb6658ae4e3b030ca8f9001d70852babf211ac32a88e567d3cecc4af
@@ -2566,11 +2562,7 @@ spec:
     image: registry.redhat.io/rhacm2/thanos@sha256:bf1429dcdf742bbaaefda3808d3189fde7a23f5e7f8128a235fae6ea24b8226a
   - name: thanos_receive_controller
     image: registry.redhat.io/rhacm2/thanos-receive-controller@sha256:a1882475d1495bd0e859dde171a6abcdc9b4e144b1b2a871b1c768097c08fc62
-  - name: oauth_proxy_415_and_below
-    image: registry.redhat.io/openshif4/golang-github-openshift-oauth-proxy-container@sha256:0000000000000000000000000000000000000000000000000000000000000000
-  - name: oauth_proxy_416_and_up
-    image: registry.redhat.io/openshif4/golang-github-openshift-oauth-proxy-container@sha256:0000000000000000000000000000000000000000000000000000000000000000
   - name: configmap_reloader
-    image: registry.redhat.io/openshif4/configmap-reload-container@sha256:0000000000000000000000000000000000000000000000000000000000000000
+    image: registry.redhat.io/openshift4/ose-configmap-reloader-rhel9@sha256:c67decf44185c2b536c2e4afd7adaff053157538c154722e6741e0052f4f2b26
   - name: postgresql_13
-    image: registry.redhat.io/openshif4/postgresql-13-container@sha256:0000000000000000000000000000000000000000000000000000000000000000
+    image: registry.redhat.io/rhel8/postgresql-13@sha256:826a1a75f4186f36217b5c1f1aa270838c4b55b1021d33a4876566bfc3b8e629
