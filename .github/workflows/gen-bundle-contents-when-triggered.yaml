@@ -94,6 +94,13 @@ jobs:
         GH_WORKFLOW_TOKEN: ${{ steps.gen-workflow-token.outputs.token }}
 
       run: |
+        # Authenticate to needed image registries...
+
+        # Access to registry.redhat.io needed to resolve external image references:
+        echo "Doing Docker login to registry.redhat.io"
+        echo "${{ secrets.REGISTRY_REDHAT_IO_RGY_PASSWORD }}" \
+           | docker login -u="${{ vars.REGISTRY_REDHAT_IO_RGY_USERNAME }}" --password-stdin registry.redhat.io
+
         # Run the business-logic script
 
         # Save GitHub context in env as compact JSON string rather than pretty-printed
