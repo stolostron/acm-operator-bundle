@@ -15,12 +15,12 @@ LABEL com.redhat.delivery.operator.bundle="true" \
 
 LABEL com.redhat.component="acm-operator-bundle-container" \
       name="rhacm2/acm-operator-bundle" \
-      version="2.12.0-6" \
+      version="2.12.0-7" \
       summary="acm-operator-bundle" \
       io.openshift.expose-services="" \
       io.openshift.tags="data,images" \
       io.k8s.display-name="acm-operator-bundle" \
       maintainer="['acm-component-maintainers@redhat.com']" \
       description="acm-operator-bundle" \
-      konflux.additional-tags="v2.12.0-6"
+      konflux.additional-tags="v2.12.0-7"
 
