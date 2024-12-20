@@ -67,10 +67,17 @@ bound_bundle_manifests_gen_script="tools/konflux/bundle/gen-bound-acm-bundle.sh"
 # Note: This is relative to the top of the bundle repo (release branch).
 image_manifest_gen_config_file="config/acm-manifest-gen-config.json"
 
+# Set to non-zero to have image manifest generation ignore erors like missing
+# image info or missing images and emit placeholder entries rather than failing.
+ignore_image_errors=1
+
+# Set to non-zero to have iteration/build-number suffixes appeneded to bundle versions.
+add_iteration_suffix=1
+
 #----------------------------------------------------
 # Config properties likely the same for all products
 #----------------------------------------------------
 
 # Pathname (in tools repo) of the script that generates the image manifest.
-image_manifest_gen_script="tools/konflux/bundle/generate_konflux_manifest.py"
+image_manifest_gen_script="tools/konflux/bundle/generate-image-manifest.py"
 
