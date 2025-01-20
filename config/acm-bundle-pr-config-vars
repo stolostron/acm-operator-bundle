@@ -1,0 +1,27 @@
+# Common tools repo and the branch we clone:
+tools_repo=stolostron/release   # Assumed to be on GitHub.
+tools_repo_branch=master
+
+# Spot were we clone tools. (clone spot should NOT be under work_dir)
+tools_repo_clone_dir="./release-tools"
+
+# Pathname in release-tools repo of the script that is run by the
+# run-script-from-tools-repo front end.
+target_script=tools/konflux/common/process-triggering-pr.sh
+
+# Pathname relative to the top of the release-tools repo of the script that
+# is run in order to generate and save content.
+content_generation_script="tools/konflux/bundle/generate-and-stage-bundle-content.sh"
+
+# Filename (no path) of the file that is update dby a PR to trigger content generation.
+trigger_file=latest-snapshot.yaml
+
+# Pathname relative to the top of the content repo of the config fragment that is
+# sourced by $content_generation_script to configure its behavior.  This file
+# resides in a content-containing branch of the content repo.
+content_generation_config_file=config/acm-bundle-gen-config
+
+# Indicate whether workflow orchestration should maintina and commit an
+# incrementinng BUILD_NUMBER file or not.
+maintain_build_number=1
+
