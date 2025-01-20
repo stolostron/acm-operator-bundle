@@ -9,6 +9,7 @@ on:
     types: [opened, synchronize, reopened]
     branches:
     - release-*
+    - backplane-*
     paths:
     - latest-snapshot.yaml
 
@@ -96,10 +97,15 @@ jobs:
       run: |
         # Authenticate to needed image registries...
 
-        # Access to registry.redhat.io needed to resolve external image references:
+        # Access to registry.redhat.io needed to resolve external image references (shipped images):
         echo "Doing Docker login to registry.redhat.io"
         echo "${{ secrets.REGISTRY_REDHAT_IO_RGY_PASSWORD }}" \
            | docker login -u="${{ vars.REGISTRY_REDHAT_IO_RGY_USERNAME }}" --password-stdin registry.redhat.io
+
+        # Access to quay.iio/acm-d needed to resolve external image references (in-dev images):
+        echo "Doing Docker login to quay.io (for acm-d)"
+        echo "${{ secrets.QUAY_IO_ACMD_RGY_PASSWORD }}" \
+           | docker login -u="${{ vars.QUAY_IO_ACMD_RGY_USERNAME }}" --password-stdin quay.io
 
         # Run the business-logic script
 
@@ -111,4 +117,4 @@ jobs:
 
         # We start with current directoey being the top of the workflow repo clone
         cd workflow
-        tools/run-script-from-tools-repo config/config-vars
+        tools/run-script-from-tools-repo config/bundle-pr-config-vars
