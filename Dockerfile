@@ -9,16 +9,18 @@ LABEL com.redhat.delivery.operator.bundle="true" \
       operators.operatorframework.io.bundle.manifests.v1="manifests/" \
       operators.operatorframework.io.bundle.metadata.v1="metadata/" \
       operators.operatorframework.io.bundle.package.v1="advanced-cluster-management" \
-      operators.operatorframework.io.bundle.channels.v1="release-9.99" \
-      com.redhat.openshift.versions="v4.12-v4.17"
+      operators.operatorframework.io.bundle.channels.v1="release-2.13" \
+      operators.operatorframework.io.bundle.channel.default.v1="release-2.13" \
+      com.redhat.openshift.versions="v4.12-v4.18"
 
 LABEL com.redhat.component="acm-operator-bundle-container" \
       name="rhacm2/acm-operator-bundle" \
-      version="9.99.0-000" \
+      version="2.13.0-1" \
       summary="acm-operator-bundle" \
       io.openshift.expose-services="" \
       io.openshift.tags="data,images" \
       io.k8s.display-name="acm-operator-bundle" \
       maintainer="['acm-component-maintainers@redhat.com']" \
-      description="acm-operator-bundle"
+      description="acm-operator-bundle" \
+      konflux.additional-tags="v2.13.0-1,shapshot-release-acm-213-t79qj"
 
