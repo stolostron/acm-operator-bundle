@@ -1,28 +1,30 @@
 # This Bash fragment is sourced by various scripts.
 #
-# Its job is to set a bunch of configuration variable as expected by the
+# Its job is to set a bunch of configuration variables as expected by the
 # bundle manifest generation scripts that source it.  Because it is Bash, you
 # can use any Bash constructs you want here, but be careful  about setting
 # variables that might break the sourcing script.
 
 #--------------------------------------------------------------------
 # Config properties that are unique for each prodct (ACM vs. MCE)
-# and often/ocasionally differ release-to-release.
+# and often/occasionally differ release-to-release.
 #
 # Be sure to consider these settings in release-to-release cutovers.
 #--------------------------------------------------------------------
 
-# List or range of COP versions to which bundles should be published.
+# List or range of OCP versions to which bundles should be published.
 # Note: This variable is used/effective only for CPASS builds.  For Konflux
 # builds, this range is now set in configuration files for the catalog
 # generation steps.
 
-ocp_versions="v4.12-v4.18"
+# Note: ACM 2.14 is compatible with OCP 4.19.
+# Official support covers [N+1, N-2], with [N-3/4] allowed as an exception.
+ocp_versions="v4.16-v4.20"
 
 # When non-zero, a build-number/iteration suffix is added to CSV/bundle versions
 add_iteration_suffix=1
 
-# Specify the list of arechitectures and operating systems we support.
+# Specify the list of architectures and operating systems we support.
 
 # Since ACM 1.0:
 cfg_supported_op_syss=("linux")
@@ -67,11 +69,11 @@ bound_bundle_manifests_gen_script="tools/konflux/bundle/gen-bound-acm-bundle.sh"
 # Note: This is relative to the top of the bundle repo (release branch).
 image_manifest_gen_config_file="config/acm-manifest-gen-config.json"
 
-# Set to non-zero to have image manifest generation ignore erors like missing
+# Set to non-zero to have image manifest generation ignore errors like missing
 # image info or missing images and emit placeholder entries rather than failing.
 ignore_image_errors=1
 
-# Set to non-zero to have iteration/build-number suffixes appeneded to bundle versions.
+# Set to non-zero to have iteration/build-number suffixes appended to bundle versions.
 add_iteration_suffix=1
 
 #----------------------------------------------------
