@@ -98,7 +98,7 @@ typical changes needed:
 
 - Commit the updates with a commit message like "Update configuration for new release x.y"
 
-- Push Changes to the `release-branch-template` branch.
+- Push changes to the `release-branch-template` branch.
 
 ##### Step 3: Cut the New Release Branch
 
