@@ -98,6 +98,8 @@ typical changes needed:
 
 - Commit the updates with a commit message like "Update configuration for new release x.y"
 
+- Push Changes to the `release-branch-template` branch.
+
 ##### Step 3: Cut the New Release Branch
 
 Create the new release branch as an orphaned branch off of the `release-branch-template` branch:
@@ -107,7 +109,7 @@ git checkout release-branch-template
 git checkout --orphan <new-release-branch>
 # The starting content of the new branch will already be staged and ready to commit
 git commit --signoff -m "Create branch for release x.y"
-git push
+git push --set-upstream origin <new-release-branch>
 ```
 
 We suggest that each release branch starts as an orphan (also sometimes called unrelated) branch to
