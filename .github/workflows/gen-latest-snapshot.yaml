@@ -1,0 +1,44 @@
+name: Gen Latest Dev Snapshot
+
+on:
+  workflow_dispatch: {}
+
+#    schedule: # Add when we go live!
+#      - cron: '0 9 * * *'  # 9:00 AM every day
+#      - cron: '0 15 * * *'  # 3:00 PM every day 
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    strategy:
+        fail-fast: false # If one jobs fail, we still want the other jobs to run.
+        matrix:
+          branch: ['release-2.14']
+          include:
+            - branch: release-2.14
+              release-plan: "publish-dev-acm-214"
+
+    steps:
+      - name: Checkout tooling branch
+        uses: actions/checkout@v3
+        with:
+          ref: tooling
+
+      # Run the snapshot collector script and create a PR with the latest snapshot in the correct branch
+      - name: Run snapshot collection and file handling
+        env:
+          SA_TOKEN: ${{ secrets.KONFLUX_SERVICE_ACCOUNT_TOKEN }}
+        run: |
+          chmod +x snapshot-collector.sh
+          ./snapshot-collector.sh ${{ matrix.release-plan }} "$SA_TOKEN"
+
+      # Create Pull Request
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          branch: "update-snapshot-${{ matrix.branch }}"
+          base: "${{ matrix.branch }}"
+          delete-branch: true
+          title: "Gen Latest Snapshot [${{ matrix.branch }}]"
+          committer: GitHub <noreply@github.com>
+          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
