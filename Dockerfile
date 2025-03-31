@@ -22,4 +22,4 @@ LABEL com.redhat.component="acm-operator-bundle-container" \
       io.k8s.display-name="acm-operator-bundle" \
       maintainer="['acm-component-maintainers@redhat.com']" \
       description="acm-operator-bundle" \
-      konflux.additional-tags="v2.14.0-1,shapshot-release-acm-214-9c4pq"
+      konflux.additional-tags="v2.14.0-1,snapshot-release-acm-214-9c4pq"
