@@ -8,7 +8,7 @@ metadata:
     categories: Integration & Delivery
     certified: 'true'
     support: Red Hat
-    createdAt: '2025-04-22T19:05:38Z'
+    createdAt: '2025-04-23T13:11:02Z'
     description: Advanced provisioning and management of OpenShift and Kubernetes clusters
     operatorframework.io/suggested-namespace: open-cluster-management
     operatorframework.io/initialization-resource: '{"apiVersion":"operator.open-cluster-management.io/v1",
@@ -24,8 +24,8 @@ metadata:
     features.operators.openshift.io/token-auth-aws: 'false'
     features.operators.openshift.io/token-auth-azure: 'false'
     features.operators.openshift.io/token-auth-gcp: 'false'
-    olm.skipRange: '>=2.13.0 <2.14.0-29'
-  name: advanced-cluster-management.v2.14.0-29
+    olm.skipRange: '>=2.13.0 <2.14.0-30'
+  name: advanced-cluster-management.v2.14.0-30
   namespace: placeholder
   labels:
     operatorframework.io/arch.amd64: supported
@@ -35,7 +35,7 @@ metadata:
     operatorframework.io/os.linux: supported
 spec:
   displayName: Advanced Cluster Management for Kubernetes
-  version: 2.14.0-29
+  version: 2.14.0-30
   provider:
     name: Red Hat
   maintainers:
@@ -116,9 +116,13 @@ spec:
     type: AllNamespaces
   customresourcedefinitions:
     owned:
-    - description: MulticlusterHub defines the configuration for an instance of a multicluster hub, a
-        central point for managing multiple Kubernetes-based clusters. The deployment of multicluster
-        hub components is determined based on the configuration that is defined in this resource.
+    - description: 'MulticlusterHub defines the configuration
+
+        for an instance of a multicluster hub, a central point for managing multiple
+
+        Kubernetes-based clusters. The deployment of multicluster hub components
+
+        is determined based on the configuration that is defined in this resource.'
       displayName: MultiClusterHub
       kind: MultiClusterHub
       name: multiclusterhubs.operator.open-cluster-management.io
@@ -174,6 +178,12 @@ spec:
         displayName: Ingress Management
         path: ingress
         x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+      - description: The name of the local-cluster resource
+        displayName: Local Cluster Name
+        path: localClusterName
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes:text
         - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: Developer Overrides
         displayName: Developer Overrides
@@ -331,6 +341,19 @@ spec:
         - apiGroups:
           - ''
           resources:
+          - configmaps
+          - secrets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - ''
+          resources:
           - endpoints
           - pods
           - services
@@ -411,16 +434,6 @@ spec:
           - patch
           - update
           - watch
-        - apiGroups:
-          - ''
-          resources:
-          - serviceaccounts
-          verbs:
-          - create
-          - delete
-          - get
-          - patch
-          - update
         - apiGroups:
           - ''
           resources:
@@ -1052,15 +1065,6 @@ spec:
           - agent-install.openshift.io
           resources:
           - infraenvs
-          verbs:
-          - create
-          - delete
-          - get
-          - patch
-          - update
-        - apiGroups:
-          - agent-install.openshift.io
-          resources:
           - nmstateconfigs
           verbs:
           - create
@@ -1257,6 +1261,9 @@ spec:
           - authorization.k8s.io
           resources:
           - uids
+          - userextras/authentication.kubernetes.io/credential-id
+          - userextras/authentication.kubernetes.io/node-name
+          - userextras/authentication.kubernetes.io/node-uid
           - userextras/authentication.kubernetes.io/pod-name
           - userextras/authentication.kubernetes.io/pod-uid
           verbs:
@@ -1538,16 +1545,12 @@ spec:
           resources:
           - agentclusterinstalls
           verbs:
-          - create
-          - delete
-          - get
           - list
-          - patch
-          - update
           - watch
         - apiGroups:
           - extensions.hive.openshift.io
           resources:
+          - agentclusterinstalls
           - imageclusterinstalls
           verbs:
           - create
@@ -1555,6 +1558,60 @@ spec:
           - get
           - patch
           - update
+        - apiGroups:
+          - flightctl.io
+          resources:
+          - '*'
+          verbs:
+          - '*'
+        - apiGroups:
+          - flightctl.io
+          resources:
+          - certificatesigningrequests
+          verbs:
+          - create
+          - get
+          - list
+        - apiGroups:
+          - flightctl.io
+          resources:
+          - devices
+          - fleets
+          - resourcesyncs
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+        - apiGroups:
+          - flightctl.io
+          resources:
+          - devices/console
+          verbs:
+          - get
+        - apiGroups:
+          - flightctl.io
+          resources:
+          - enrollmentrequests
+          verbs:
+          - get
+          - list
+        - apiGroups:
+          - flightctl.io
+          resources:
+          - enrollmentrequests/approval
+          verbs:
+          - post
+        - apiGroups:
+          - flightctl.io
+          resources:
+          - fleets/templateversions
+          - repositories
+          verbs:
+          - get
+          - list
         - apiGroups:
           - hive.openshift.io
           resources:
@@ -1671,6 +1728,7 @@ spec:
           - metal3.io
           resources:
           - baremetalhosts
+          - hostfirmwaresettings
           verbs:
           - create
           - delete
@@ -1685,16 +1743,6 @@ spec:
           verbs:
           - list
           - watch
-        - apiGroups:
-          - metal3.io
-          resources:
-          - hostfirmwaresettings
-          verbs:
-          - create
-          - delete
-          - get
-          - patch
-          - update
         - apiGroups:
           - migration.k8s.io
           resources:
@@ -1722,6 +1770,7 @@ spec:
           - monitoring.coreos.com
           resources:
           - prometheusrules
+          - scrapeconfigs
           verbs:
           - create
           - delete
@@ -1826,7 +1875,14 @@ spec:
           - get
           - list
           - patch
+          - update
           - watch
+        - apiGroups:
+          - operator.open-cluster-management.io
+          resources:
+          - internalhubcomponents/finalizers
+          verbs:
+          - update
         - apiGroups:
           - operator.open-cluster-management.io
           resources:
@@ -1981,6 +2037,22 @@ spec:
           - '*'
           verbs:
           - '*'
+        - apiGroups:
+          - rbac.authorization.k8s.io
+          resources:
+          - clusterrolebindings
+          verbs:
+          - delete
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - rbac.authorization.k8s.io
+          resources:
+          - clusterrolebindings
+          - clusterroles
+          verbs:
+          - create
         - apiGroups:
           - rbac.authorization.k8s.io
           resources:
@@ -2347,13 +2419,13 @@ spec:
                 - name: OPERAND_IMAGE_CLUSTER_PERMISSION
                   value: registry.redhat.io/rhacm2/acm-cluster-permission-rhel9@sha256:ad5532c744724b0c5513f935046e6137791e01b25746b7db1df8a3e5ec6f9ee6
                 - name: OPERAND_IMAGE_CONFIG_POLICY_CONTROLLER
-                  value: registry.redhat.io/rhacm2/config-policy-controller-rhel9@sha256:ba888d8a6495be7c16c75556e1931b55f6ae01bd482550b1c083644b35d49310
+                  value: registry.redhat.io/rhacm2/config-policy-controller-rhel9@sha256:8d488952896cde5ce44e0bc3322033e00d4b850e0271a09bc34ccf2c7c6ec37c
                 - name: OPERAND_IMAGE_CONSOLE
                   value: registry.redhat.io/rhacm2/console-rhel9@sha256:21686af2a3b2039e301c409d8acc3e37822564d510fb02a60cb275859ace0e1b
                 - name: OPERAND_IMAGE_ENDPOINT_MONITORING_OPERATOR
                   value: registry.redhat.io/rhacm2/endpoint-monitoring-rhel9-operator@sha256:d1cefb8a16a9eab826d58053d6cba53d56863faf8f5fdfe215130430416ed55c
                 - name: OPERAND_IMAGE_GOVERNANCE_POLICY_ADDON_CONTROLLER
-                  value: registry.redhat.io/rhacm2/acm-governance-policy-addon-controller-rhel9@sha256:782158d36556833f8873cd3177e5716f8542bbf374730f92ce747d5e4a52827b
+                  value: registry.redhat.io/rhacm2/acm-governance-policy-addon-controller-rhel9@sha256:ee8961a8c6a79bde48f557b5383a2de4d43c72dff782429eb95e7d3b7d199eeb
                 - name: OPERAND_IMAGE_GOVERNANCE_POLICY_FRAMEWORK_ADDON
                   value: registry.redhat.io/rhacm2/acm-governance-policy-framework-addon-rhel9@sha256:3dcc2e4af44e781d511a777e8fbf6865646b028c3d0ded9df8ce5964bee2e397
                 - name: OPERAND_IMAGE_GOVERNANCE_POLICY_PROPAGATOR
@@ -2389,7 +2461,7 @@ spec:
                 - name: OPERAND_IMAGE_MULTICLUSTER_OPERATORS_SUBSCRIPTION
                   value: registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel9@sha256:11409cbfe62d57967c14d8bc13dd764bc6ac94d2afa823880b8f9d26dd9a1aea
                 - name: OPERAND_IMAGE_MULTICLUSTERHUB_OPERATOR
-                  value: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:be67b1c686376694531f9f4baddaf2970efa122ad0683cc818e7a50884d782e7
+                  value: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:caaa212cf3299e6f44d6f5a85fcaadf6b54f948218c5851beb8ba8c9117d63d2
                 - name: OPERAND_IMAGE_NODE_EXPORTER
                   value: registry.redhat.io/rhacm2/node-exporter-rhel9@sha256:93e7af4372aabc74edc46bac68784903f95b982b81029bc9dd35ad57ec77d21c
                 - name: OPERAND_IMAGE_OBSERVATORIUM
@@ -2407,13 +2479,13 @@ spec:
                 - name: OPERAND_IMAGE_RBAC_QUERY_PROXY
                   value: registry.redhat.io/rhacm2/rbac-query-proxy-rhel9@sha256:a49d51e1f436cd8336fcebc82985f99aacb8adff8b9032489afea1b1fa1dab2e
                 - name: OPERAND_IMAGE_SEARCH_COLLECTOR
-                  value: registry.redhat.io/rhacm2/search-collector-rhel9@sha256:4d6e017a14861da62f2a28b9c6a2a2e4e61f7047e344e4ac95be97d4e264602d
+                  value: registry.redhat.io/rhacm2/search-collector-rhel9@sha256:18eb3f6dd0894ca972b9af28bbc7ce1463cbb3dfb68049bc6858313af32e4dd4
                 - name: OPERAND_IMAGE_SEARCH_INDEXER
-                  value: registry.redhat.io/rhacm2/acm-search-indexer-rhel9@sha256:49a83037e765c00bbe73dfca2c4c8021d729423771f3e240190b8307c690c40a
+                  value: registry.redhat.io/rhacm2/acm-search-indexer-rhel9@sha256:7837d7eaaadcd665fd9744e536d0fcf0dd98817f1e496eb61f97a70848ac11af
                 - name: OPERAND_IMAGE_SEARCH_V2_API
-                  value: registry.redhat.io/rhacm2/acm-search-v2-api-rhel9@sha256:c47bfb7be56d9926162e15397e77a2c73261bcf5e3500820a31fcc7d682c427d
+                  value: registry.redhat.io/rhacm2/acm-search-v2-api-rhel9@sha256:d36158f8bad0f2250a793ab5a129a8940149c32dcf9105907fe1e66f749506e4
                 - name: OPERAND_IMAGE_SEARCH_V2_OPERATOR
-                  value: registry.redhat.io/rhacm2/acm-search-v2-rhel9@sha256:b60538c0f47f26bca157678f9db8df9f4b953e1bbca5e919f3c903dded0fbe86
+                  value: registry.redhat.io/rhacm2/acm-search-v2-rhel9@sha256:e6bbabdf4bcb75d61b3e61779672ae41fb4a160cdcadb56a3d013bd5b7d2135c
                 - name: OPERAND_IMAGE_SITECONFIG_OPERATOR
                   value: registry.redhat.io/rhacm2/acm-siteconfig-rhel9@sha256:0d227dfb6518322edc8e5139300de71e948a2df0c8a276aab20bfa62597eeb09
                 - name: OPERAND_IMAGE_SUBMARINER_ADDON
@@ -2449,10 +2521,10 @@ spec:
                 - name: OPERAND_IMAGE_VOLSYNC
                   value: registry.redhat.io/rhacm2/volsync-rhel9@sha256:96ef18e6faf8d45ad7982a5e1284debc08a7e37c05458b02b9b779b10ef1bfe6
                 - name: OPERATOR_VERSION
-                  value: 2.14.0-29
+                  value: 2.14.0-30
                 - name: OPERATOR_PACKAGE
                   value: advanced-cluster-management
-                image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:be67b1c686376694531f9f4baddaf2970efa122ad0683cc818e7a50884d782e7
+                image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:caaa212cf3299e6f44d6f5a85fcaadf6b54f948218c5851beb8ba8c9117d63d2
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -2507,13 +2579,13 @@ spec:
   - name: cluster_permission
     image: registry.redhat.io/rhacm2/acm-cluster-permission-rhel9@sha256:ad5532c744724b0c5513f935046e6137791e01b25746b7db1df8a3e5ec6f9ee6
   - name: config_policy_controller
-    image: registry.redhat.io/rhacm2/config-policy-controller-rhel9@sha256:ba888d8a6495be7c16c75556e1931b55f6ae01bd482550b1c083644b35d49310
+    image: registry.redhat.io/rhacm2/config-policy-controller-rhel9@sha256:8d488952896cde5ce44e0bc3322033e00d4b850e0271a09bc34ccf2c7c6ec37c
   - name: console
     image: registry.redhat.io/rhacm2/console-rhel9@sha256:21686af2a3b2039e301c409d8acc3e37822564d510fb02a60cb275859ace0e1b
   - name: endpoint_monitoring_operator
     image: registry.redhat.io/rhacm2/endpoint-monitoring-rhel9-operator@sha256:d1cefb8a16a9eab826d58053d6cba53d56863faf8f5fdfe215130430416ed55c
   - name: governance_policy_addon_controller
-    image: registry.redhat.io/rhacm2/acm-governance-policy-addon-controller-rhel9@sha256:782158d36556833f8873cd3177e5716f8542bbf374730f92ce747d5e4a52827b
+    image: registry.redhat.io/rhacm2/acm-governance-policy-addon-controller-rhel9@sha256:ee8961a8c6a79bde48f557b5383a2de4d43c72dff782429eb95e7d3b7d199eeb
   - name: governance_policy_framework_addon
     image: registry.redhat.io/rhacm2/acm-governance-policy-framework-addon-rhel9@sha256:3dcc2e4af44e781d511a777e8fbf6865646b028c3d0ded9df8ce5964bee2e397
   - name: governance_policy_propagator
@@ -2565,13 +2637,13 @@ spec:
   - name: rbac_query_proxy
     image: registry.redhat.io/rhacm2/rbac-query-proxy-rhel9@sha256:a49d51e1f436cd8336fcebc82985f99aacb8adff8b9032489afea1b1fa1dab2e
   - name: search_collector
-    image: registry.redhat.io/rhacm2/search-collector-rhel9@sha256:4d6e017a14861da62f2a28b9c6a2a2e4e61f7047e344e4ac95be97d4e264602d
+    image: registry.redhat.io/rhacm2/search-collector-rhel9@sha256:18eb3f6dd0894ca972b9af28bbc7ce1463cbb3dfb68049bc6858313af32e4dd4
   - name: search_indexer
-    image: registry.redhat.io/rhacm2/acm-search-indexer-rhel9@sha256:49a83037e765c00bbe73dfca2c4c8021d729423771f3e240190b8307c690c40a
+    image: registry.redhat.io/rhacm2/acm-search-indexer-rhel9@sha256:7837d7eaaadcd665fd9744e536d0fcf0dd98817f1e496eb61f97a70848ac11af
   - name: search_v2_api
-    image: registry.redhat.io/rhacm2/acm-search-v2-api-rhel9@sha256:c47bfb7be56d9926162e15397e77a2c73261bcf5e3500820a31fcc7d682c427d
+    image: registry.redhat.io/rhacm2/acm-search-v2-api-rhel9@sha256:d36158f8bad0f2250a793ab5a129a8940149c32dcf9105907fe1e66f749506e4
   - name: search_v2_operator
-    image: registry.redhat.io/rhacm2/acm-search-v2-rhel9@sha256:b60538c0f47f26bca157678f9db8df9f4b953e1bbca5e919f3c903dded0fbe86
+    image: registry.redhat.io/rhacm2/acm-search-v2-rhel9@sha256:e6bbabdf4bcb75d61b3e61779672ae41fb4a160cdcadb56a3d013bd5b7d2135c
   - name: siteconfig_operator
     image: registry.redhat.io/rhacm2/acm-siteconfig-rhel9@sha256:0d227dfb6518322edc8e5139300de71e948a2df0c8a276aab20bfa62597eeb09
   - name: submariner_addon
