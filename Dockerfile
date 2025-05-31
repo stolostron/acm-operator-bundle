@@ -15,15 +15,11 @@ LABEL com.redhat.delivery.operator.bundle="true" \
 
 LABEL com.redhat.component="acm-operator-bundle-container" \
       name="rhacm2/acm-operator-bundle" \
-      version="2.14.0-81" \
+      version="2.14.0-82" \
       summary="acm-operator-bundle" \
       io.openshift.expose-services="" \
       io.openshift.tags="data,images" \
       io.k8s.display-name="acm-operator-bundle" \
-      io.k8s.description="Operator bundle for Red Hat Advanced Cluster Management"  \
       maintainer="['acm-component-maintainers@redhat.com']" \
       description="acm-operator-bundle" \
-      konflux.additional-tags="v2.14.0-81,snapshot-release-acm-214-w6fcm" \
-      url="https://github.com/stolostron/mce-operator-bundle" \
-      release="0" \
-      distribution-scope="public"
+      konflux.additional-tags="v2.14.0-82,snapshot-release-acm-214-kh8xj"
