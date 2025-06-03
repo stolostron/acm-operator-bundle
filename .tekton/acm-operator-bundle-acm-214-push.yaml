@@ -247,7 +247,7 @@ spec:
             value: $(params.build-image-index)
           - name: IMAGES
             value:
-              - $(tasks.build-images.results.IMAGE_REF[*])
+              - $(tasks.build-container.results.IMAGE_URL)@$(tasks.build-container.results.IMAGE_DIGEST)
         runAfter:
           - build-container
         taskRef:
