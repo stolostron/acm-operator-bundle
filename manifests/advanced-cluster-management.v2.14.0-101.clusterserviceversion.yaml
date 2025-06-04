@@ -8,7 +8,7 @@ metadata:
     categories: Integration & Delivery
     certified: 'true'
     support: Red Hat
-    createdAt: '2025-06-04T13:13:32Z'
+    createdAt: '2025-06-04T13:59:02Z'
     description: Advanced provisioning and management of OpenShift and Kubernetes clusters
     operatorframework.io/suggested-namespace: open-cluster-management
     operatorframework.io/initialization-resource: '{"apiVersion":"operator.open-cluster-management.io/v1",
@@ -27,8 +27,8 @@ metadata:
     features.operators.openshift.io/token-auth-aws: 'false'
     features.operators.openshift.io/token-auth-azure: 'false'
     features.operators.openshift.io/token-auth-gcp: 'false'
-    olm.skipRange: '>=2.13.0 <2.14.0-100'
-  name: advanced-cluster-management.v2.14.0-100
+    olm.skipRange: '>=2.13.0 <2.14.0-101'
+  name: advanced-cluster-management.v2.14.0-101
   namespace: placeholder
   labels:
     operatorframework.io/arch.amd64: supported
@@ -38,7 +38,7 @@ metadata:
     operatorframework.io/os.linux: supported
 spec:
   displayName: Advanced Cluster Management for Kubernetes
-  version: 2.14.0-100
+  version: 2.14.0-101
   provider:
     name: Red Hat
   maintainers:
@@ -2513,10 +2513,12 @@ spec:
                   value: registry.redhat.io/rhel8/postgresql-16@sha256:af5ae6636ffe070f06fec62d3098f6eb9471464856651a1b3f5c2b1c8dee4f1e
                 - name: OPERAND_IMAGE_MEMCACHED
                   value: registry.redhat.io/rhel9/memcached@sha256:b39f4ad63c694b76ac87ca168155cdcdff8d575d143ab941c2e068a68b30235c
+                - name: OPERAND_IMAGE_OSE_KUBE_RBAC_PROXY
+                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:d37a6d10b0fa07370066a31fdaffe2ea553faf4e4e98be7fcef5ec40d62ffe29
                 - name: OPERAND_IMAGE_VOLSYNC
-                  value: registry.redhat.io/rhacm2/volsync-rhel9@sha256:96ef18e6faf8d45ad7982a5e1284debc08a7e37c05458b02b9b779b10ef1bfe6
+                  value: registry.redhat.io/rhacm2/volsync-rhel9@sha256:0000000000000000000000000000000000000000000000000000000000000000
                 - name: OPERATOR_VERSION
-                  value: 2.14.0-100
+                  value: 2.14.0-101
                 - name: OPERATOR_PACKAGE
                   value: advanced-cluster-management
                 image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:f1e2e2569c222321f4da84d1f6bebd0a8b68e4f1dbedf0edf77dfcf50b30e30f
@@ -2671,5 +2673,7 @@ spec:
     image: registry.redhat.io/rhel8/postgresql-16@sha256:af5ae6636ffe070f06fec62d3098f6eb9471464856651a1b3f5c2b1c8dee4f1e
   - name: memcached
     image: registry.redhat.io/rhel9/memcached@sha256:b39f4ad63c694b76ac87ca168155cdcdff8d575d143ab941c2e068a68b30235c
+  - name: ose_kube_rbac_proxy
+    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:d37a6d10b0fa07370066a31fdaffe2ea553faf4e4e98be7fcef5ec40d62ffe29
   - name: volsync
-    image: registry.redhat.io/rhacm2/volsync-rhel9@sha256:96ef18e6faf8d45ad7982a5e1284debc08a7e37c05458b02b9b779b10ef1bfe6
+    image: registry.redhat.io/rhacm2/volsync-rhel9@sha256:0000000000000000000000000000000000000000000000000000000000000000
