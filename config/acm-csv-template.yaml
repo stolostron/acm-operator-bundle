@@ -15,6 +15,9 @@ metadata:
        "spec": {}}'
     operators.openshift.io/valid-subscription: '["OpenShift Platform Plus", "Red Hat Advanced Cluster Management for Kubernetes"]'
     operators.openshift.io/infrastructure-features: '["disconnected", "proxy-aware", "fips"]'
+    features.operators.openshift.io/cnf: "false"
+    features.operators.openshift.io/cni: "false"
+    features.operators.openshift.io/csi: "false"
     features.operators.openshift.io/disconnected: "true"
     features.operators.openshift.io/proxy-aware: "true"
     features.operators.openshift.io/fips-compliant: "true"
@@ -108,20 +111,6 @@ spec:
 
     If you are creating the `MultiClusterHub` resource using the OperatorHub UI, switch to
     the YAML view for the resource in order to insert the annotation.
-
-    #### Upgrading from release 2.4
-
-    The special considerations described above also apply when upgrading from
-    Red Hat Advanced Cluster Management for Kubernetes release 2.4.
-
-    - If you are using a filtered mirror catalog, update your catalog-building procedures to
-      ensure that the `multicluster-engine` package is included in your mirror catalog.
-
-    - Before changing the update channel to trigger the update, edit your existing
-      `MultiClusterHub` resource to add the `mce-subscription-spec` annotation as shown
-       in the example above so that the upgraded version of the
-       Red Hat Advanced Cluster Management for Kubernetes knows the correct catalog source
-       to use to find the `multicluster-engine` package.
 
     ### Where to find more installation information
 

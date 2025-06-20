@@ -1,30 +1,27 @@
 # This Bash fragment is sourced by various scripts.
 #
 # Its job is to set a bunch of configuration variables as expected by the
-# bundle manifest generation scripts that source it.  Because it is Bash, you
-# can use any Bash constructs you want here, but be careful  about setting
+# bundle manifest generation scripts that source it. Because it is Bash, you
+# can use any Bash constructs you want here, but be careful about setting
 # variables that might break the sourcing script.
 
 #--------------------------------------------------------------------
-# Config properties that are unique for each prodct (ACM vs. MCE)
+# Config properties that are unique for each product (ACM vs. MCE)
 # and often/occasionally differ release-to-release.
 #
 # Be sure to consider these settings in release-to-release cutovers.
 #--------------------------------------------------------------------
 
 # List or range of OCP versions to which bundles should be published.
-# Note: This variable is used/effective only for CPASS builds.  For Konflux
+# Note: This variable is used/effective only for CPASS builds. For Konflux
 # builds, this range is now set in configuration files for the catalog
 # generation steps.
 
-# Note: ACM 2.14 is compatible with OCP 4.19.
+# Note: ACM 2.15 is compatible with OCP 4.20.
 # Official support covers [N+1, N-2], with [N-3/4] allowed as an exception.
-ocp_versions="v4.16-v4.20"
+ocp_versions="v4.17-v4.21"
 
-# When non-zero, a build-number/iteration suffix is added to CSV/bundle versions
-add_iteration_suffix=1
-
-# Specify the list of architectures and operating systems we support.
+# Specify the lists of architectures and operating systems we support.
 
 # Since ACM 1.0:
 cfg_supported_op_syss=("linux")
@@ -45,7 +42,7 @@ cfg_first_eus_release_xy=2.11
 cfg_eus_release_cadence=2
 
 #-----------------------------------------------------------------
-# Config properties that are unique for each prodct (ACM vs. MCE)
+# Config properties that are unique for each product (ACM vs. MCE)
 # but usually constant across releases of the product.
 #-----------------------------------------------------------------
 
@@ -53,7 +50,7 @@ cfg_eus_release_cadence=2
 
 cfg_pkg_name="advanced-cluster-management"
 cfg_short_display_name="ACM"
-olm_package="$cfg_pkg_name"   # Alternate name for this config variable
+olm_package="$cfg_pkg_name" # Alternate name for this config variable
 
 # Pathname (in bundle repo) of the CSV template file.
 cfg_csv_template="config/acm-csv-template.yaml"
@@ -82,4 +79,3 @@ add_iteration_suffix=1
 
 # Pathname (in tools repo) of the script that generates the image manifest.
 image_manifest_gen_script="tools/konflux/bundle/generate-image-manifest.py"
-
