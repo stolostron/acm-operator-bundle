@@ -14,10 +14,12 @@ jobs:
     strategy:
         fail-fast: false # If one jobs fail, we still want the other jobs to run.
         matrix:
-          branch: ['release-2.14']
+          branch: ['release-2.14', 'release-2.15']
           include:
             - branch: release-2.14
               release-plan: "stage-publish-acm-214"
+            - branch: release-2.15
+              release-plan: "dev-publish-acm-215"
 
     steps:
       - name: Checkout tooling branch
