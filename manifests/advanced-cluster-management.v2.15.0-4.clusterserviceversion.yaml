@@ -8,7 +8,7 @@ metadata:
     categories: Integration & Delivery
     certified: 'true'
     support: Red Hat
-    createdAt: '2025-07-23T17:55:52Z'
+    createdAt: '2025-07-24T19:57:10Z'
     description: Advanced provisioning and management of OpenShift and Kubernetes clusters
     operatorframework.io/suggested-namespace: open-cluster-management
     operatorframework.io/initialization-resource: '{"apiVersion":"operator.open-cluster-management.io/v1",
@@ -28,8 +28,8 @@ metadata:
     features.operators.openshift.io/token-auth-aws: 'false'
     features.operators.openshift.io/token-auth-azure: 'false'
     features.operators.openshift.io/token-auth-gcp: 'false'
-    olm.skipRange: '>=2.13.0 <2.15.0-3'
-  name: advanced-cluster-management.v2.15.0-3
+    olm.skipRange: '>=2.13.0 <2.15.0-4'
+  name: advanced-cluster-management.v2.15.0-4
   namespace: placeholder
   labels:
     operatorframework.io/arch.amd64: supported
@@ -39,7 +39,7 @@ metadata:
     operatorframework.io/os.linux: supported
 spec:
   displayName: Advanced Cluster Management for Kubernetes
-  version: 2.15.0-3
+  version: 2.15.0-4
   provider:
     name: Red Hat
   maintainers:
@@ -2444,6 +2444,8 @@ spec:
                   value: registry.redhat.io/rhacm2/memcached-exporter-rhel9@sha256:2215c3a85feea737b2cd0a425b28758ba8e263756a416fcdff829ab1bd9eac90
                 - name: OPERAND_IMAGE_METRICS_COLLECTOR
                   value: registry.redhat.io/rhacm2/metrics-collector-rhel9@sha256:14ec0a74a4c92ac1a457996b92b76e4e84b77b3c5a47c35fc1986aa43e8739f6
+                - name: OPERAND_IMAGE_MTV_INTEGRATIONS
+                  value: registry.redhat.io/rhacm2/mtv-integrations-rhel9@sha256:9898c5ea8fdad64a1d6a658c309d6ba55a245e9c29e40061180a6e4a1a7c1bda
                 - name: OPERAND_IMAGE_MULTICLOUD_INTEGRATIONS
                   value: registry.redhat.io/rhacm2/multicloud-integrations-rhel9@sha256:7f3a30be7782c4c2974bb21bf072a21a9e3385e75bd36f7d07a766416bbbb2ea
                 - name: OPERAND_IMAGE_MULTICLUSTER_OBSERVABILITY_ADDON
@@ -2518,8 +2520,10 @@ spec:
                   value: registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:ee742e7baa8bcbbfccf79abcf15d22347d14f280eafaf22c42cef71051b10fba
                 - name: OPERAND_IMAGE_VOLSYNC
                   value: registry.redhat.io/rhacm2/volsync-rhel9@sha256:90d399736ca81bb244415efaf05738beff806912a6ac7444a7d4839089b7a081
+                - name: OPERAND_IMAGE_MTV-INTEGRATIONS
+                  value: registry.redhat.io/rhacm2/mtv-integrations@sha256:afdfbc3f3744a6cba36d462826a77591346b1bc126f313c40236c7a34ded9872
                 - name: OPERATOR_VERSION
-                  value: 2.15.0-3
+                  value: 2.15.0-4
                 - name: OPERATOR_PACKAGE
                   value: advanced-cluster-management
                 image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:180e25e0c801e62dfb0c4f9ffc3ed1af76d5af52ae84eb727c6ffc614fcaca17
@@ -2606,6 +2610,8 @@ spec:
     image: registry.redhat.io/rhacm2/memcached-exporter-rhel9@sha256:2215c3a85feea737b2cd0a425b28758ba8e263756a416fcdff829ab1bd9eac90
   - name: metrics_collector
     image: registry.redhat.io/rhacm2/metrics-collector-rhel9@sha256:14ec0a74a4c92ac1a457996b92b76e4e84b77b3c5a47c35fc1986aa43e8739f6
+  - name: mtv_integrations
+    image: registry.redhat.io/rhacm2/mtv-integrations-rhel9@sha256:9898c5ea8fdad64a1d6a658c309d6ba55a245e9c29e40061180a6e4a1a7c1bda
   - name: multicloud_integrations
     image: registry.redhat.io/rhacm2/multicloud-integrations-rhel9@sha256:7f3a30be7782c4c2974bb21bf072a21a9e3385e75bd36f7d07a766416bbbb2ea
   - name: multicluster_observability_addon
@@ -2678,3 +2684,5 @@ spec:
     image: registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:ee742e7baa8bcbbfccf79abcf15d22347d14f280eafaf22c42cef71051b10fba
   - name: volsync
     image: registry.redhat.io/rhacm2/volsync-rhel9@sha256:90d399736ca81bb244415efaf05738beff806912a6ac7444a7d4839089b7a081
+  - name: mtv-integrations
+    image: registry.redhat.io/rhacm2/mtv-integrations@sha256:afdfbc3f3744a6cba36d462826a77591346b1bc126f313c40236c7a34ded9872
