@@ -8,7 +8,7 @@ metadata:
     categories: Integration & Delivery
     certified: 'true'
     support: Red Hat
-    createdAt: '2025-07-15T16:35:09Z'
+    createdAt: '2025-07-25T02:10:33Z'
     description: Advanced provisioning and management of OpenShift and Kubernetes clusters
     operatorframework.io/suggested-namespace: open-cluster-management
     operatorframework.io/initialization-resource: '{"apiVersion":"operator.open-cluster-management.io/v1",
@@ -17,6 +17,7 @@ metadata:
     operators.openshift.io/valid-subscription: '["OpenShift Platform Plus", "Red Hat Advanced Cluster
       Management for Kubernetes"]'
     operators.openshift.io/infrastructure-features: '["disconnected", "proxy-aware", "fips"]'
+    repository: https://github.com/open-cluster-management/multiclusterhub-operator
     features.operators.openshift.io/cnf: 'false'
     features.operators.openshift.io/cni: 'false'
     features.operators.openshift.io/csi: 'false'
@@ -2492,7 +2493,7 @@ spec:
                 - name: OPERAND_IMAGE_VOLSYNC_ADDON_CONTROLLER
                   value: registry.redhat.io/rhacm2/acm-volsync-addon-controller-rhel9@sha256:e063c54c7182b70d78d24b5026f174436885383980c9b1e3e7664fa2adfad883
                 - name: OPERAND_IMAGE_CONFIGMAP_RELOADER
-                  value: registry.redhat.io/openshift4/ose-configmap-reloader-rhel9@sha256:c67decf44185c2b536c2e4afd7adaff053157538c154722e6741e0052f4f2b26
+                  value: registry.redhat.io/openshift4/ose-configmap-reloader-rhel9@sha256:c2ef90b4704251dc9f7ef5288f5bad7aeb4cd2b3706ec531c60f6f4346073a77
                 - name: OPERAND_IMAGE_FLIGHTCTL_API
                   value: registry.redhat.io/rhem/flightctl-api-rhel9@sha256:83c6c7819e04aa58d961518367ce6ad3159a28300ca097967f630044d181be34
                 - name: OPERAND_IMAGE_FLIGHTCTL_OCP_UI
@@ -2506,15 +2507,15 @@ spec:
                 - name: OPERAND_IMAGE_FLIGHTCTL_CLI_ARTIFACTS
                   value: registry.redhat.io/rhem/flightctl-cli-artifacts-rhel9@sha256:3491ec932d90112e89f3a4cebe5bdd9ed6a7811f116df43bab8bb5f827129361
                 - name: OPERAND_IMAGE_ORIGIN_CLI
-                  value: registry.redhat.io/openshift4/ose-cli-rhel9@sha256:2bc7ba0ff29191952dbd7bff883b378c868b3728f4cd1b491e23ef4c593e0bde
+                  value: registry.redhat.io/openshift4/ose-cli-rhel9@sha256:a48758b69b9a7451b7e0caea465a181f854b41f1e74ce86c15216ee1bb31fcb9
                 - name: OPERAND_IMAGE_REDIS_7_C9S
-                  value: registry.redhat.io/rhel9/redis-7@sha256:a3bb7c5987829cf7d886d9418ac24f55783de71a6cbbbcde0fa17e609bb58a2e
+                  value: registry.redhat.io/rhel9/redis-7@sha256:ff31822cba556e40b6b00720839cc56f474fdb9257fb39b7604fafc11761d379
                 - name: OPERAND_IMAGE_POSTGRESQL_16
-                  value: registry.redhat.io/rhel8/postgresql-16@sha256:af5ae6636ffe070f06fec62d3098f6eb9471464856651a1b3f5c2b1c8dee4f1e
+                  value: registry.redhat.io/rhel8/postgresql-16@sha256:d4abbd9492347e0aa7e1b0ff967e74d4b6a4edd6fd20d896f2f2ae03c623181c
                 - name: OPERAND_IMAGE_MEMCACHED
-                  value: registry.redhat.io/rhel9/memcached@sha256:200461278f3b291b0a77cf8fddd32100aecaad96d1e55b6bfbb423944096c53a
+                  value: registry.redhat.io/rhel9/memcached@sha256:955138db9a7a23ee31198aabebd0811438fee11bb0b624c38ddb90efe52bd07c
                 - name: OPERAND_IMAGE_OSE_KUBE_RBAC_PROXY
-                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:d37a6d10b0fa07370066a31fdaffe2ea553faf4e4e98be7fcef5ec40d62ffe29
+                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:ee742e7baa8bcbbfccf79abcf15d22347d14f280eafaf22c42cef71051b10fba
                 - name: OPERAND_IMAGE_VOLSYNC
                   value: registry.redhat.io/rhacm2/volsync-rhel9@sha256:90d399736ca81bb244415efaf05738beff806912a6ac7444a7d4839089b7a081
                 - name: OPERATOR_VERSION
@@ -2652,7 +2653,7 @@ spec:
   - name: volsync_addon_controller
     image: registry.redhat.io/rhacm2/acm-volsync-addon-controller-rhel9@sha256:e063c54c7182b70d78d24b5026f174436885383980c9b1e3e7664fa2adfad883
   - name: configmap_reloader
-    image: registry.redhat.io/openshift4/ose-configmap-reloader-rhel9@sha256:c67decf44185c2b536c2e4afd7adaff053157538c154722e6741e0052f4f2b26
+    image: registry.redhat.io/openshift4/ose-configmap-reloader-rhel9@sha256:c2ef90b4704251dc9f7ef5288f5bad7aeb4cd2b3706ec531c60f6f4346073a77
   - name: flightctl_api
     image: registry.redhat.io/rhem/flightctl-api-rhel9@sha256:83c6c7819e04aa58d961518367ce6ad3159a28300ca097967f630044d181be34
   - name: flightctl_ocp_ui
@@ -2666,14 +2667,14 @@ spec:
   - name: flightctl_cli_artifacts
     image: registry.redhat.io/rhem/flightctl-cli-artifacts-rhel9@sha256:3491ec932d90112e89f3a4cebe5bdd9ed6a7811f116df43bab8bb5f827129361
   - name: origin_cli
-    image: registry.redhat.io/openshift4/ose-cli-rhel9@sha256:2bc7ba0ff29191952dbd7bff883b378c868b3728f4cd1b491e23ef4c593e0bde
+    image: registry.redhat.io/openshift4/ose-cli-rhel9@sha256:a48758b69b9a7451b7e0caea465a181f854b41f1e74ce86c15216ee1bb31fcb9
   - name: redis_7_c9s
-    image: registry.redhat.io/rhel9/redis-7@sha256:a3bb7c5987829cf7d886d9418ac24f55783de71a6cbbbcde0fa17e609bb58a2e
+    image: registry.redhat.io/rhel9/redis-7@sha256:ff31822cba556e40b6b00720839cc56f474fdb9257fb39b7604fafc11761d379
   - name: postgresql_16
-    image: registry.redhat.io/rhel8/postgresql-16@sha256:af5ae6636ffe070f06fec62d3098f6eb9471464856651a1b3f5c2b1c8dee4f1e
+    image: registry.redhat.io/rhel8/postgresql-16@sha256:d4abbd9492347e0aa7e1b0ff967e74d4b6a4edd6fd20d896f2f2ae03c623181c
   - name: memcached
-    image: registry.redhat.io/rhel9/memcached@sha256:200461278f3b291b0a77cf8fddd32100aecaad96d1e55b6bfbb423944096c53a
+    image: registry.redhat.io/rhel9/memcached@sha256:955138db9a7a23ee31198aabebd0811438fee11bb0b624c38ddb90efe52bd07c
   - name: ose_kube_rbac_proxy
-    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:d37a6d10b0fa07370066a31fdaffe2ea553faf4e4e98be7fcef5ec40d62ffe29
+    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:ee742e7baa8bcbbfccf79abcf15d22347d14f280eafaf22c42cef71051b10fba
   - name: volsync
     image: registry.redhat.io/rhacm2/volsync-rhel9@sha256:90d399736ca81bb244415efaf05738beff806912a6ac7444a7d4839089b7a081
