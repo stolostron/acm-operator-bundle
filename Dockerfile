@@ -20,7 +20,11 @@ LABEL com.redhat.component="acm-operator-bundle-container" \
       io.openshift.expose-services="" \
       io.openshift.tags="data,images" \
       io.k8s.display-name="acm-operator-bundle" \
+      io.k8s.description="Operator bundle for Red Hat Advanced Cluster Management"  \
       maintainer="['acm-component-maintainers@redhat.com']" \
       description="acm-operator-bundle" \
-      konflux.additional-tags="v2.13.0-1,shapshot-release-acm-213-t79qj"
-
+      konflux.additional-tags="v2.13.0-1,shapshot-release-acm-213-t79qj" \
+      vendor="Red Hat, Inc." \
+      url="https://github.com/stolostron/acm-operator-bundle" \
+      release="${BUNDLE_VERSION}" \
+      distribution-scope="public"
