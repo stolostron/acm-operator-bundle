@@ -2,7 +2,12 @@
 
 get_latest_release() {
   releasePlan=$1
-  latestRelease=$(oc get releases --sort-by=.metadata.creationTimestamp | grep "Succeeded" | awk '$3 == "'$releasePlan'"' | awk '{ print $1 }' | tail -1)
+  latestRelease=$(
+    oc get releases --sort-by=.metadata.creationTimestamp --selector=pac.test.appstudio.openshift.io/event-type=push |
+      grep "Succeeded" |
+      awk '$3 == "'"${releasePlan}"'"; { print $1 }' |
+      tail -1
+    )
   if [ -n "${latestRelease}" ]; then
     echo "Latest Release: $latestRelease"
     latestSnapshot=$(oc get release $latestRelease -o yaml | yq '.spec.snapshot')
