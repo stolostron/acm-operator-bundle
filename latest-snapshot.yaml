@@ -2,154 +2,114 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/acm-mce-operator-catalogs?rev=41b09ffec3c27b334f7eb65df425f376eaca6600
-    build.appstudio.redhat.com/commit_sha: 41b09ffec3c27b334f7eb65df425f376eaca6600
-    build.appstudio.redhat.com/target_branch: acm-redhat-operators
-    pac.test.appstudio.openshift.io/branch: acm-redhat-operators
+    build.appstudio.openshift.io/repo: https://github.com/openshift/hypershift?rev=70055e0de0cacd457028533a4910f14c53119d43
+    build.appstudio.redhat.com/commit_sha: 70055e0de0cacd457028533a4910f14c53119d43
+    build.appstudio.redhat.com/target_branch: main
+    pac.test.appstudio.openshift.io/branch: main
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "48527685674"
+    pac.test.appstudio.openshift.io/check-run-id: "48593003538"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-vnejdn
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-foogcd
     pac.test.appstudio.openshift.io/git-provider: github
-    pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/acm-fbc-ocm-4-15-prod-on-push-77qmj
+    pac.test.appstudio.openshift.io/installation-id: "35333059"
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/hypershift-operator-main-on-push-kwmc8
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
-    pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
-      == "acm-redhat-operators"
-    pac.test.appstudio.openshift.io/original-prname: acm-fbc-ocm-4-15-prod-on-push
-    pac.test.appstudio.openshift.io/pull-request: "547"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/acm-mce-operator-catalogs
-    pac.test.appstudio.openshift.io/repository: mce-dev-catalog
+    pac.test.appstudio.openshift.io/on-cel-expression: |
+      event == "push"
+      && target_branch == "main"
+      && files.all.exists(x, !x.matches('^(?:docs|examples|enhancements|contrib)/|\\.md$|^(?:.*/)?(?:\\.gitignore|OWNERS|PROJECT|LICENSE|renovate\\.json)$'))
+    pac.test.appstudio.openshift.io/original-prname: hypershift-operator-main-on-push
+    pac.test.appstudio.openshift.io/pull-request: "6616"
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/openshift/hypershift
+    pac.test.appstudio.openshift.io/repository: hypershift-manual-merge
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
-    pac.test.appstudio.openshift.io/sender: rhacm-bundle-bot[bot]
-    pac.test.appstudio.openshift.io/sha: 41b09ffec3c27b334f7eb65df425f376eaca6600
-    pac.test.appstudio.openshift.io/sha-title: Run a catalog build to pick up the
-      latest shipped bundles (#547)
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/acm-mce-operator-catalogs/commit/41b09ffec3c27b334f7eb65df425f376eaca6600
-    pac.test.appstudio.openshift.io/source-branch: refs/heads/acm-redhat-operators
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/acm-mce-operator-catalogs
+    pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
+    pac.test.appstudio.openshift.io/sha: 70055e0de0cacd457028533a4910f14c53119d43
+    pac.test.appstudio.openshift.io/sha-title: 'Merge pull request #6616 from bryan-cox/OCPBUGS-59194'
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/openshift/hypershift/commit/70055e0de0cacd457028533a4910f14c53119d43
+    pac.test.appstudio.openshift.io/source-branch: refs/heads/main
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/openshift/hypershift
     pac.test.appstudio.openshift.io/state: completed
-    pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: acm-mce-operator-catalogs
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-catalog-acm-prod-acm-operator-catalog-prod-97n4w":{"lastUpdateTime":"2025-08-20T20:52:10.451264426Z"}}}'
-    test.appstudio.openshift.io/pipelinerunstarttime: "1755722086"
-    test.appstudio.openshift.io/pr-group: refs/heads/acm-redhat-operators
+    pac.test.appstudio.openshift.io/url-org: openshift
+    pac.test.appstudio.openshift.io/url-repository: hypershift
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"hypershift-operator-enterprise-contract-hypershift-operator-2gb8c":{"lastUpdateTime":"2025-08-21T15:04:31.284805553Z"},"hypershift-operator-main-enterprise-contract-hypershift-operator-2gb8c":{"lastUpdateTime":"2025-08-21T15:04:37.774995547Z"}}}'
+    test.appstudio.openshift.io/pipelinerunstarttime: "1755787674"
+    test.appstudio.openshift.io/pr-group: refs/heads/main
     test.appstudio.openshift.io/snapshot-creation-report: BuildPLRInProgress
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/acm-mce-operator-catalogs
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-catalog-acm-prod","status":"TestPassed","lastUpdateTime":"2025-08-20T20:52:10.451264426Z","details":"Integration
-      test passed","startTime":"2025-08-20T20:51:30.467434752Z","completionTime":"2025-08-20T20:52:10.451264426Z","testPipelineRunName":"enterprise-contract-catalog-acm-prod-nswch"}]'
-  creationTimestamp: "2025-08-20T20:51:30Z"
-  generateName: acm-operator-catalog-prod-
+    test.appstudio.openshift.io/source-repo-url: https://github.com/openshift/hypershift
+    test.appstudio.openshift.io/status: '[{"scenario":"hypershift-operator-main-enterprise-contract","status":"TestPassed","lastUpdateTime":"2025-08-21T15:04:37.774995547Z","details":"Integration
+      test passed","startTime":"2025-08-21T15:03:49.850416157Z","completionTime":"2025-08-21T15:04:37.774995547Z","testPipelineRunName":"hypershift-operator-main-enterprise-contract-b5db5"},{"scenario":"hypershift-operator-enterprise-contract","status":"TestPassed","lastUpdateTime":"2025-08-21T15:04:31.284805553Z","details":"Integration
+      test passed","startTime":"2025-08-21T15:03:49.825816842Z","completionTime":"2025-08-21T15:04:31.284805553Z","testPipelineRunName":"hypershift-operator-enterprise-contract-pgmvn"}]'
+  creationTimestamp: "2025-08-21T15:03:49Z"
+  generateName: hypershift-operator-
   generation: 1
   labels:
-    appstudio.openshift.io/application: acm-operator-catalog-prod
-    appstudio.openshift.io/build-pipelinerun: acm-fbc-ocm-4-15-prod-on-push-77qmj
-    appstudio.openshift.io/component: acm-fbc-ocm-4-15-prod
+    appstudio.openshift.io/application: hypershift-operator
+    appstudio.openshift.io/build-pipelinerun: hypershift-operator-main-on-push-kwmc8
+    appstudio.openshift.io/component: hypershift-operator-main
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "48527685674"
+    pac.test.appstudio.openshift.io/check-run-id: "48593003538"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: acm-fbc-ocm-4-15-prod-on-push
-    pac.test.appstudio.openshift.io/pull-request: "547"
-    pac.test.appstudio.openshift.io/repository: mce-dev-catalog
-    pac.test.appstudio.openshift.io/sha: 41b09ffec3c27b334f7eb65df425f376eaca6600
+    pac.test.appstudio.openshift.io/original-prname: hypershift-operator-main-on-push
+    pac.test.appstudio.openshift.io/pull-request: "6616"
+    pac.test.appstudio.openshift.io/repository: hypershift-manual-merge
+    pac.test.appstudio.openshift.io/sha: 70055e0de0cacd457028533a4910f14c53119d43
     pac.test.appstudio.openshift.io/state: completed
-    pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: acm-mce-operator-catalogs
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1755723085"
-    test.appstudio.openshift.io/pr-group-sha: b632ae2e2157a130eb4b211a60494c20b8ed20494b250c744104d6ac199144
+    pac.test.appstudio.openshift.io/url-org: openshift
+    pac.test.appstudio.openshift.io/url-repository: hypershift
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1755788625"
+    test.appstudio.openshift.io/pr-group-sha: f921bd05e68b03740c450e565e0e6173e546193170b2dd404ddb6f153e9b5b
     test.appstudio.openshift.io/type: component
-  name: acm-operator-catalog-prod-97n4w
+  name: hypershift-operator-2gb8c
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
     blockOwnerDeletion: true
     controller: true
     kind: Application
-    name: acm-operator-catalog-prod
-    uid: 74517f32-f9bf-4069-b205-a130ea461eec
-  resourceVersion: "4836770613"
-  uid: ebd9c165-e530-42c8-8394-d84c46d1517f
+    name: hypershift-operator
+    uid: 707fa676-9cc7-4f0b-a0c0-59a833f0bc74
+  resourceVersion: "4846393416"
+  uid: 3943a6ae-0614-4ee0-b70d-e7cebfeee65a
 spec:
-  application: acm-operator-catalog-prod
+  application: hypershift-operator
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-fbc-ocm-4-14-prod@sha256:869e1b5440cf3223e02e1060c4ccdffca2c8c7301d576d9a04714a97ddc60ca4
-    name: acm-fbc-ocm-4-14-prod
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/ho-hotfix-ocpbugs-58200@sha256:c2b4351a98034cfeae473bf33fff77c72009ba4ac0a1223bfec5c086152c8b33
+    name: ho-hotfix-ocpbugs-58200
     source:
       git:
-        context: ./
-        dockerfileUrl: catalogs/ocp-4.14/Containerfile
-        revision: 41b09ffec3c27b334f7eb65df425f376eaca6600
-        url: https://github.com/stolostron/acm-mce-operator-catalogs
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-fbc-ocm-4-15-prod@sha256:1fe082bb6a32a8fdb0eb06ce50147b8ee58f30a2ca6bb630e6b0177d0fb092fb
-    name: acm-fbc-ocm-4-15-prod
+        dockerfileUrl: /Containerfile.operator
+        revision: 9ac9e19a4964ab1e858bd9f2948bd31be4fc3f19
+        url: https://github.com/openshift/hypershift
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/hypershift-operator/hypershift-operator-main@sha256:f748321229f84e687ea1fdf726248ec6f3ee41a1c1f6b80f81aa7d6065effa3e
+    name: hypershift-operator-main
     source:
       git:
-        revision: 41b09ffec3c27b334f7eb65df425f376eaca6600
-        url: https://github.com/stolostron/acm-mce-operator-catalogs
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-fbc-ocm-4-16-prod@sha256:05a4dfadfdfff1a1b77dcb88910bddcc2ba60fdd916a952486a6cf1de7d0ca5d
-    name: acm-fbc-ocm-4-16-prod
-    source:
-      git:
-        context: ./
-        dockerfileUrl: catalogs/ocp-4.16/Containerfile
-        revision: 41b09ffec3c27b334f7eb65df425f376eaca6600
-        url: https://github.com/stolostron/acm-mce-operator-catalogs
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-fbc-ocm-4-17-prod@sha256:341129e3eb1dd474d55dafc740203920723200d4ce6a453699ec4eac796a9e46
-    name: acm-fbc-ocm-4-17-prod
-    source:
-      git:
-        context: ./
-        dockerfileUrl: catalogs/ocp-4.17/Containerfile
-        revision: 41b09ffec3c27b334f7eb65df425f376eaca6600
-        url: https://github.com/stolostron/acm-mce-operator-catalogs
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-fbc-ocm-4-18-prod@sha256:1bb7ea31a50b062fd68f79e0e37df5c412a25cce1eda3bd124cc23d935f68dc9
-    name: acm-fbc-ocm-4-18-prod
-    source:
-      git:
-        context: ./
-        dockerfileUrl: catalogs/ocp-4.18/Containerfile
-        revision: 41b09ffec3c27b334f7eb65df425f376eaca6600
-        url: https://github.com/stolostron/acm-mce-operator-catalogs
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-fbc-ocm-4-19-prod@sha256:d1947eb69b4532a9c02d6405fdc45b2de8484f4bf8a45523c3f176a0e67d93fe
-    name: acm-fbc-ocm-4-19-prod
-    source:
-      git:
-        context: ./
-        dockerfileUrl: catalogs/ocp-4.19/Containerfile
-        revision: 41b09ffec3c27b334f7eb65df425f376eaca6600
-        url: https://github.com/stolostron/acm-mce-operator-catalogs
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-fbc-ocm-4-12-prod@sha256:abbee5a02780085658e0354cbbd2ce0b157accea9a565e82f30f3b21add254ac
-    name: acm-fbc-ocm-4-12-prod
-    source:
-      git:
-        context: ./
-        dockerfileUrl: catalogs/ocp-4.12/Containerfile
-        revision: 41b09ffec3c27b334f7eb65df425f376eaca6600
-        url: https://github.com/stolostron/acm-mce-operator-catalogs
+        revision: 70055e0de0cacd457028533a4910f14c53119d43
+        url: https://github.com/openshift/hypershift
 status:
   conditions:
-  - lastTransitionTime: "2025-08-20T20:51:30Z"
+  - lastTransitionTime: "2025-08-21T15:03:49Z"
     message: The Snapshot's component(s) was/were added to the global candidate list
     reason: Added
     status: "True"
     type: AddedToGlobalCandidateList
-  - lastTransitionTime: "2025-08-20T20:52:10Z"
+  - lastTransitionTime: "2025-08-21T15:04:37Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2025-08-20T20:52:10Z"
+  - lastTransitionTime: "2025-08-21T15:04:37Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2025-08-20T20:52:10Z"
-    message: Skipping auto-release of the Snapshot because no ReleasePlans have the
-      'auto-release' label set to 'true'
+  - lastTransitionTime: "2025-08-21T15:04:38Z"
+    message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
     type: AutoReleased
