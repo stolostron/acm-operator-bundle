@@ -2,142 +2,108 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/openshift/hypershift?rev=07c758448b05ed3eb5892c13b4b08ba65f77adc1
-    build.appstudio.redhat.com/commit_sha: 07c758448b05ed3eb5892c13b4b08ba65f77adc1
+    build.appstudio.openshift.io/repo: https://github.com/openshift/hypershift?rev=83f98cb7f38b8c687b06edd24277d1b96d7c0e1e
+    build.appstudio.redhat.com/commit_sha: 83f98cb7f38b8c687b06edd24277d1b96d7c0e1e
     build.appstudio.redhat.com/target_branch: main
     pac.test.appstudio.openshift.io/branch: main
-    pac.test.appstudio.openshift.io/check-run-id: "48624366391"
+    pac.test.appstudio.openshift.io/cancel-in-progress: "false"
+    pac.test.appstudio.openshift.io/check-run-id: "48635808196"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-zgugvo
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-wodjwp
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35333059"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/control-plane-operator-main-on-push-zfl6s
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/hypershift-operator-main-on-push-tknz2
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: |
       event == "push"
       && target_branch == "main"
-      && ( "control-plane-operator/***".pathChanged() ||
-           "support/***".pathChanged() ||
-           ".tekton/control-plane-operator*".pathChanged() ||
-           "/Containerfile.control-plane-operator".pathChanged() )
-    pac.test.appstudio.openshift.io/original-prname: control-plane-operator-main-on-push
+      && files.all.exists(x, !x.matches('^(?:docs|examples|enhancements|contrib)/|\\.md$|^(?:.*/)?(?:\\.gitignore|OWNERS|PROJECT|LICENSE|renovate\\.json)$'))
+    pac.test.appstudio.openshift.io/original-prname: hypershift-operator-main-on-push
     pac.test.appstudio.openshift.io/repo-url: https://github.com/openshift/hypershift
     pac.test.appstudio.openshift.io/repository: hypershift-manual-merge
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
-    pac.test.appstudio.openshift.io/sha: 07c758448b05ed3eb5892c13b4b08ba65f77adc1
-    pac.test.appstudio.openshift.io/sha-title: 'Merge pull request #6686 from RomanBednar/STOR-1064'
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/openshift/hypershift/commit/07c758448b05ed3eb5892c13b4b08ba65f77adc1
+    pac.test.appstudio.openshift.io/sha: 83f98cb7f38b8c687b06edd24277d1b96d7c0e1e
+    pac.test.appstudio.openshift.io/sha-title: 'Merge pull request #6683 from shiftstack/OSASINFRA-3675'
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/openshift/hypershift/commit/83f98cb7f38b8c687b06edd24277d1b96d7c0e1e
     pac.test.appstudio.openshift.io/source-branch: refs/heads/main
     pac.test.appstudio.openshift.io/source-repo-url: https://github.com/openshift/hypershift
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: openshift
     pac.test.appstudio.openshift.io/url-repository: hypershift
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"control-plane-operator-enterprise-contract-control-plane-operator-4zf7t":{"lastUpdateTime":"2025-08-21T21:55:24.704472425Z"}}}'
-    test.appstudio.openshift.io/pipelinerunstarttime: "1755812352"
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"hypershift-operator-enterprise-contract-hypershift-operator-g4sq8":{"lastUpdateTime":"2025-08-22T02:00:27.354412422Z"},"hypershift-operator-main-enterprise-contract-hypershift-operator-g4sq8":{"lastUpdateTime":"2025-08-22T02:00:34.82208678Z"}}}'
+    test.appstudio.openshift.io/pipelinerunstarttime: "1755827037"
     test.appstudio.openshift.io/source-repo-url: https://github.com/openshift/hypershift
-    test.appstudio.openshift.io/status: '[{"scenario":"control-plane-operator-enterprise-contract","status":"TestPassed","lastUpdateTime":"2025-08-21T21:55:24.704472425Z","details":"Integration
-      test passed","startTime":"2025-08-21T21:53:53.165892658Z","completionTime":"2025-08-21T21:55:24.704472425Z","testPipelineRunName":"control-plane-operator-enterprise-contract-2zstv"}]'
-  creationTimestamp: "2025-08-21T21:53:53Z"
-  generateName: control-plane-operator-
+    test.appstudio.openshift.io/status: '[{"scenario":"hypershift-operator-main-enterprise-contract","status":"TestPassed","lastUpdateTime":"2025-08-22T02:00:34.82208678Z","details":"Integration
+      test passed","startTime":"2025-08-22T01:59:41.992622047Z","completionTime":"2025-08-22T02:00:34.82208678Z","testPipelineRunName":"hypershift-operator-main-enterprise-contract-cglq8"},{"scenario":"hypershift-operator-enterprise-contract","status":"TestPassed","lastUpdateTime":"2025-08-22T02:00:27.354412422Z","details":"Integration
+      test passed","startTime":"2025-08-22T01:59:41.972896416Z","completionTime":"2025-08-22T02:00:27.354412422Z","testPipelineRunName":"hypershift-operator-enterprise-contract-zptbv"}]'
+  creationTimestamp: "2025-08-22T01:59:41Z"
+  generateName: hypershift-operator-
   generation: 1
   labels:
-    appstudio.openshift.io/application: control-plane-operator
-    appstudio.openshift.io/build-pipelinerun: control-plane-operator-main-on-push-zfl6s
-    appstudio.openshift.io/component: control-plane-operator-main
-    pac.test.appstudio.openshift.io/check-run-id: "48624366391"
+    appstudio.openshift.io/application: hypershift-operator
+    appstudio.openshift.io/build-pipelinerun: hypershift-operator-main-on-push-tknz2
+    appstudio.openshift.io/component: hypershift-operator-main
+    pac.test.appstudio.openshift.io/cancel-in-progress: "false"
+    pac.test.appstudio.openshift.io/check-run-id: "48635808196"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: control-plane-operator-main-on-push
+    pac.test.appstudio.openshift.io/original-prname: hypershift-operator-main-on-push
     pac.test.appstudio.openshift.io/repository: hypershift-manual-merge
-    pac.test.appstudio.openshift.io/sha: 07c758448b05ed3eb5892c13b4b08ba65f77adc1
+    pac.test.appstudio.openshift.io/sha: 83f98cb7f38b8c687b06edd24277d1b96d7c0e1e
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: openshift
     pac.test.appstudio.openshift.io/url-repository: hypershift
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1755813229"
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1755827977"
     test.appstudio.openshift.io/type: component
-  name: control-plane-operator-4zf7t
+  name: hypershift-operator-g4sq8
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
     blockOwnerDeletion: true
     controller: true
     kind: Application
-    name: control-plane-operator
-    uid: bdd90910-4cb7-45a9-ac7c-0a1583e3f45a
-  resourceVersion: "4849744128"
-  uid: d17730da-88bc-42cb-9d34-0bf0483bf4c0
+    name: hypershift-operator
+    uid: 707fa676-9cc7-4f0b-a0c0-59a833f0bc74
+  resourceVersion: "4851539074"
+  uid: f8f5a927-e850-4813-a8bc-88c4af641709
 spec:
-  application: control-plane-operator
+  application: hypershift-operator
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/control-plane-operator-4-16@sha256:83d38c8a92bdde097567765c12576f9a46ee567e1f4d90292dd443133c791574
-    name: control-plane-operator-4-16
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/hypershift-operator/hypershift-operator-main@sha256:1b290be35d523e652edda65c662e70fa4466e040efa265e065e0c954fbd9c527
+    name: hypershift-operator-main
     source:
       git:
-        dockerfileUrl: /Containerfile.control-plane
-        revision: ee88d933e47a41a8a33124cb00ee5c28b58052f4
+        revision: 83f98cb7f38b8c687b06edd24277d1b96d7c0e1e
         url: https://github.com/openshift/hypershift
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/control-plane-operator-4-17@sha256:33006715cbef8f59fd73f35f33a0523dd38c2010acaf80de79d2e5b83993f836
-    name: control-plane-operator-4-17
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/ho-hotfix-ocpbugs-58200@sha256:c2b4351a98034cfeae473bf33fff77c72009ba4ac0a1223bfec5c086152c8b33
+    name: ho-hotfix-ocpbugs-58200
     source:
       git:
-        dockerfileUrl: /Containerfile.control-plane
-        revision: 3ed5b7b977d97ef68f5495b2f49115a5cabb3fb4
-        url: https://github.com/openshift/hypershift
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/control-plane-operator-4-18@sha256:19ef88099615725a565162ceb79711af76a033d4b3767d9129c5dd75f0c41054
-    name: control-plane-operator-4-18
-    source:
-      git:
-        dockerfileUrl: /Containerfile.control-plane
-        revision: e055b4b383bf7aa60e1dbe29ea436882ced60cc2
-        url: https://github.com/openshift/hypershift
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/control-plane-operator-main@sha256:2a53519d010fd6e35057f318e9eabe08fbebe31aed99dfbf42378eb7cb78296f
-    name: control-plane-operator-main
-    source:
-      git:
-        revision: 07c758448b05ed3eb5892c13b4b08ba65f77adc1
-        url: https://github.com/openshift/hypershift
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/hypershift-cert-hotfix-416-multi@sha256:fe1cd7a3ee6222ab79c93640f0a7e9a009f5662acc36ae0d2127d49591590a54
-    name: hypershift-cert-hotfix-416-multi
-    source:
-      git:
-        revision: 2d2e6071841bb12ff1f41c457889bb44b6fb1cf7
-        url: https://github.com/openshift/hypershift
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/openshift-cert-hotfix-415-multi@sha256:df7c6504c5c96d9f125d926d2f89a476380ff939987b2a76e31bbc45d3901732
-    name: openshift-cert-hotfix-415-multi
-    source:
-      git:
-        dockerfileUrl: Containerfile.control-plane
-        revision: ab45f5df65f19c9e4db4977b0d756c8d87baff0a
-        url: https://github.com/openshift/hypershift
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/control-plane-operator-4-15@sha256:1ea9e88976fb55db0847a7275e7ea574bd9c46c575a9c2d90f6b75bd5590e29b
-    name: control-plane-operator-4-15
-    source:
-      git:
-        dockerfileUrl: /Containerfile.control-plane
-        revision: bdd3d3fc9f3d958e9190c44572b52db5766d6267
+        dockerfileUrl: /Containerfile.operator
+        revision: 9ac9e19a4964ab1e858bd9f2948bd31be4fc3f19
         url: https://github.com/openshift/hypershift
 status:
   conditions:
-  - lastTransitionTime: "2025-08-21T21:53:53Z"
+  - lastTransitionTime: "2025-08-22T01:59:41Z"
     message: The Snapshot's component(s) was/were added to the global candidate list
     reason: Added
     status: "True"
     type: AddedToGlobalCandidateList
-  - lastTransitionTime: "2025-08-21T21:55:24Z"
+  - lastTransitionTime: "2025-08-22T02:00:34Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2025-08-21T21:55:24Z"
+  - lastTransitionTime: "2025-08-22T02:00:34Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2025-08-21T21:55:24Z"
+  - lastTransitionTime: "2025-08-22T02:00:34Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
