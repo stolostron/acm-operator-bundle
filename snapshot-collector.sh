@@ -5,7 +5,7 @@ get_latest_release() {
   latestRelease=$(
     oc get releases --sort-by=.metadata.creationTimestamp --selector=pac.test.appstudio.openshift.io/event-type=push |
       grep "Succeeded" |
-      awk '$3 == "'"${releasePlan}"'"; { print $1 }' |
+      awk '$3 == "'"${releasePlan}"'" { print $1 }' |
       tail -1
     )
   if [ -n "${latestRelease}" ]; then
