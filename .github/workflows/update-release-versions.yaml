@@ -70,25 +70,8 @@ jobs:
           private-key: ${{ secrets.WORKFLOW_BOT_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
 
-      - name: Commit and push changes
+      - name: Create Pull Request
         if: env.version-updated == 'true'
-        run: |
-          git config user.name "${{ vars.WORKFLOW_BOT_GIT_USER || 'github-actions[bot]' }}"
-          git config user.email "${{ vars.WORKFLOW_BOT_GIT_USER || 'github-actions[bot]' }}@users.noreply.github.com"
-          
-          git add Z_RELEASE_VERSION
-          git commit -m "Update Z_RELEASE_VERSION to ${{ steps.parse-mapping.outputs.mapped-version }}
-
-          🤖 Generated with [Claude Code](https://claude.ai/code)
-
-          Co-Authored-By: Claude <noreply@anthropic.com>"
-          
-          git push origin ${{ matrix.branch }}
-        env:
-          GITHUB_TOKEN: ${{ steps.gen-workflow-token.outputs.token }}
-
-      - name: Create Pull Request (alternative)
-        if: env.version-updated == 'true' && vars.USE_PR_FOR_VERSION_UPDATES == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
           branch: "update-z-release-version-${{ matrix.branch }}"
