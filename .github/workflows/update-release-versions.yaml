@@ -1,0 +1,106 @@
+name: Update Z_RELEASE_VERSION in Release Branches
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/release-version-mapping.yaml'
+
+jobs:
+  update-versions:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - branch: release-2.11
+          - branch: release-2.12
+          - branch: release-2.13
+          - branch: release-2.14
+          - branch: release-2.15
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Parse version mapping
+        id: parse-mapping
+        run: |
+          # Parse the YAML mapping file to get the version for this branch
+          MAPPED_VERSION=$(yq eval ".release_mappings[\"${{ matrix.branch }}\"]" .github/release-version-mapping.yaml)
+          echo "mapped-version=$MAPPED_VERSION" >> $GITHUB_OUTPUT
+          echo "Mapped version for ${{ matrix.branch }}: $MAPPED_VERSION"
+
+      - name: Checkout release branch
+        run: |
+          git checkout ${{ matrix.branch }}
+
+      - name: Update Z_RELEASE_VERSION
+        run: |
+          CURRENT_VERSION=""
+          if [[ -f "Z_RELEASE_VERSION" ]]; then
+            CURRENT_VERSION=$(cat Z_RELEASE_VERSION | tr -d '\n\r')
+          fi
+          
+          MAPPED_VERSION="${{ steps.parse-mapping.outputs.mapped-version }}"
+          
+          echo "Current version in ${{ matrix.branch }}: '$CURRENT_VERSION'"
+          echo "Mapped version from main: '$MAPPED_VERSION'"
+          
+          if [[ "$CURRENT_VERSION" != "$MAPPED_VERSION" ]]; then
+            echo "Updating Z_RELEASE_VERSION from '$CURRENT_VERSION' to '$MAPPED_VERSION'"
+            echo "$MAPPED_VERSION" > Z_RELEASE_VERSION
+            echo "version-updated=true" >> $GITHUB_ENV
+          else
+            echo "Version is already up to date"
+            echo "version-updated=false" >> $GITHUB_ENV
+          fi
+
+      - name: Generate GitHub token for workflow actions
+        if: env.version-updated == 'true'
+        id: gen-workflow-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.WORKFLOW_BOT_APP_ID }}
+          private-key: ${{ secrets.WORKFLOW_BOT_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Commit and push changes
+        if: env.version-updated == 'true'
+        run: |
+          git config user.name "${{ vars.WORKFLOW_BOT_GIT_USER || 'github-actions[bot]' }}"
+          git config user.email "${{ vars.WORKFLOW_BOT_GIT_USER || 'github-actions[bot]' }}@users.noreply.github.com"
+          
+          git add Z_RELEASE_VERSION
+          git commit -m "Update Z_RELEASE_VERSION to ${{ steps.parse-mapping.outputs.mapped-version }}
+
+          🤖 Generated with [Claude Code](https://claude.ai/code)
+
+          Co-Authored-By: Claude <noreply@anthropic.com>"
+          
+          git push origin ${{ matrix.branch }}
+        env:
+          GITHUB_TOKEN: ${{ steps.gen-workflow-token.outputs.token }}
+
+      - name: Create Pull Request (alternative)
+        if: env.version-updated == 'true' && vars.USE_PR_FOR_VERSION_UPDATES == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: "update-z-release-version-${{ matrix.branch }}"
+          base: "${{ matrix.branch }}"
+          delete-branch: true
+          title: "Update Z_RELEASE_VERSION to ${{ steps.parse-mapping.outputs.mapped-version }} [${{ matrix.branch }}]"
+          body: |
+            This PR updates the Z_RELEASE_VERSION file based on the mapping in main branch.
+            
+            - **Branch**: ${{ matrix.branch }}
+            - **New Version**: ${{ steps.parse-mapping.outputs.mapped-version }}
+            
+            This change was triggered by an update to `.github/release-version-mapping.yaml` in the main branch.
+          author: ${{ vars.WORKFLOW_BOT_GIT_USER || 'github-actions[bot]' }} <${{ vars.WORKFLOW_BOT_GIT_USER || 'github-actions[bot]' }}@users.noreply.github.com>
+          token: ${{ steps.gen-workflow-token.outputs.token }}
