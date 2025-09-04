@@ -8,7 +8,7 @@ metadata:
     categories: Integration & Delivery
     certified: 'true'
     support: Red Hat
-    createdAt: '2025-09-04T15:11:56Z'
+    createdAt: '2025-09-04T23:05:14Z'
     description: Advanced provisioning and management of OpenShift and Kubernetes clusters
     operatorframework.io/suggested-namespace: open-cluster-management
     operatorframework.io/initialization-resource: '{"apiVersion":"operator.open-cluster-management.io/v1",
@@ -25,8 +25,8 @@ metadata:
     features.operators.openshift.io/token-auth-aws: 'false'
     features.operators.openshift.io/token-auth-azure: 'false'
     features.operators.openshift.io/token-auth-gcp: 'false'
-    olm.skipRange: '>=2.11.0 <2.12.0-16'
-  name: advanced-cluster-management.v2.12.0-16
+    olm.skipRange: '>=2.11.0 <2.12.5-17'
+  name: advanced-cluster-management.v2.12.5-17
   namespace: placeholder
   labels:
     operatorframework.io/arch.amd64: supported
@@ -36,7 +36,7 @@ metadata:
     operatorframework.io/os.linux: supported
 spec:
   displayName: Advanced Cluster Management for Kubernetes
-  version: 2.12.0-16
+  version: 2.12.5-17
   provider:
     name: Red Hat
   maintainers:
@@ -2344,13 +2344,13 @@ spec:
                 - name: OPERAND_IMAGE_CERT_POLICY_CONTROLLER
                   value: registry.redhat.io/rhacm2/cert-policy-controller-rhel9@sha256:5c4a8bfb14b8edd69fddd16656d01f6866b89f7469934559c79a7c499afcb49f
                 - name: OPERAND_IMAGE_CLUSTER_BACKUP_CONTROLLER
-                  value: registry.redhat.io/rhacm2/cluster-backup-rhel9-operator@sha256:98043813de68e9988e96f5f01b0ebe76e908a5e2d78396f276d555a82abfb4dc
+                  value: registry.redhat.io/rhacm2/cluster-backup-rhel9-operator@sha256:19521481407aa6280ff0d93b3eab07a9dd1ea863fcc98c1e82b7af467aa218ce
                 - name: OPERAND_IMAGE_CLUSTER_PERMISSION
                   value: registry.redhat.io/rhacm2/acm-cluster-permission-rhel9@sha256:970e215fe8661f7f69f44bf94bc4d20589a85416a00ef3fa4859d12852fbd048
                 - name: OPERAND_IMAGE_CONFIG_POLICY_CONTROLLER
                   value: registry.redhat.io/rhacm2/config-policy-controller-rhel9@sha256:a9fcdf28f91034b2ad9680be2a6eb79c89ce2b5b0ecff238690cb476d288351b
                 - name: OPERAND_IMAGE_CONSOLE
-                  value: registry.redhat.io/rhacm2/console-rhel9@sha256:9876b76bba39a8d740c91e960d5e2d62a72aba76750c2865ce25ac6cb578e37f
+                  value: registry.redhat.io/rhacm2/console-rhel9@sha256:4afec89b625dc2ce5c85899fb9b2d387c1c17a0f8b2c9ab39d0e873789b1b9ec
                 - name: OPERAND_IMAGE_ENDPOINT_MONITORING_OPERATOR
                   value: registry.redhat.io/rhacm2/endpoint-monitoring-rhel9-operator@sha256:9c7ee02b72914358a921852659f3824e6e5ef65eac9710a64227b79e49da02e1
                 - name: OPERAND_IMAGE_GOVERNANCE_POLICY_ADDON_CONTROLLER
@@ -2424,7 +2424,7 @@ spec:
                 - name: OPERAND_IMAGE_THANOS_RECEIVE_CONTROLLER
                   value: registry.redhat.io/rhacm2/thanos-receive-controller-rhel9@sha256:199561818671e2352288f9702180c77af436ce0cee3c5d6a6530b03770ab5896
                 - name: OPERAND_IMAGE_VOLSYNC_ADDON_CONTROLLER
-                  value: registry.redhat.io/rhacm2/acm-volsync-addon-controller-rhel9@sha256:73eaf1eae3e885f2dab538b9cd4cda5f6db1327ff68cd215420ac910cbd174ec
+                  value: registry.redhat.io/rhacm2/acm-volsync-addon-controller-rhel9@sha256:30dcb89aa28da05baa21e1d314e247ea1befd920925f72a30c37e61ec315e7b9
                 - name: OPERAND_IMAGE_CONFIGMAP_RELOADER
                   value: registry.redhat.io/openshift4/ose-configmap-reloader-rhel9@sha256:c6921ed9f1a20e54a3473a2eafcba3f3419a9dc2b842a93d82a59c46558adfca
                 - name: OPERAND_IMAGE_MEMCACHED
@@ -2432,7 +2432,7 @@ spec:
                 - name: OPERAND_IMAGE_POSTGRESQL_13
                   value: registry.redhat.io/rhel9/postgresql-13@sha256:67b06a0dd6b991c829ae790ff36a1508e2e6402109c65579a58f83d755d60745
                 - name: OPERATOR_VERSION
-                  value: 2.12.0-16
+                  value: 2.12.5-17
                 - name: OPERATOR_PACKAGE
                   value: advanced-cluster-management
                 image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:3f528fa6f5c5f1a2fd3987f3281c03216b6ee4cd776b2a88ad7f2945c408b6a1
@@ -2478,6 +2478,7 @@ spec:
                 secret:
                   defaultMode: 420
                   secretName: multiclusterhub-operator-webhook
+  replaces: advanced-cluster-management.v2.12.4
   relatedImages:
   - name: acm_cli
     image: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:c2ada6fe2e96d16eb79d086e8d976ba8ccb033685691bacdf041cc16bc8d4e1a
@@ -2486,13 +2487,13 @@ spec:
   - name: cert_policy_controller
     image: registry.redhat.io/rhacm2/cert-policy-controller-rhel9@sha256:5c4a8bfb14b8edd69fddd16656d01f6866b89f7469934559c79a7c499afcb49f
   - name: cluster_backup_controller
-    image: registry.redhat.io/rhacm2/cluster-backup-rhel9-operator@sha256:98043813de68e9988e96f5f01b0ebe76e908a5e2d78396f276d555a82abfb4dc
+    image: registry.redhat.io/rhacm2/cluster-backup-rhel9-operator@sha256:19521481407aa6280ff0d93b3eab07a9dd1ea863fcc98c1e82b7af467aa218ce
   - name: cluster_permission
     image: registry.redhat.io/rhacm2/acm-cluster-permission-rhel9@sha256:970e215fe8661f7f69f44bf94bc4d20589a85416a00ef3fa4859d12852fbd048
   - name: config_policy_controller
     image: registry.redhat.io/rhacm2/config-policy-controller-rhel9@sha256:a9fcdf28f91034b2ad9680be2a6eb79c89ce2b5b0ecff238690cb476d288351b
   - name: console
-    image: registry.redhat.io/rhacm2/console-rhel9@sha256:9876b76bba39a8d740c91e960d5e2d62a72aba76750c2865ce25ac6cb578e37f
+    image: registry.redhat.io/rhacm2/console-rhel9@sha256:4afec89b625dc2ce5c85899fb9b2d387c1c17a0f8b2c9ab39d0e873789b1b9ec
   - name: endpoint_monitoring_operator
     image: registry.redhat.io/rhacm2/endpoint-monitoring-rhel9-operator@sha256:9c7ee02b72914358a921852659f3824e6e5ef65eac9710a64227b79e49da02e1
   - name: governance_policy_addon_controller
@@ -2564,7 +2565,7 @@ spec:
   - name: thanos_receive_controller
     image: registry.redhat.io/rhacm2/thanos-receive-controller-rhel9@sha256:199561818671e2352288f9702180c77af436ce0cee3c5d6a6530b03770ab5896
   - name: volsync_addon_controller
-    image: registry.redhat.io/rhacm2/acm-volsync-addon-controller-rhel9@sha256:73eaf1eae3e885f2dab538b9cd4cda5f6db1327ff68cd215420ac910cbd174ec
+    image: registry.redhat.io/rhacm2/acm-volsync-addon-controller-rhel9@sha256:30dcb89aa28da05baa21e1d314e247ea1befd920925f72a30c37e61ec315e7b9
   - name: configmap_reloader
     image: registry.redhat.io/openshift4/ose-configmap-reloader-rhel9@sha256:c6921ed9f1a20e54a3473a2eafcba3f3419a9dc2b842a93d82a59c46558adfca
   - name: memcached
