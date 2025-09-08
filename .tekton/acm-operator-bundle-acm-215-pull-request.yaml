@@ -33,7 +33,9 @@ spec:
   - name: dockerfile
     value: Dockerfile
   - name: build-source-image
-    value: "true"
+    value: "false"
+  - name: build-args-file
+    value: "false"
   - name: hermetic
     value: "true"
   - name: path-context
@@ -42,11 +44,11 @@ spec:
     resolver: git
     params:
       - name: url
-        value: "https://github.com/stolostron/acm-operator-bundle.git"
+        value: "https://github.com/stolostron/konflux-build-catalog.git"
       - name: revision
-        value: migrate-to-common-pipeline-215-redo
+        value: main
       - name: pathInRepo
-        value: .tekton/common-bundle.yaml
+        value: pipelines/common.yaml
   taskRunTemplate:
     serviceAccountName: build-pipeline-acm-operator-bundle-acm-215
   workspaces:

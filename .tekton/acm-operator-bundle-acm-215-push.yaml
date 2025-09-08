@@ -30,7 +30,9 @@ spec:
   - name: dockerfile
     value: Dockerfile
   - name: build-source-image
-    value: "true"
+    value: "false"
+  - name: build-args-file
+    value: "false"
   - name: hermetic
     value: "true"
   - name: path-context
@@ -38,18 +40,18 @@ spec:
   - name: send-slack-notification
     value: true
   - name: konflux-application-name
-    value: release-acm-215 # Need to be updated for each release
+    value: bundle-release-acm-215
   - name: slack-member-id
     value: UU77A0LC8 # @dbennett, The slack member id of the current component owner.
   pipelineRef:
     resolver: git
     params:
       - name: url
-        value: "https://github.com/stolostron/acm-operator-bundle.git"
+        value: "https://github.com/stolostron/konflux-build-catalog.git"
       - name: revision
-        value: migrate-to-common-pipeline-215-redo
+        value: main
       - name: pathInRepo
-        value: .tekton/common-bundle.yaml
+        value: pipelines/common.yaml
   taskRunTemplate:
     serviceAccountName: build-pipeline-acm-operator-bundle-acm-215
   workspaces:
