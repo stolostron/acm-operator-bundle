@@ -26,4 +26,5 @@ LABEL com.redhat.component="acm-operator-bundle-container" \
       vendor="Red Hat, Inc." \
       url="https://github.com/stolostron/acm-operator-bundle" \
       release="2.14.1-197" \
-      distribution-scope="public"
+      distribution-scope="public" \
+      cpe="cpe:/a:redhat:acm:2.14::el9"
