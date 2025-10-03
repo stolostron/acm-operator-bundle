@@ -3,7 +3,7 @@
 get_latest_release() {
   releasePlan=$1
   latestRelease=$(
-    oc get releases --sort-by=.metadata.creationTimestamp --selector=pac.test.appstudio.openshift.io/event-type=push |
+    oc get releases --sort-by=.metadata.creationTimestamp --selector=release.appstudio.openshift.io/automated=true |
       grep "Succeeded" |
       awk '$3 == "'"${releasePlan}"'" { print $1 }' |
       tail -1
