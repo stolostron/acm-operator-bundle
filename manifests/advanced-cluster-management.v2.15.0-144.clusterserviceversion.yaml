@@ -8,7 +8,7 @@ metadata:
     categories: Integration & Delivery
     certified: 'true'
     support: Red Hat
-    createdAt: '2025-10-17T11:07:44Z'
+    createdAt: '2025-10-17T19:06:40Z'
     description: Advanced provisioning and management of OpenShift and Kubernetes clusters
     operatorframework.io/suggested-namespace: open-cluster-management
     operatorframework.io/initialization-resource: '{"apiVersion":"operator.open-cluster-management.io/v1",
@@ -29,9 +29,9 @@ metadata:
     features.operators.openshift.io/token-auth-azure: 'false'
     features.operators.openshift.io/token-auth-gcp: 'false'
     olm.properties: '[{"type": "olm.maxOpenShiftVersion", "value": "4.21"}]'
-    olm.skipRange: '>=2.13.0 <2.15.0-143'
-    operators.openshift.io/must-gather-image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:8422c2cc394e2d8ae0e47dff15b124c2e9a2e822f71fb2e1c5fccd6f01f2d157
-  name: advanced-cluster-management.v2.15.0-143
+    olm.skipRange: '>=2.13.0 <2.15.0-144'
+    operators.openshift.io/must-gather-image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:02416f81c1f0724f7726adcc9b046a39696cf81a3bc15b30cddd7abf8d02022c
+  name: advanced-cluster-management.v2.15.0-144
   namespace: placeholder
   labels:
     operatorframework.io/arch.amd64: supported
@@ -41,7 +41,7 @@ metadata:
     operatorframework.io/os.linux: supported
 spec:
   displayName: Advanced Cluster Management for Kubernetes
-  version: 2.15.0-143
+  version: 2.15.0-144
   provider:
     name: Red Hat
   maintainers:
@@ -209,46 +209,9 @@ spec:
           - ''
           resources:
           - configmaps
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - ''
-          resources:
-          - configmaps
           - endpoints
           - events
           - namespaces
-          - nodes
-          - persistentvolumeclaims
-          - pods
-          - secrets
-          - serviceaccounts
-          - services
-          - services/finalizers
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - ''
-          resources:
-          - configmaps
-          - endpoints
-          - events
-          - namespaces
-          - secrets
-          - serviceaccounts
-          - services
           - services/proxy
           verbs:
           - create
@@ -262,13 +225,30 @@ spec:
         - apiGroups:
           - ''
           resources:
-          - configmaps
-          - endpoints
-          - events
+          - groups
+          - users
+          verbs:
+          - create
+          - delete
+          - get
+          - impersonate
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - ''
+          resources:
+          - jobs
+          verbs:
+          - list
+          - watch
+        - apiGroups:
+          - ''
+          resources:
+          - nodes
           - persistentvolumeclaims
           - pods
-          - secrets
-          - services
           - services/finalizers
           verbs:
           - create
@@ -281,184 +261,15 @@ spec:
         - apiGroups:
           - ''
           resources:
-          - configmaps
-          - endpoints
-          - persistentvolumeclaims
-          - pods
           - secrets
           - serviceaccounts
           - services
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - ''
-          resources:
-          - configmaps
-          - events
           verbs:
           - create
           - delete
           - deletecollection
           - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - ''
-          resources:
-          - configmaps
-          - events
-          - secrets
-          - serviceaccounts
-          - services
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - ''
-          resources:
-          - configmaps
-          - jobs
-          - namespaces
-          - pods
-          - secrets
-          verbs:
-          - list
-          - watch
-        - apiGroups:
-          - ''
-          resources:
-          - configmaps
-          - secrets
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - ''
-          resources:
-          - endpoints
-          - pods
-          - services
-          verbs:
-          - get
-          - list
-          - watch
-        - apiGroups:
-          - ''
-          resources:
-          - events
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - ''
-          resources:
-          - groups
-          - secrets
-          - serviceaccounts
-          - services
-          - users
-          verbs:
-          - create
-          - delete
-          - get
           - impersonate
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - ''
-          resources:
-          - groups
-          - serviceaccounts
-          - users
-          verbs:
-          - impersonate
-        - apiGroups:
-          - ''
-          resources:
-          - namespaces
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-        - apiGroups:
-          - ''
-          resources:
-          - namespaces
-          - secrets
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - ''
-          resources:
-          - namespaces
-          - serviceaccounts
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - ''
-          resources:
-          - persistentvolumeclaims
-          - secrets
-          verbs:
-          - delete
-          - get
-          - list
-        - apiGroups:
-          - ''
-          resources:
-          - pods
-          verbs:
-          - get
-          - list
-          - watch
-        - apiGroups:
-          - ''
-          resources:
-          - secrets
-          verbs:
-          - create
-          - delete
-          - get
           - list
           - patch
           - update
@@ -469,12 +280,6 @@ spec:
           - serviceaccounts/token
           verbs:
           - create
-        - apiGroups:
-          - ''
-          resources:
-          - services
-          verbs:
-          - list
         - apiGroups:
           - ''
           - action.open-cluster-management.io
@@ -822,70 +627,14 @@ spec:
           - '*'
           verbs:
           - '*'
-          - get
-          - list
-          - watch
-        - apiGroups:
-          - addon.open-cluster-management.io
-          resources:
-          - addondeploymentconfigs
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
         - apiGroups:
           - addon.open-cluster-management.io
           resources:
           - addondeploymentconfigs
           - clustermanagementaddons
-          - managedclusteraddons
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - update
-        - apiGroups:
-          - addon.open-cluster-management.io
-          resources:
-          - clustermanagementaddons
-          verbs:
-          - create
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - addon.open-cluster-management.io
-          resources:
-          - clustermanagementaddons
           - clustermanagementaddons/finalizers
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - addon.open-cluster-management.io
-          resources:
-          - clustermanagementaddons
           - managedclusteraddons
-          verbs:
-          - list
-          - watch
-        - apiGroups:
-          - addon.open-cluster-management.io
-          resources:
-          - clustermanagementaddons
-          - managedclusteraddons
+          - managedclusteraddons/finalizers
           - managedclusteraddons/status
           verbs:
           - create
@@ -895,72 +644,12 @@ spec:
           - patch
           - update
           - watch
-        - apiGroups:
-          - addon.open-cluster-management.io
-          resources:
-          - clustermanagementaddons/finalizers
-          verbs:
-          - update
-        - apiGroups:
-          - addon.open-cluster-management.io
-          resources:
-          - clustermanagementaddons/finalizers
-          - managedclusteraddons/finalizers
-          verbs:
-          - update
         - apiGroups:
           - addon.open-cluster-management.io
           resources:
           - clustermanagementaddons/status
           verbs:
-          - patch
-          - update
-        - apiGroups:
-          - addon.open-cluster-management.io
-          resources:
-          - clustermanagementaddons/status
-          - managedclusteraddons/status
-          verbs:
           - get
-          - patch
-          - update
-        - apiGroups:
-          - addon.open-cluster-management.io
-          resources:
-          - managedclusteraddons
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - addon.open-cluster-management.io
-          resources:
-          - managedclusteraddons
-          - managedclusteraddons/finalizers
-          - managedclusteraddons/status
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - addon.open-cluster-management.io
-          resources:
-          - managedclusteraddons/finalizers
-          verbs:
-          - update
-        - apiGroups:
-          - addon.open-cluster-management.io
-          resources:
-          - managedclusteraddons/status
-          verbs:
           - patch
           - update
         - apiGroups:
@@ -1078,9 +767,6 @@ spec:
           - agent-install.openshift.io
           resources:
           - agents
-          - agentserviceconfigs
-          - infraenvs
-          - nmstateconfigs
           verbs:
           - list
           - watch
@@ -1101,18 +787,10 @@ spec:
           - create
           - delete
           - get
+          - list
           - patch
           - update
-        - apiGroups:
-          - agent.open-cluster-management.io
-          resources:
-          - klusterletaddonconfigs
-          verbs:
-          - create
-          - delete
-          - get
-          - patch
-          - update
+          - watch
         - apiGroups:
           - agent.open-cluster-management.io
           resources:
@@ -1133,12 +811,9 @@ spec:
           - customresourcedefinitions
           verbs:
           - '*'
-          - list
-          - watch
         - apiGroups:
           - apiextensions.k8s.io
           resources:
-          - customresourcedefinitions
           - customresourcedefinitions/finalizers
           verbs:
           - create
@@ -1151,7 +826,6 @@ spec:
         - apiGroups:
           - apiextensions.k8s.io
           resources:
-          - customresourcedefinitions
           - customresourcedefinitions/status
           verbs:
           - get
@@ -1185,6 +859,7 @@ spec:
           resources:
           - daemonsets
           - deployments
+          - deployments/finalizers
           - replicasets
           - statefulsets
           verbs:
@@ -1195,57 +870,6 @@ spec:
           - patch
           - update
           - watch
-        - apiGroups:
-          - apps
-          resources:
-          - deployments
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - apps
-          resources:
-          - deployments
-          - deployments/finalizers
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - apps
-          resources:
-          - deployments
-          - replicasets
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - apps
-          resources:
-          - deployments/finalizers
-          verbs:
-          - update
-        - apiGroups:
-          - apps
-          resources:
-          - replicasets
-          verbs:
-          - get
-          - list
         - apiGroups:
           - apps.open-cluster-management.io
           resources:
@@ -1259,9 +883,7 @@ spec:
           - gitopsclusters
           - helmreleases
           - multiclusterapplicationsetreports
-          - placementrules
           - subscriptionreports
-          - subscriptions
           verbs:
           - list
           - watch
@@ -1269,13 +891,6 @@ spec:
           - apps.open-cluster-management.io
           resources:
           - placementrules
-          verbs:
-          - get
-          - list
-          - watch
-        - apiGroups:
-          - apps.open-cluster-management.io
-          resources:
           - subscriptions
           verbs:
           - get
@@ -1339,15 +954,6 @@ spec:
           resources:
           - certificatesigningrequests
           verbs:
-          - get
-          - list
-          - watch
-        - apiGroups:
-          - certificates.k8s.io
-          resources:
-          - certificatesigningrequests
-          - certificatesigningrequests/approval
-          verbs:
           - create
           - get
           - list
@@ -1358,15 +964,12 @@ spec:
           resources:
           - certificatesigningrequests/approval
           verbs:
+          - create
+          - get
+          - list
           - patch
           - update
-        - apiGroups:
-          - certificates.k8s.io
-          resources:
-          - certificatesigningrequests/approval
-          - certificatesigningrequests/status
-          verbs:
-          - update
+          - watch
         - apiGroups:
           - certificates.k8s.io
           resources:
@@ -1382,6 +985,9 @@ spec:
           - sign
         - apiGroups:
           - certmanager.k8s.io
+          - config.openshift.io
+          - flightctl.io
+          - rbac.authorization.k8s.io
           resources:
           - '*'
           verbs:
@@ -1396,11 +1002,7 @@ spec:
           - cluster.open-cluster-management.io
           resources:
           - clustercurators
-          - managedclusters
           - managedclustersetbindings
-          - managedclustersets
-          - placementdecisions
-          - placements
           verbs:
           - list
           - watch
@@ -1408,6 +1010,7 @@ spec:
           - cluster.open-cluster-management.io
           resources:
           - manageclusters
+          - placementdecisions
           verbs:
           - get
           - list
@@ -1427,7 +1030,6 @@ spec:
         - apiGroups:
           - cluster.open-cluster-management.io
           resources:
-          - managedclusters
           - managedclusters/finalizers
           verbs:
           - create
@@ -1439,23 +1041,12 @@ spec:
         - apiGroups:
           - cluster.open-cluster-management.io
           resources:
-          - managedclusters
           - managedclustersets
           verbs:
           - get
           - list
           - patch
           - update
-          - watch
-        - apiGroups:
-          - cluster.open-cluster-management.io
-          resources:
-          - managedclusters
-          - placementdecisions
-          - placements
-          verbs:
-          - get
-          - list
           - watch
         - apiGroups:
           - cluster.open-cluster-management.io
@@ -1477,15 +1068,7 @@ spec:
         - apiGroups:
           - config.openshift.io
           resources:
-          - '*'
-          - infrastructures
-          verbs:
-          - '*'
-        - apiGroups:
-          - config.openshift.io
-          resources:
           - apiservers
-          - infrastructures
           - infrastructures/status
           verbs:
           - get
@@ -1493,14 +1076,6 @@ spec:
           - config.openshift.io
           resources:
           - authentications
-          - infrastructures
-          verbs:
-          - get
-          - list
-          - watch
-        - apiGroups:
-          - config.openshift.io
-          resources:
           - clusterversions
           verbs:
           - get
@@ -1511,9 +1086,7 @@ spec:
           resources:
           - infrastructures
           verbs:
-          - get
-          - list
-          - watch
+          - '*'
         - apiGroups:
           - config.openshift.io
           - console.openshift.io
@@ -1605,12 +1178,16 @@ spec:
           resources:
           - agentclusterinstalls
           verbs:
+          - create
+          - delete
+          - get
           - list
+          - patch
+          - update
           - watch
         - apiGroups:
           - extensions.hive.openshift.io
           resources:
-          - agentclusterinstalls
           - imageclusterinstalls
           verbs:
           - create
@@ -1618,12 +1195,6 @@ spec:
           - get
           - patch
           - update
-        - apiGroups:
-          - flightctl.io
-          resources:
-          - '*'
-          verbs:
-          - '*'
         - apiGroups:
           - flightctl.io
           resources:
@@ -1655,6 +1226,8 @@ spec:
           - flightctl.io
           resources:
           - enrollmentrequests
+          - fleets/templateversions
+          - repositories
           verbs:
           - get
           - list
@@ -1664,14 +1237,6 @@ spec:
           - enrollmentrequests/approval
           verbs:
           - post
-        - apiGroups:
-          - flightctl.io
-          resources:
-          - fleets/templateversions
-          - repositories
-          verbs:
-          - get
-          - list
         - apiGroups:
           - forklift.konveyor.io
           resources:
@@ -1688,9 +1253,7 @@ spec:
           - hive.openshift.io
           resources:
           - clusterclaims
-          - clusterdeployments
           - clusterdeprovisions
-          - clusterimagesets
           - clusterpools
           - clusterprovisions
           - machinepools
@@ -1763,14 +1326,6 @@ spec:
           - imageregistry.open-cluster-management.io
           resources:
           - managedclusterimageregistries
-          verbs:
-          - get
-          - list
-          - watch
-        - apiGroups:
-          - imageregistry.open-cluster-management.io
-          resources:
-          - managedclusterimageregistries
           - managedclusterimageregistries/status
           verbs:
           - get
@@ -1805,6 +1360,17 @@ spec:
           - metal3.io
           resources:
           - baremetalhosts
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - metal3.io
+          resources:
           - hostfirmwaresettings
           verbs:
           - create
@@ -1815,7 +1381,6 @@ spec:
         - apiGroups:
           - metal3.io
           resources:
-          - baremetalhosts
           - provisionings
           verbs:
           - list
@@ -1847,19 +1412,6 @@ spec:
           - monitoring.coreos.com
           resources:
           - prometheusrules
-          - scrapeconfigs
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - monitoring.coreos.com
-          resources:
-          - prometheusrules
           - servicemonitors
           verbs:
           - create
@@ -1873,7 +1425,7 @@ spec:
         - apiGroups:
           - monitoring.coreos.com
           resources:
-          - servicemonitors
+          - scrapeconfigs
           verbs:
           - create
           - delete
@@ -1964,7 +1516,6 @@ spec:
           - operator.open-cluster-management.io
           resources:
           - multiclusterglobalhubs
-          - multiclusterhubs
           verbs:
           - get
           - list
@@ -2012,14 +1563,6 @@ spec:
           - update
           - watch
         - apiGroups:
-          - operators.coreos.com
-          resources:
-          - subscriptions
-          verbs:
-          - get
-          - list
-          - watch
-        - apiGroups:
           - packages.operators.coreos.com
           resources:
           - packagemanifests
@@ -2033,88 +1576,50 @@ spec:
           - policy.open-cluster-management.io
           resources:
           - '*'
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - policy.open-cluster-management.io
-          resources:
-          - placementbindings
           - policies
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - update
-          - watch
-        - apiGroups:
-          - policy.open-cluster-management.io
-          resources:
-          - placementbindings
-          - policies
-          - policyautomations
           - policysets
           verbs:
-          - list
-          - watch
-        - apiGroups:
-          - policy.open-cluster-management.io
-          resources:
-          - policies
-          verbs:
           - create
           - delete
           - get
           - list
           - patch
+          - update
+          - watch
+        - apiGroups:
+          - policy.open-cluster-management.io
+          resources:
+          - placementbindings
+          verbs:
+          - create
+          - delete
+          - get
+          - list
           - update
           - watch
         - apiGroups:
           - policy.open-cluster-management.io
           resources:
           - policies/finalizers
-          verbs:
-          - update
-        - apiGroups:
-          - policy.open-cluster-management.io
-          resources:
-          - policies/status
-          verbs:
-          - get
-          - patch
-          - update
-        - apiGroups:
-          - policy.open-cluster-management.io
-          resources:
-          - policysets
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - policy.open-cluster-management.io
-          resources:
           - policysets/finalizers
           verbs:
           - update
         - apiGroups:
           - policy.open-cluster-management.io
           resources:
+          - policies/status
           - policysets/status
           verbs:
           - get
           - patch
           - update
+        - apiGroups:
+          - policy.open-cluster-management.io
+          resources:
+          - policyautomations
+          verbs:
+          - list
+          - watch
         - apiGroups:
           - proxy.open-cluster-management.io
           resources:
@@ -2124,70 +1629,9 @@ spec:
         - apiGroups:
           - rbac.authorization.k8s.io
           resources:
-          - '*'
-          verbs:
-          - '*'
-        - apiGroups:
-          - rbac.authorization.k8s.io
-          resources:
-          - clusterrolebindings
-          verbs:
-          - delete
-          - get
-          - patch
-          - update
-        - apiGroups:
-          - rbac.authorization.k8s.io
-          resources:
-          - clusterrolebindings
-          - clusterroles
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-        - apiGroups:
-          - rbac.authorization.k8s.io
-          resources:
           - clusterrolebindings
           - clusterroles
           - rolebindings
-          - roles
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - rbac.authorization.k8s.io
-          resources:
-          - clusterroles
-          verbs:
-          - create
-          - delete
-          - get
-          - patch
-          - update
-        - apiGroups:
-          - rbac.authorization.k8s.io
-          resources:
-          - rolebindings
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - rbac.authorization.k8s.io
-          resources:
-          - rolebindings
-          - roles
           verbs:
           - create
           - delete
@@ -2214,18 +1658,6 @@ spec:
           - rbac.open-cluster-management.io
           resources:
           - clusterpermissions
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - rbac.open-cluster-management.io
-          resources:
-          - clusterpermissions
           - multiclusterroleassignments
           verbs:
           - create
@@ -2239,25 +1671,13 @@ spec:
           - rbac.open-cluster-management.io
           resources:
           - clusterpermissions/finalizers
-          verbs:
-          - update
-        - apiGroups:
-          - rbac.open-cluster-management.io
-          resources:
-          - clusterpermissions/status
-          verbs:
-          - get
-          - patch
-          - update
-        - apiGroups:
-          - rbac.open-cluster-management.io
-          resources:
           - multiclusterroleassignments/finalizers
           verbs:
           - update
         - apiGroups:
           - rbac.open-cluster-management.io
           resources:
+          - clusterpermissions/status
           - multiclusterroleassignments/status
           verbs:
           - get
@@ -2273,17 +1693,6 @@ spec:
           - get
           - list
           - patch
-          - update
-          - watch
-        - apiGroups:
-          - route.openshift.io
-          resources:
-          - routes
-          verbs:
-          - create
-          - delete
-          - get
-          - list
           - update
           - watch
         - apiGroups:
@@ -2421,18 +1830,9 @@ spec:
           - manifestworks
           verbs:
           - '*'
-          - create
-          - delete
-          - deletecollection
-          - get
-          - list
-          - patch
-          - update
-          - watch
         - apiGroups:
           - work.open-cluster-management.io
           resources:
-          - manifestworks
           - manifestworks/finalizers
           verbs:
           - create
@@ -2531,7 +1931,7 @@ spec:
                 - name: OPERAND_IMAGE_ACM_CLI
                   value: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:5f45eaf4ae3e72aca15fb9617a7db092ca59e1b692aabed8d483240c063c8ed6
                 - name: OPERAND_IMAGE_ACM_MUST_GATHER
-                  value: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:8422c2cc394e2d8ae0e47dff15b124c2e9a2e822f71fb2e1c5fccd6f01f2d157
+                  value: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:02416f81c1f0724f7726adcc9b046a39696cf81a3bc15b30cddd7abf8d02022c
                 - name: OPERAND_IMAGE_CERT_POLICY_CONTROLLER
                   value: registry.redhat.io/rhacm2/cert-policy-controller-rhel9@sha256:98cec3a15a0715ec69e780928d459ba72633517922e024a66709e955501f8e28
                 - name: OPERAND_IMAGE_CLUSTER_BACKUP_CONTROLLER
@@ -2541,9 +1941,9 @@ spec:
                 - name: OPERAND_IMAGE_CONFIG_POLICY_CONTROLLER
                   value: registry.redhat.io/rhacm2/config-policy-controller-rhel9@sha256:eb32a89498870b9d0dd46951488efcdc3032c5f7ad3d6c1f275151c3f4726ac8
                 - name: OPERAND_IMAGE_CONSOLE
-                  value: registry.redhat.io/rhacm2/console-rhel9@sha256:6fef0cc1b1193b8cc03170394c2fc9cb6e1bd1385d8e1598fdd0a1bb27be6d40
+                  value: registry.redhat.io/rhacm2/console-rhel9@sha256:00160dace5a12d71e88a9c1d047a63d3437fbb24cd06b8215fdb554dfeb5c310
                 - name: OPERAND_IMAGE_ENDPOINT_MONITORING_OPERATOR
-                  value: registry.redhat.io/rhacm2/endpoint-monitoring-rhel9-operator@sha256:c456600241b56f25d691f37e9bef852fcd06b0102fdd2101d2f44398ee51c51b
+                  value: registry.redhat.io/rhacm2/endpoint-monitoring-rhel9-operator@sha256:448580a9ff2f189e1626f774aa4ec1b178a95f275a5669772fb4f354ea85c64b
                 - name: OPERAND_IMAGE_GOVERNANCE_POLICY_ADDON_CONTROLLER
                   value: registry.redhat.io/rhacm2/acm-governance-policy-addon-controller-rhel9@sha256:1a1375e47455eac2457f8bafeb5852c4eb253bc3ebeec74a8a3d896f5ab7c087
                 - name: OPERAND_IMAGE_GOVERNANCE_POLICY_FRAMEWORK_ADDON
@@ -2553,7 +1953,7 @@ spec:
                 - name: OPERAND_IMAGE_GRAFANA
                   value: registry.redhat.io/rhacm2/acm-grafana-rhel9@sha256:5aee238b28dd8d4b7405c6b33bd549500f86bd78bb3e08e9796f858f15942b86
                 - name: OPERAND_IMAGE_GRAFANA_DASHBOARD_LOADER
-                  value: registry.redhat.io/rhacm2/grafana-dashboard-loader-rhel9@sha256:2ae47e71b0a138d3639bf2e6199671fe2600944d19426e5173da96d0cfab866e
+                  value: registry.redhat.io/rhacm2/grafana-dashboard-loader-rhel9@sha256:7cb87bef55317d6d72cf996c319e077424f570d9afb72c8a7c2affd1e7f08c70
                 - name: OPERAND_IMAGE_INSIGHTS_CLIENT
                   value: registry.redhat.io/rhacm2/insights-client-rhel9@sha256:c56edb387cffb85b6675578873420df053975a18c31cdae495a1df6f99f534a7
                 - name: OPERAND_IMAGE_INSIGHTS_METRICS
@@ -2567,7 +1967,7 @@ spec:
                 - name: OPERAND_IMAGE_MEMCACHED_EXPORTER
                   value: registry.redhat.io/rhacm2/memcached-exporter-rhel9@sha256:0a3f2f7a32d41253f137dc1238e97293e89b8ec987f8cdece611088f165d13e8
                 - name: OPERAND_IMAGE_METRICS_COLLECTOR
-                  value: registry.redhat.io/rhacm2/metrics-collector-rhel9@sha256:e812d30bfb0d74297fd73cffe7b9d48bab06b222a5a1da97dd7ccaae17782104
+                  value: registry.redhat.io/rhacm2/metrics-collector-rhel9@sha256:9fded4fd1351340fcab334d5bfcdc98f234f43b8123f9cd91c5b6a8f11c3f874
                 - name: OPERAND_IMAGE_MTV_INTEGRATIONS
                   value: registry.redhat.io/rhacm2/mtv-integrations-rhel9@sha256:f9788e030bba22d3539814881d60c8ba74ba429cdd4bb42823eb4789fb7632ef
                 - name: OPERAND_IMAGE_MULTICLOUD_INTEGRATIONS
@@ -2575,7 +1975,7 @@ spec:
                 - name: OPERAND_IMAGE_MULTICLUSTER_OBSERVABILITY_ADDON
                   value: registry.redhat.io/rhacm2/acm-multicluster-observability-addon-rhel9@sha256:c9ce5f7b822a042661a89e58ef2dcf09dcd0aba91966d8c31cab5bb98bca8495
                 - name: OPERAND_IMAGE_MULTICLUSTER_OBSERVABILITY_OPERATOR
-                  value: registry.redhat.io/rhacm2/multicluster-observability-rhel9-operator@sha256:5d767c1caf13e6c57a135bbb80fa038879d1302b85c37287d1ff8f6cf3213a13
+                  value: registry.redhat.io/rhacm2/multicluster-observability-rhel9-operator@sha256:3d86d96e72822ef0157634eb7821f9909d412baefd7b1b27cb5585b79dd4b0d0
                 - name: OPERAND_IMAGE_MULTICLUSTER_OPERATORS_APPLICATION
                   value: registry.redhat.io/rhacm2/multicluster-operators-application-rhel9@sha256:d91b180c112cc7d3302b3abdcfdddfa2c68bd006fc4853f95d271ae4f1b427c3
                 - name: OPERAND_IMAGE_MULTICLUSTER_OPERATORS_CHANNEL
@@ -2583,9 +1983,9 @@ spec:
                 - name: OPERAND_IMAGE_MULTICLUSTER_OPERATORS_SUBSCRIPTION
                   value: registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel9@sha256:5f970c8dfbd58f8e7546f905825c2f265bd526b56ea6d391038bfcfbfdba079e
                 - name: OPERAND_IMAGE_MULTICLUSTER_ROLE_ASSIGNMENT
-                  value: registry.redhat.io/rhacm2/multicluster-role-assignment-rhel9@sha256:f3a9b13e12b543595d384d1f39ca987f602c7fd6d8dce7a9ed94e7e8ae4f8ff6
+                  value: registry.redhat.io/rhacm2/multicluster-role-assignment-rhel9@sha256:c7075c5f8f6cc2d12da21d0045a5a7e4b3e84fd092ff9beb20312d759e7b8f5f
                 - name: OPERAND_IMAGE_MULTICLUSTERHUB_OPERATOR
-                  value: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:a53735aefb7601194236526a90e7b267d5a88775da2ee2ab8526f333dd314a93
+                  value: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:91390e5479db80fe61e4d08a715503e5c782ffda3435a25a41a86022e078aa10
                 - name: OPERAND_IMAGE_NODE_EXPORTER
                   value: registry.redhat.io/rhacm2/node-exporter-rhel9@sha256:fdd9cb2520e6efce3ccdf54c2ea9d51c8dfb0821c71c9f2594bfbfa4ba1bf6b0
                 - name: OPERAND_IMAGE_OBSERVATORIUM
@@ -2601,7 +2001,7 @@ spec:
                 - name: OPERAND_IMAGE_PROMETHEUS_OPERATOR
                   value: registry.redhat.io/rhacm2/acm-prometheus-rhel9@sha256:cc1f0135b59635176660aa2d40a8a4f6eabd35d934d3e5dc019d623b3b2ad2a6
                 - name: OPERAND_IMAGE_RBAC_QUERY_PROXY
-                  value: registry.redhat.io/rhacm2/rbac-query-proxy-rhel9@sha256:cfe19e865158e3f2aa03d64016a97c2e0100762fb87bfcfc95543fd09a4086e5
+                  value: registry.redhat.io/rhacm2/rbac-query-proxy-rhel9@sha256:1f0e51ddb85e35468e9cfd5471413ed5a7e4398fd903607c136470140e5c5541
                 - name: OPERAND_IMAGE_SEARCH_COLLECTOR
                   value: registry.redhat.io/rhacm2/search-collector-rhel9@sha256:eac6d3f3e75ad607de4e4267e3165bef64f903ce4e2172f269f40d66fbbd6db3
                 - name: OPERAND_IMAGE_SEARCH_INDEXER
@@ -2659,10 +2059,10 @@ spec:
                 - name: OPERAND_IMAGE_VOLSYNC
                   value: registry.redhat.io/rhacm2/volsync-rhel9@sha256:003c849b39ea11a691bb38a2c32a357fcbaeadf225cba1e258e3c3f7502093f8
                 - name: OPERATOR_VERSION
-                  value: 2.15.0-143
+                  value: 2.15.0-144
                 - name: OPERATOR_PACKAGE
                   value: advanced-cluster-management
-                image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:a53735aefb7601194236526a90e7b267d5a88775da2ee2ab8526f333dd314a93
+                image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:91390e5479db80fe61e4d08a715503e5c782ffda3435a25a41a86022e078aa10
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -2709,7 +2109,7 @@ spec:
   - name: acm_cli
     image: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:5f45eaf4ae3e72aca15fb9617a7db092ca59e1b692aabed8d483240c063c8ed6
   - name: acm_must_gather
-    image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:8422c2cc394e2d8ae0e47dff15b124c2e9a2e822f71fb2e1c5fccd6f01f2d157
+    image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:02416f81c1f0724f7726adcc9b046a39696cf81a3bc15b30cddd7abf8d02022c
   - name: cert_policy_controller
     image: registry.redhat.io/rhacm2/cert-policy-controller-rhel9@sha256:98cec3a15a0715ec69e780928d459ba72633517922e024a66709e955501f8e28
   - name: cluster_backup_controller
@@ -2719,9 +2119,9 @@ spec:
   - name: config_policy_controller
     image: registry.redhat.io/rhacm2/config-policy-controller-rhel9@sha256:eb32a89498870b9d0dd46951488efcdc3032c5f7ad3d6c1f275151c3f4726ac8
   - name: console
-    image: registry.redhat.io/rhacm2/console-rhel9@sha256:6fef0cc1b1193b8cc03170394c2fc9cb6e1bd1385d8e1598fdd0a1bb27be6d40
+    image: registry.redhat.io/rhacm2/console-rhel9@sha256:00160dace5a12d71e88a9c1d047a63d3437fbb24cd06b8215fdb554dfeb5c310
   - name: endpoint_monitoring_operator
-    image: registry.redhat.io/rhacm2/endpoint-monitoring-rhel9-operator@sha256:c456600241b56f25d691f37e9bef852fcd06b0102fdd2101d2f44398ee51c51b
+    image: registry.redhat.io/rhacm2/endpoint-monitoring-rhel9-operator@sha256:448580a9ff2f189e1626f774aa4ec1b178a95f275a5669772fb4f354ea85c64b
   - name: governance_policy_addon_controller
     image: registry.redhat.io/rhacm2/acm-governance-policy-addon-controller-rhel9@sha256:1a1375e47455eac2457f8bafeb5852c4eb253bc3ebeec74a8a3d896f5ab7c087
   - name: governance_policy_framework_addon
@@ -2731,7 +2131,7 @@ spec:
   - name: grafana
     image: registry.redhat.io/rhacm2/acm-grafana-rhel9@sha256:5aee238b28dd8d4b7405c6b33bd549500f86bd78bb3e08e9796f858f15942b86
   - name: grafana_dashboard_loader
-    image: registry.redhat.io/rhacm2/grafana-dashboard-loader-rhel9@sha256:2ae47e71b0a138d3639bf2e6199671fe2600944d19426e5173da96d0cfab866e
+    image: registry.redhat.io/rhacm2/grafana-dashboard-loader-rhel9@sha256:7cb87bef55317d6d72cf996c319e077424f570d9afb72c8a7c2affd1e7f08c70
   - name: insights_client
     image: registry.redhat.io/rhacm2/insights-client-rhel9@sha256:c56edb387cffb85b6675578873420df053975a18c31cdae495a1df6f99f534a7
   - name: insights_metrics
@@ -2745,7 +2145,7 @@ spec:
   - name: memcached_exporter
     image: registry.redhat.io/rhacm2/memcached-exporter-rhel9@sha256:0a3f2f7a32d41253f137dc1238e97293e89b8ec987f8cdece611088f165d13e8
   - name: metrics_collector
-    image: registry.redhat.io/rhacm2/metrics-collector-rhel9@sha256:e812d30bfb0d74297fd73cffe7b9d48bab06b222a5a1da97dd7ccaae17782104
+    image: registry.redhat.io/rhacm2/metrics-collector-rhel9@sha256:9fded4fd1351340fcab334d5bfcdc98f234f43b8123f9cd91c5b6a8f11c3f874
   - name: mtv_integrations
     image: registry.redhat.io/rhacm2/mtv-integrations-rhel9@sha256:f9788e030bba22d3539814881d60c8ba74ba429cdd4bb42823eb4789fb7632ef
   - name: multicloud_integrations
@@ -2753,7 +2153,7 @@ spec:
   - name: multicluster_observability_addon
     image: registry.redhat.io/rhacm2/acm-multicluster-observability-addon-rhel9@sha256:c9ce5f7b822a042661a89e58ef2dcf09dcd0aba91966d8c31cab5bb98bca8495
   - name: multicluster_observability_operator
-    image: registry.redhat.io/rhacm2/multicluster-observability-rhel9-operator@sha256:5d767c1caf13e6c57a135bbb80fa038879d1302b85c37287d1ff8f6cf3213a13
+    image: registry.redhat.io/rhacm2/multicluster-observability-rhel9-operator@sha256:3d86d96e72822ef0157634eb7821f9909d412baefd7b1b27cb5585b79dd4b0d0
   - name: multicluster_operators_application
     image: registry.redhat.io/rhacm2/multicluster-operators-application-rhel9@sha256:d91b180c112cc7d3302b3abdcfdddfa2c68bd006fc4853f95d271ae4f1b427c3
   - name: multicluster_operators_channel
@@ -2761,7 +2161,7 @@ spec:
   - name: multicluster_operators_subscription
     image: registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel9@sha256:5f970c8dfbd58f8e7546f905825c2f265bd526b56ea6d391038bfcfbfdba079e
   - name: multicluster_role_assignment
-    image: registry.redhat.io/rhacm2/multicluster-role-assignment-rhel9@sha256:f3a9b13e12b543595d384d1f39ca987f602c7fd6d8dce7a9ed94e7e8ae4f8ff6
+    image: registry.redhat.io/rhacm2/multicluster-role-assignment-rhel9@sha256:c7075c5f8f6cc2d12da21d0045a5a7e4b3e84fd092ff9beb20312d759e7b8f5f
   - name: node_exporter
     image: registry.redhat.io/rhacm2/node-exporter-rhel9@sha256:fdd9cb2520e6efce3ccdf54c2ea9d51c8dfb0821c71c9f2594bfbfa4ba1bf6b0
   - name: observatorium
@@ -2777,7 +2177,7 @@ spec:
   - name: prometheus_operator
     image: registry.redhat.io/rhacm2/acm-prometheus-rhel9@sha256:cc1f0135b59635176660aa2d40a8a4f6eabd35d934d3e5dc019d623b3b2ad2a6
   - name: rbac_query_proxy
-    image: registry.redhat.io/rhacm2/rbac-query-proxy-rhel9@sha256:cfe19e865158e3f2aa03d64016a97c2e0100762fb87bfcfc95543fd09a4086e5
+    image: registry.redhat.io/rhacm2/rbac-query-proxy-rhel9@sha256:1f0e51ddb85e35468e9cfd5471413ed5a7e4398fd903607c136470140e5c5541
   - name: search_collector
     image: registry.redhat.io/rhacm2/search-collector-rhel9@sha256:eac6d3f3e75ad607de4e4267e3165bef64f903ce4e2172f269f40d66fbbd6db3
   - name: search_indexer
