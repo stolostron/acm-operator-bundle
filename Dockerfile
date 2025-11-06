@@ -9,12 +9,13 @@ LABEL com.redhat.delivery.operator.bundle="true" \
       operators.operatorframework.io.bundle.manifests.v1="manifests/" \
       operators.operatorframework.io.bundle.metadata.v1="metadata/" \
       operators.operatorframework.io.bundle.package.v1="advanced-cluster-management" \
-      operators.operatorframework.io.bundle.channels.v1="release-9.99" \
-      com.redhat.openshift.versions="v4.12-v4.17"
+      operators.operatorframework.io.bundle.channels.v1="release-2.16" \
+      operators.operatorframework.io.bundle.channel.default.v1="release-2.16" \
+      com.redhat.openshift.versions="v4.18-v4.22"
 
 LABEL com.redhat.component="acm-operator-bundle-container" \
       name="rhacm2/acm-operator-bundle" \
-      version="9.99.0-000" \
+      version="2.16.0-1" \
       summary="acm-operator-bundle" \
       io.openshift.expose-services="" \
       io.openshift.tags="data,images" \
@@ -22,9 +23,8 @@ LABEL com.redhat.component="acm-operator-bundle-container" \
       io.k8s.description="Operator bundle for Red Hat Advanced Cluster Management"  \
       maintainer="['acm-component-maintainers@redhat.com']" \
       description="acm-operator-bundle" \
+      konflux.additional-tags="v2.16.0-1,snapshot-release-acm-216-kdpvb" \
       vendor="Red Hat, Inc." \
       url="https://github.com/stolostron/acm-operator-bundle" \
-      release="2.16.0-0" \
+      release="2.16.0-1" \
       distribution-scope="public"
-
-
