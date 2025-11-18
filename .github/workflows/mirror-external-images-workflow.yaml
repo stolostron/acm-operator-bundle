@@ -16,10 +16,6 @@ on:
     workflows: ["Gen Bundle Contents When Triggered"]
     types:
       - completed
-    branches:
-      - main
-      - release-*
-      - backplane-*
 
 defaults:
   run:
@@ -32,12 +28,24 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
+    - name: Log workflow trigger context
+      run: |
+        echo "Workflow triggered by: ${{ github.event_name }}"
+        if [ "${{ github.event_name }}" = "workflow_run" ]; then
+          echo "Triggering workflow: ${{ github.event.workflow_run.name }}"
+          echo "Triggering commit SHA: ${{ github.event.workflow_run.head_sha }}"
+          echo "Triggering branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Triggering repo: ${{ github.event.workflow_run.head_repository.full_name }}"
+        elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "Manual trigger - branch input: ${{ inputs.branch }}"
+        fi
+
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        # When triggered by workflow_run, checkout the branch that triggered it
+        # When triggered by workflow_run, checkout the commit SHA that triggered it (persists even if branch is deleted)
         # When triggered manually, checkout the specified branch or current branch
-        ref: ${{ inputs.branch || github.event.workflow_run.head_branch || github.ref }}
+        ref: ${{ inputs.branch || github.event.workflow_run.head_sha || github.ref }}
         path: workflow
         sparse-checkout: |
           config
