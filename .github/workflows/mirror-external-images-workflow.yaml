@@ -81,8 +81,10 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y skopeo
 
-    - name: Authenticate to image registries
+    - name: Authenticate and run mirror script
       run: |
+        # Authenticate to needed image registries...
+
         # Access to registry.redhat.io needed to resolve external image references (shipped images):
         echo "Doing Docker login to registry.redhat.io"
         echo "${{ secrets.REGISTRY_REDHAT_IO_RGY_PASSWORD }}" \
@@ -93,12 +95,12 @@ jobs:
         echo "${{ secrets.QUAY_IO_ACMD_RGY_PASSWORD }}" \
            | docker login -u="${{ vars.QUAY_IO_ACMD_RGY_USERNAME }}" --password-stdin quay.io
 
-    - name: Run mirror script
-      run: |
+        # Run the mirror script
         ARGS="--operator acm"
         if [ "${{ inputs.dry-run }}" == "true" ]; then
           ARGS="$ARGS --dry-run"
         fi
+
         # Run the script from stolostron/release repo, using config from workflow (bundle) repo
         cd workflow
         python ../release-tools/tools/konflux/bundle/utils/mirror-external-images.py $ARGS
