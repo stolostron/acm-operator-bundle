@@ -1,0 +1,96 @@
+name: Mirror External Images
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to checkout (defaults to current branch)'
+        required: false
+        type: string
+      dry-run:
+        description: 'Run in dry-run mode (no actual mirroring)'
+        required: false
+        type: boolean
+        default: false
+  workflow_run:
+    workflows: ["Gen Bundle Contents When Triggered"]
+    types:
+      - completed
+    branches:
+      - main
+      - release-*
+      - backplane-*
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  mirror-images:
+    runs-on: ubuntu-24.04
+    # Only run if the triggering workflow succeeded or if manually triggered
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        # When triggered by workflow_run, checkout the branch that triggered it
+        # When triggered manually, checkout the specified branch or current branch
+        ref: ${{ inputs.branch || github.event.workflow_run.head_branch || github.ref }}
+        path: workflow
+        sparse-checkout: |
+          config
+        show-progress: false
+
+    - name: Generate GitHub token to read release tools repo
+      id: gen-tools-repo-token
+      uses: actions/create-github-app-token@v1
+      with:
+        app-id: ${{ vars.TOOLS_REPO_READER_APP_ID }}
+        private-key: ${{ secrets.TOOLS_REPO_READER_PRIVATE_KEY }}
+        owner: ${{ vars.TOOLS_REPO_OWNER }}
+        repositories: "release"
+
+    - name: Checkout release tools repo
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ vars.TOOLS_REPO_OWNER }}/release
+        ref: master
+        token: ${{ steps.gen-tools-repo-token.outputs.token }}
+        path: release-tools
+        sparse-checkout: |
+          tools/konflux/bundle/utils
+        show-progress: false
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install skopeo
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y skopeo
+
+    - name: Authenticate to image registries
+      run: |
+        # Access to registry.redhat.io needed to resolve external image references (shipped images):
+        echo "Doing Docker login to registry.redhat.io"
+        echo "${{ secrets.REGISTRY_REDHAT_IO_RGY_PASSWORD }}" \
+           | docker login -u="${{ vars.REGISTRY_REDHAT_IO_RGY_USERNAME }}" --password-stdin registry.redhat.io
+
+        # Access to quay.io/acm-d needed to resolve external image references (in-dev images):
+        echo "Doing Docker login to quay.io (for acm-d)"
+        echo "${{ secrets.QUAY_IO_ACMD_RGY_PASSWORD }}" \
+           | docker login -u="${{ vars.QUAY_IO_ACMD_RGY_USERNAME }}" --password-stdin quay.io
+
+    - name: Run mirror script
+      run: |
+        ARGS="--operator acm"
+        if [ "${{ inputs.dry-run }}" == "true" ]; then
+          ARGS="$ARGS --dry-run"
+        fi
+        # Run the script from stolostron/release repo, using config from workflow (bundle) repo
+        cd workflow
+        python ../release-tools/tools/konflux/bundle/utils/mirror-external-images.py $ARGS
