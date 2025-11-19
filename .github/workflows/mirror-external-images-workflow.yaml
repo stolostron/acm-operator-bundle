@@ -86,14 +86,14 @@ jobs:
         # Authenticate to needed image registries...
 
         # Access to registry.redhat.io needed to resolve external image references (shipped images):
-        echo "Doing Docker login to registry.redhat.io"
+        echo "Doing skopeo login to registry.redhat.io"
         echo "${{ secrets.REGISTRY_REDHAT_IO_RGY_PASSWORD }}" \
-           | docker login -u="${{ vars.REGISTRY_REDHAT_IO_RGY_USERNAME }}" --password-stdin registry.redhat.io
+           | skopeo login -u="${{ vars.REGISTRY_REDHAT_IO_RGY_USERNAME }}" --password-stdin registry.redhat.io
 
         # Access to quay.io/acm-d needed to resolve external image references (in-dev images):
-        echo "Doing Docker login to quay.io (for acm-d)"
+        echo "Doing skopeo login to quay.io (for acm-d)"
         echo "${{ secrets.QUAY_IO_ACMD_RGY_PASSWORD }}" \
-           | docker login -u="${{ vars.QUAY_IO_ACMD_RGY_USERNAME }}" --password-stdin quay.io
+           | skopeo login -u="${{ vars.QUAY_IO_ACMD_RGY_USERNAME }}" --password-stdin quay.io
 
         # Run the mirror script
         ARGS="--operator acm"
