@@ -82,6 +82,8 @@ jobs:
         sudo apt-get install -y skopeo
 
     - name: Authenticate and run mirror script
+      id: mirror
+      continue-on-error: true
       run: |
         # Authenticate to needed image registries...
 
@@ -104,3 +106,99 @@ jobs:
         # Run the script from stolostron/release repo, using config from workflow (bundle) repo
         cd workflow
         python ../release-tools/tools/konflux/bundle/utils/mirror-external-images.py $ARGS
+
+    - name: Send Slack notification
+      if: always()
+      run: |
+        # Read results from the JSON file
+        if [ ! -f workflow/mirror-results.json ]; then
+          echo "No results file found, creating minimal report"
+          STATUS="❌ *FAILED*"
+          SUMMARY="Mirror script did not complete successfully"
+          DETAILS=""
+        else
+          # Parse the JSON results
+          MIRRORED=$(jq -r '.mirrored' workflow/mirror-results.json)
+          SKIPPED=$(jq -r '.skipped' workflow/mirror-results.json)
+          FAILED=$(jq -r '.failed' workflow/mirror-results.json)
+          DRY_RUN=$(jq -r '.dry_run' workflow/mirror-results.json)
+
+          # Determine status
+          if [ "$FAILED" -gt 0 ]; then
+            STATUS="⚠️ *COMPLETED WITH FAILURES*"
+          elif [ "$DRY_RUN" = "true" ]; then
+            STATUS="🔍 *DRY RUN COMPLETED*"
+          else
+            STATUS="✅ *SUCCESS*"
+          fi
+
+          # Build summary
+          SUMMARY="*Summary:*\n• Mirrored: $MIRRORED\n• Skipped: $SKIPPED\n• Failed: $FAILED"
+
+          # Build failure details if any
+          DETAILS=""
+          if [ "$FAILED" -gt 0 ]; then
+            DETAILS="\n\n*Failed Images:*\n"
+            FAILURES=$(jq -r '.failures[] | "• `\(.image_key)` [\(.operator)]\n  Source: `\(.source)`\n  Target: `\(.target)`\n  Error: \(.error)\n"' workflow/mirror-results.json)
+            DETAILS="$DETAILS$FAILURES"
+          fi
+        fi
+
+        # Build the Slack message
+        WORKFLOW_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        MESSAGE=$(cat <<EOF
+        {
+          "blocks": [
+            {
+              "type": "header",
+              "text": {
+                "type": "plain_text",
+                "text": "Image Mirroring Report"
+              }
+            },
+            {
+              "type": "section",
+              "text": {
+                "type": "mrkdwn",
+                "text": "$STATUS\n\n$SUMMARY$DETAILS"
+              }
+            },
+            {
+              "type": "section",
+              "fields": [
+                {
+                  "type": "mrkdwn",
+                  "text": "*Triggered by:*\n${{ github.event_name }}"
+                },
+                {
+                  "type": "mrkdwn",
+                  "text": "*Branch:*\n${{ github.ref_name }}"
+                }
+              ]
+            },
+            {
+              "type": "actions",
+              "elements": [
+                {
+                  "type": "button",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "View Workflow Run"
+                  },
+                  "url": "$WORKFLOW_URL"
+                }
+              ]
+            }
+          ]
+        }
+        EOF
+        )
+
+        # Send to Slack
+        curl -X POST -H 'Content-type: application/json' \
+          --data "$MESSAGE" \
+          "${{ secrets.SLACK_WEBHOOK_URL }}"
+
+    - name: Fail workflow if mirroring failed
+      if: steps.mirror.outcome == 'failure'
+      run: exit 1
