@@ -8,7 +8,7 @@ metadata:
     categories: Integration & Delivery
     certified: 'true'
     support: Red Hat
-    createdAt: '2025-12-08T11:08:24Z'
+    createdAt: '2025-12-08T17:04:12Z'
     description: Advanced provisioning and management of OpenShift and Kubernetes clusters
     operatorframework.io/suggested-namespace: open-cluster-management
     operatorframework.io/initialization-resource: '{"apiVersion":"operator.open-cluster-management.io/v1",
@@ -29,9 +29,9 @@ metadata:
     features.operators.openshift.io/token-auth-azure: 'false'
     features.operators.openshift.io/token-auth-gcp: 'false'
     olm.properties: '[{"type": "olm.maxOpenShiftVersion", "value": "4.21"}]'
-    olm.skipRange: '>=2.13.0 <2.15.0'
+    olm.skipRange: '>=2.13.0 <2.15.1'
     operators.openshift.io/must-gather-image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:8083f292213b32da241ab081b0a2034339f56fa9417912e88a177c0451d0e655
-  name: advanced-cluster-management.v2.15.0
+  name: advanced-cluster-management.v2.15.1
   namespace: placeholder
   labels:
     operatorframework.io/arch.amd64: supported
@@ -41,7 +41,7 @@ metadata:
     operatorframework.io/os.linux: supported
 spec:
   displayName: Advanced Cluster Management for Kubernetes
-  version: 2.15.0
+  version: 2.15.1
   provider:
     name: Red Hat
   maintainers:
@@ -1979,7 +1979,7 @@ spec:
                 - name: OPERAND_IMAGE_MTV_INTEGRATIONS
                   value: registry.redhat.io/rhacm2/mtv-integrations-rhel9@sha256:7a7bc1e8734aaee47bd19c813cbfa50d9827f3e82142cd1214dbe0457babab15
                 - name: OPERAND_IMAGE_MULTICLOUD_INTEGRATIONS
-                  value: registry.redhat.io/rhacm2/multicloud-integrations-rhel9@sha256:d86b05b471c1f2539b035edb2983294c3ce413161e6d042e413d804d803cac78
+                  value: registry.redhat.io/rhacm2/multicloud-integrations-rhel9@sha256:05aea3df35ed852b1c71f27c4436eec2402591d782ae7933b46a78f95e09e84b
                 - name: OPERAND_IMAGE_MULTICLUSTER_OBSERVABILITY_ADDON
                   value: registry.redhat.io/rhacm2/acm-multicluster-observability-addon-rhel9@sha256:2eccb07ec67b757fb8bd003c03a630f846a540e86b816625abd9e2c316811e1e
                 - name: OPERAND_IMAGE_MULTICLUSTER_OBSERVABILITY_OPERATOR
@@ -2067,7 +2067,7 @@ spec:
                 - name: OPERAND_IMAGE_VOLSYNC
                   value: registry.redhat.io/rhacm2/volsync-rhel9@sha256:3dfa7a76514dbd82e6043e535a868c018d909f19ae9714745934765a68e3c3fd
                 - name: OPERATOR_VERSION
-                  value: 2.15.0
+                  value: 2.15.1
                 - name: OPERATOR_PACKAGE
                   value: advanced-cluster-management
                 image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:eac1d0d7fcf14a7fb151f10f5028adeedc4e2264b4c2ad1afbf654d3071cab18
@@ -2113,6 +2113,7 @@ spec:
                 secret:
                   defaultMode: 420
                   secretName: multiclusterhub-operator-webhook
+  replaces: advanced-cluster-management.v2.15.0
   relatedImages:
   - name: acm_cli
     image: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:dfb1c0c3c119b679282a720fd7c64d4b56857da123036b7a4be39001fa47745d
@@ -2157,7 +2158,7 @@ spec:
   - name: mtv_integrations
     image: registry.redhat.io/rhacm2/mtv-integrations-rhel9@sha256:7a7bc1e8734aaee47bd19c813cbfa50d9827f3e82142cd1214dbe0457babab15
   - name: multicloud_integrations
-    image: registry.redhat.io/rhacm2/multicloud-integrations-rhel9@sha256:d86b05b471c1f2539b035edb2983294c3ce413161e6d042e413d804d803cac78
+    image: registry.redhat.io/rhacm2/multicloud-integrations-rhel9@sha256:05aea3df35ed852b1c71f27c4436eec2402591d782ae7933b46a78f95e09e84b
   - name: multicluster_observability_addon
     image: registry.redhat.io/rhacm2/acm-multicluster-observability-addon-rhel9@sha256:2eccb07ec67b757fb8bd003c03a630f846a540e86b816625abd9e2c316811e1e
   - name: multicluster_observability_operator
