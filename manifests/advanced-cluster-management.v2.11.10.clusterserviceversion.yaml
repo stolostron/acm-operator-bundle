@@ -8,7 +8,7 @@ metadata:
     categories: Integration & Delivery
     certified: 'true'
     support: Red Hat
-    createdAt: '2026-01-05T09:06:25Z'
+    createdAt: '2026-01-06T09:05:21Z'
     description: Advanced provisioning and management of OpenShift and Kubernetes clusters
     operatorframework.io/suggested-namespace: open-cluster-management
     operatorframework.io/initialization-resource: '{"apiVersion":"operator.open-cluster-management.io/v1",
@@ -28,9 +28,9 @@ metadata:
     features.operators.openshift.io/token-auth-aws: 'false'
     features.operators.openshift.io/token-auth-azure: 'false'
     features.operators.openshift.io/token-auth-gcp: 'false'
-    olm.skipRange: '>=2.10.0 <2.11.9'
+    olm.skipRange: '>=2.10.0 <2.11.10'
     operators.openshift.io/must-gather-image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:bfbe92069c63292ca3f1fa2701230079d54bb5033d48faaf406233ce668c493c
-  name: advanced-cluster-management.v2.11.9
+  name: advanced-cluster-management.v2.11.10
   namespace: placeholder
   labels:
     operatorframework.io/arch.amd64: supported
@@ -40,7 +40,7 @@ metadata:
     operatorframework.io/os.linux: supported
 spec:
   displayName: Advanced Cluster Management for Kubernetes
-  version: 2.11.9
+  version: 2.11.10
   provider:
     name: Red Hat
   maintainers:
@@ -2092,7 +2092,7 @@ spec:
                 - name: OPERAND_IMAGE_GOVERNANCE_POLICY_PROPAGATOR
                   value: registry.redhat.io/rhacm2/governance-policy-propagator-rhel9@sha256:da85606ef86a9144e20963f4698dc05592c4980d36de3920eef30776b97791e3
                 - name: OPERAND_IMAGE_GRAFANA
-                  value: registry.redhat.io/rhacm2/acm-grafana-rhel9@sha256:3834363e96f35d14f5b43c3d8cec1afcf7394668db8ba8b9ef3ef634c90b13aa
+                  value: registry.redhat.io/rhacm2/acm-grafana-rhel9@sha256:2a991ccf06aa41c1073607de80f1914e33b0f76d35cf9dee5e579607eb49781e
                 - name: OPERAND_IMAGE_GRAFANA_DASHBOARD_LOADER
                   value: registry.redhat.io/rhacm2/grafana-dashboard-loader-rhel9@sha256:26fbbaad310231f307e28065c90b4a0594f017df82a8742e0d618a5f1cc2292f
                 - name: OPERAND_IMAGE_INSIGHTS_CLIENT
@@ -2100,7 +2100,7 @@ spec:
                 - name: OPERAND_IMAGE_INSIGHTS_METRICS
                   value: registry.redhat.io/rhacm2/insights-metrics-rhel9@sha256:9798bb8da580698f177d76274492bb023dcf02da8465d1d6c8c0b74040716daf
                 - name: OPERAND_IMAGE_KLUSTERLET_ADDON_CONTROLLER
-                  value: registry.redhat.io/rhacm2/klusterlet-addon-controller-rhel9@sha256:fba5f928e99f8a2d40c4da58079ab7ccda91eeb6ae1f51e086c12e1f27f8c70a
+                  value: registry.redhat.io/rhacm2/klusterlet-addon-controller-rhel9@sha256:3abf226e6dd7c52feda6a9c727c303f11f2f5965abcbb4c120519960274d4e32
                 - name: OPERAND_IMAGE_KUBE_RBAC_PROXY
                   value: registry.redhat.io/rhacm2/kube-rbac-proxy-rhel9@sha256:a8e90f591b75c9cd7c363c021615d7048908f44bf23fa44b004422079998b931
                 - name: OPERAND_IMAGE_KUBE_STATE_METRICS
@@ -2164,7 +2164,7 @@ spec:
                 - name: OPERAND_IMAGE_POSTGRESQL_13
                   value: registry.redhat.io/rhel9/postgresql-13@sha256:71e4fdbe45adde994ebcd64a7241a265d87e5e8f69278679c111715907a9c74f
                 - name: OPERATOR_VERSION
-                  value: 2.11.9
+                  value: 2.11.10
                 - name: OPERATOR_PACKAGE
                   value: advanced-cluster-management
                 image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:6dce59bc42657f8a8a0f0319882e1fdcd8387b3d7e2c80719425e45512d4d40c
@@ -2210,7 +2210,7 @@ spec:
                 secret:
                   defaultMode: 420
                   secretName: multiclusterhub-operator-webhook
-  replaces: advanced-cluster-management.v2.11.8
+  replaces: advanced-cluster-management.v2.11.9
   relatedImages:
   - name: acm_must_gather
     image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:bfbe92069c63292ca3f1fa2701230079d54bb5033d48faaf406233ce668c493c
@@ -2233,7 +2233,7 @@ spec:
   - name: governance_policy_propagator
     image: registry.redhat.io/rhacm2/governance-policy-propagator-rhel9@sha256:da85606ef86a9144e20963f4698dc05592c4980d36de3920eef30776b97791e3
   - name: grafana
-    image: registry.redhat.io/rhacm2/acm-grafana-rhel9@sha256:3834363e96f35d14f5b43c3d8cec1afcf7394668db8ba8b9ef3ef634c90b13aa
+    image: registry.redhat.io/rhacm2/acm-grafana-rhel9@sha256:2a991ccf06aa41c1073607de80f1914e33b0f76d35cf9dee5e579607eb49781e
   - name: grafana_dashboard_loader
     image: registry.redhat.io/rhacm2/grafana-dashboard-loader-rhel9@sha256:26fbbaad310231f307e28065c90b4a0594f017df82a8742e0d618a5f1cc2292f
   - name: insights_client
@@ -2241,7 +2241,7 @@ spec:
   - name: insights_metrics
     image: registry.redhat.io/rhacm2/insights-metrics-rhel9@sha256:9798bb8da580698f177d76274492bb023dcf02da8465d1d6c8c0b74040716daf
   - name: klusterlet_addon_controller
-    image: registry.redhat.io/rhacm2/klusterlet-addon-controller-rhel9@sha256:fba5f928e99f8a2d40c4da58079ab7ccda91eeb6ae1f51e086c12e1f27f8c70a
+    image: registry.redhat.io/rhacm2/klusterlet-addon-controller-rhel9@sha256:3abf226e6dd7c52feda6a9c727c303f11f2f5965abcbb4c120519960274d4e32
   - name: kube_rbac_proxy
     image: registry.redhat.io/rhacm2/kube-rbac-proxy-rhel9@sha256:a8e90f591b75c9cd7c363c021615d7048908f44bf23fa44b004422079998b931
   - name: kube_state_metrics
