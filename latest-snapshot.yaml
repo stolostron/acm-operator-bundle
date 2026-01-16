@@ -2,66 +2,73 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/search-collector?rev=fe574f08e6cb641c1fd37ff011099ac8983205c0
-    build.appstudio.redhat.com/commit_sha: fe574f08e6cb641c1fd37ff011099ac8983205c0
-    build.appstudio.redhat.com/target_branch: release-2.16
-    pac.test.appstudio.openshift.io/branch: release-2.16
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/multicluster-observability-operator?rev=dc0cfb9d43c224721c61ebaeb23a563c5620a134
+    build.appstudio.redhat.com/commit_sha: dc0cfb9d43c224721c61ebaeb23a563c5620a134
+    build.appstudio.redhat.com/target_branch: main
+    pac.test.appstudio.openshift.io/branch: main
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "60545826226"
+    pac.test.appstudio.openshift.io/check-run-id: "60565147294"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-qlqwnz
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-xdnhdw
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/search-collector-acm-216-on-push-2scmw
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/endpoint-monitoring-operator-acm-216-on-push-rq6v7
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
-      == "release-2.16"
-    pac.test.appstudio.openshift.io/original-prname: search-collector-acm-216-on-push
-    pac.test.appstudio.openshift.io/pull-request: "821"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/search-collector
-    pac.test.appstudio.openshift.io/repository: search-collector-acm-210
+      == "main"
+    pac.test.appstudio.openshift.io/original-prname: endpoint-monitoring-operator-acm-216-on-push
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/multicluster-observability-operator
+    pac.test.appstudio.openshift.io/repository: endpoint-monitoring-operator-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
-    pac.test.appstudio.openshift.io/sender: acm-cicd-prow-bot
-    pac.test.appstudio.openshift.io/sha: fe574f08e6cb641c1fd37ff011099ac8983205c0
+    pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
+    pac.test.appstudio.openshift.io/sha: dc0cfb9d43c224721c61ebaeb23a563c5620a134
     pac.test.appstudio.openshift.io/sha-title: |-
-      minor refactor deduplicating some function calls (#821)
+      Fix RBAC test to handle multiple node results (#2300)
 
-      Signed-off-by: Spencer McAvey <smcavey@redhat.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/search-collector/commit/fe574f08e6cb641c1fd37ff011099ac8983205c0
-    pac.test.appstudio.openshift.io/source-branch: refs/heads/release-2.16
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/search-collector
+      The RHACM4K-1406 observability RBAC test was failing on multi-node
+        clusters because it expected exactly 1 metric result, but the query
+        returns one result per node.
+
+        - Change result check from '!= 1' to '== 0' to accept any non-zero
+          number of results
+        - This allows the test to pass on clusters with varying node counts
+        while still detecting when no data is available."
+
+      Signed-off-by: Fengshuang Tan <ftan@redhat.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/multicluster-observability-operator/commit/dc0cfb9d43c224721c61ebaeb23a563c5620a134
+    pac.test.appstudio.openshift.io/source-branch: refs/heads/main
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multicluster-observability-operator
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: search-collector
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-01-16T03:00:43Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-216-release-acm-216-s8s54":{"lastUpdateTime":"2026-01-16T03:01:33.423914656Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: multicluster-observability-operator
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-01-16T08:44:25Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-216-release-acm-216-qf9d6":{"lastUpdateTime":"2026-01-16T08:45:11.579986647Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1768531702"
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/search-collector
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-216","status":"TestPassed","lastUpdateTime":"2026-01-16T03:01:33.423914656Z","details":"Integration
-      test passed","startTime":"2026-01-16T03:00:43.384311403Z","completionTime":"2026-01-16T03:01:33.423914656Z","testPipelineRunName":"enterprise-contract-acm-216-hmshg"}]'
-  creationTimestamp: "2026-01-16T03:00:43Z"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1768552054"
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multicluster-observability-operator
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-216","status":"TestPassed","lastUpdateTime":"2026-01-16T08:45:11.579986647Z","details":"Integration
+      test passed","startTime":"2026-01-16T08:44:26.300162668Z","completionTime":"2026-01-16T08:45:11.579986647Z","testPipelineRunName":"enterprise-contract-acm-216-g865p"}]'
+  creationTimestamp: "2026-01-16T08:44:26Z"
   generateName: release-acm-216-
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-216
-    appstudio.openshift.io/build-pipelinerun: search-collector-acm-216-on-push-2scmw
-    appstudio.openshift.io/component: search-collector-acm-216
+    appstudio.openshift.io/build-pipelinerun: endpoint-monitoring-operator-acm-216-on-push-rq6v7
+    appstudio.openshift.io/component: endpoint-monitoring-operator-acm-216
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "60545826226"
+    pac.test.appstudio.openshift.io/check-run-id: "60565147294"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: search-collector-acm-216-on-push
-    pac.test.appstudio.openshift.io/pull-request: "821"
-    pac.test.appstudio.openshift.io/repository: search-collector-acm-210
-    pac.test.appstudio.openshift.io/sha: fe574f08e6cb641c1fd37ff011099ac8983205c0
+    pac.test.appstudio.openshift.io/original-prname: endpoint-monitoring-operator-acm-216-on-push
+    pac.test.appstudio.openshift.io/repository: endpoint-monitoring-operator-acm-210
+    pac.test.appstudio.openshift.io/sha: dc0cfb9d43c224721c61ebaeb23a563c5620a134
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: search-collector
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1768532433"
+    pac.test.appstudio.openshift.io/url-repository: multicluster-observability-operator
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1768553054"
     test.appstudio.openshift.io/type: component
-  name: release-acm-216-s8s54
+  name: release-acm-216-qf9d6
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -70,172 +77,12 @@ metadata:
     kind: Application
     name: release-acm-216
     uid: 36e17c1d-3fe4-44ec-96e0-7fac572eda72
-  resourceVersion: "6702854972"
-  uid: 2c98f4c6-9071-4c07-86f5-bd1e26d750d4
+  resourceVersion: "6707192609"
+  uid: 5bdd7daa-962a-4920-8b46-80d24a52ec33
 spec:
   application: release-acm-216
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/must-gather-acm-216@sha256:d7f6df432b3003d6b2eda9f546b4377e763eea21f8613a02db17993de7ddc2d1
-    name: must-gather-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 96ab08b1a8cb3882daa3b57a94331a2aaecd7afc
-        url: https://github.com/stolostron/must-gather
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-216@sha256:de81776ad2be8a48b0bf65276986f3affbc6dce2f294fef650662060478ecc0c
-    name: cert-policy-controller-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: d543596be2ca3d05013b2a6e0438b9904ec4d414
-        url: https://github.com/stolostron/cert-policy-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-propagator-acm-216@sha256:cefa4e3d33cf6c70021fba770ef6c75ca2365241c42c1585fcab2188df189b81
-    name: governance-policy-propagator-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 62a4a40b4850235b40a77ec06a81783439884870
-        url: https://github.com/stolostron/governance-policy-propagator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-rbac-proxy-acm-216@sha256:8017fdb1476bc5e3fdbf67c08bf3c35bc49155c12c9ec090f625fa12c50df839
-    name: kube-rbac-proxy-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 9f1d349c35a98646b912d2e50c3d8d00ed53902e
-        url: https://github.com/stolostron/kube-rbac-proxy
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-channel-acm-216@sha256:d96f70da225bd5e652b0ef8a324a3f6a73d42de96d7b7002553af540c5287f7c
-    name: multicluster-operators-channel-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 473244f12204443ca9baf0b3f34d4cfabba86d9b
-        url: https://github.com/stolostron/multicloud-operators-channel
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/observatorium-operator-acm-216@sha256:421c18e16d2c6a8d04c997f506e4af87a266ad812943dfeda62f47ed95496cab
-    name: observatorium-operator-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 0c58b88fcf58c0f358c915ccaf445a9bb9fb2aac
-        url: https://github.com/stolostron/observatorium-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-config-reloader-acm-216@sha256:e6a7421a07882a97d2e71a13b0ba2096dfa1d69d30331e57d9d27933532417d5
-    name: prometheus-config-reloader-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: cmd/prometheus-config-reloader/Containerfile.operator
-        revision: d61cc7f3d30463d4c25af690b4086592fe0698e9
-        url: https://github.com/stolostron/prometheus-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-operator-acm-216@sha256:661205f51e003f926a0d8b89339a98f6ec6309756e3ea4b28c60811b88bfc643
-    name: prometheus-operator-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: d61cc7f3d30463d4c25af690b4086592fe0698e9
-        url: https://github.com/stolostron/prometheus-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-216@sha256:2e9d9269dcf5c5997066ceaa6e8db08b75299eebbffb1744406992304bd3eded
-    name: search-indexer-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 55a77f613c74db25f55cd4c514da2b79c9a02a83
-        url: https://github.com/stolostron/search-indexer
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-addon-controller-acm-216@sha256:b33fe3cd493ad491b12c4241c1fa07816f92ed2fba8c625fe4c853790de99007
-    name: governance-policy-addon-controller-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 5bc563e6df8aeecb040de6f31dfead4b33caca21
-        url: https://github.com/stolostron/governance-policy-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-dashboard-loader-acm-216@sha256:471b17b9157d9af6cfb0bb5396a694b5ce07db6e5c2805b507245feb211ef733
-    name: grafana-dashboard-loader-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: loaders/dashboards/Containerfile.operator
-        revision: 6b3f6f2421a69e694b97fc98791fa81a81be8870
-        url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/siteconfig-acm-216@sha256:b223fb031708a97815193074c7cb015a4bdcf2c326369df4cd1332f087afe040
-    name: siteconfig-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile
-        revision: 47f87da7d16e5cd7baf3236ae9a0547e8330b244
-        url: https://github.com/stolostron/siteconfig
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-216@sha256:1693f1cb6c7eebbb721ff70d1847a1f3e37d6203e3a2ccc8971ef19a8388a353
-    name: submariner-addon-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.konflux
-        revision: a5de2aabbc1f8347c31f66c2052527741ba829e7
-        url: https://github.com/stolostron/submariner-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-cli-acm-216@sha256:7d8d1f574ddc84737d8269d897a6405a50858b43560cfa3feaeb4a395af73214
-    name: acm-cli-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 00be1885b499f109eae0b4dd9d5bbaf02f36ddbc
-        url: https://github.com/stolostron/acm-cli
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-216@sha256:d650a36a0e4e2bfa83ac0ebe1dff9f0c5f5f85498d94b8961335abbe9c0e034f
-    name: console-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.acm.konflux
-        revision: 2b88f0d0d72c9c8ffb43a02511cbb6f34e26d433
-        url: https://github.com/stolostron/console
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/endpoint-monitoring-operator-acm-216@sha256:0d047919c57345839ef2c6419514367a5ce749edc96bc8f945cfa1df0602c204
-    name: endpoint-monitoring-operator-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: operators/endpointmetrics/Containerfile.operator
-        revision: 6b3f6f2421a69e694b97fc98791fa81a81be8870
-        url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-state-metrics-acm-216@sha256:321c07a8be52f426d6bc59d52ee2ffae2ae186a15d8b504d29cf8a678642a598
-    name: kube-state-metrics-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: f0cb6a40e9f0a663c3b8cfefd49035d0c45421da
-        url: https://github.com/stolostron/kube-state-metrics
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/metrics-collector-acm-216@sha256:1ae11186b8c7c777b2d629f04d27c39a1eb507262418f9974f427cc0a3dcedfc
-    name: metrics-collector-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: collectors/metrics/Containerfile.operator
-        revision: 6b3f6f2421a69e694b97fc98791fa81a81be8870
-        url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-operator-acm-216@sha256:d07e2b40d4d408770ecd60de62342f82f98d230d26a44b888613113117529c4d
-    name: multicluster-observability-operator-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: operators/multiclusterobservability/Containerfile.operator
-        revision: 6b3f6f2421a69e694b97fc98791fa81a81be8870
-        url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/rbac-query-proxy-acm-216@sha256:762cf3012f2228845bf2d34c0516ab0ff7e61b6c7193fa5e103b369fedb2d622
-    name: rbac-query-proxy-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: proxy/Containerfile.operator
-        revision: 6b3f6f2421a69e694b97fc98791fa81a81be8870
-        url: https://github.com/stolostron/multicluster-observability-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-api-acm-216@sha256:7045cee2a7206a70a481efee83293a392f28ef8bf4b57ce55410893c88bd84f9
     name: search-v2-api-acm-216
     source:
@@ -336,6 +183,8 @@ spec:
     name: search-collector-acm-216
     source:
       git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
         revision: fe574f08e6cb641c1fd37ff011099ac8983205c0
         url: https://github.com/stolostron/search-collector
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/thanos-acm-216@sha256:4739714200fe6e612ffe4ca43d0b3403b12e13d006d9f2feb34940d073480688
@@ -442,20 +291,178 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: b75b5345607d029a0f6fc1aa85bf87bc0f1284a4
         url: https://github.com/stolostron/insights-metrics
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/must-gather-acm-216@sha256:d7f6df432b3003d6b2eda9f546b4377e763eea21f8613a02db17993de7ddc2d1
+    name: must-gather-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 96ab08b1a8cb3882daa3b57a94331a2aaecd7afc
+        url: https://github.com/stolostron/must-gather
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-216@sha256:de81776ad2be8a48b0bf65276986f3affbc6dce2f294fef650662060478ecc0c
+    name: cert-policy-controller-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: d543596be2ca3d05013b2a6e0438b9904ec4d414
+        url: https://github.com/stolostron/cert-policy-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-propagator-acm-216@sha256:cefa4e3d33cf6c70021fba770ef6c75ca2365241c42c1585fcab2188df189b81
+    name: governance-policy-propagator-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 62a4a40b4850235b40a77ec06a81783439884870
+        url: https://github.com/stolostron/governance-policy-propagator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-rbac-proxy-acm-216@sha256:8017fdb1476bc5e3fdbf67c08bf3c35bc49155c12c9ec090f625fa12c50df839
+    name: kube-rbac-proxy-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 9f1d349c35a98646b912d2e50c3d8d00ed53902e
+        url: https://github.com/stolostron/kube-rbac-proxy
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-channel-acm-216@sha256:d96f70da225bd5e652b0ef8a324a3f6a73d42de96d7b7002553af540c5287f7c
+    name: multicluster-operators-channel-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 473244f12204443ca9baf0b3f34d4cfabba86d9b
+        url: https://github.com/stolostron/multicloud-operators-channel
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/observatorium-operator-acm-216@sha256:421c18e16d2c6a8d04c997f506e4af87a266ad812943dfeda62f47ed95496cab
+    name: observatorium-operator-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 0c58b88fcf58c0f358c915ccaf445a9bb9fb2aac
+        url: https://github.com/stolostron/observatorium-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-config-reloader-acm-216@sha256:e6a7421a07882a97d2e71a13b0ba2096dfa1d69d30331e57d9d27933532417d5
+    name: prometheus-config-reloader-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: cmd/prometheus-config-reloader/Containerfile.operator
+        revision: d61cc7f3d30463d4c25af690b4086592fe0698e9
+        url: https://github.com/stolostron/prometheus-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-operator-acm-216@sha256:661205f51e003f926a0d8b89339a98f6ec6309756e3ea4b28c60811b88bfc643
+    name: prometheus-operator-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: d61cc7f3d30463d4c25af690b4086592fe0698e9
+        url: https://github.com/stolostron/prometheus-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-216@sha256:2e9d9269dcf5c5997066ceaa6e8db08b75299eebbffb1744406992304bd3eded
+    name: search-indexer-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 55a77f613c74db25f55cd4c514da2b79c9a02a83
+        url: https://github.com/stolostron/search-indexer
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-addon-controller-acm-216@sha256:b33fe3cd493ad491b12c4241c1fa07816f92ed2fba8c625fe4c853790de99007
+    name: governance-policy-addon-controller-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 5bc563e6df8aeecb040de6f31dfead4b33caca21
+        url: https://github.com/stolostron/governance-policy-addon-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-dashboard-loader-acm-216@sha256:e390c5c3342aebea5ea1509f100fbc63ffd605cbd2db3441836a84458f074081
+    name: grafana-dashboard-loader-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: loaders/dashboards/Containerfile.operator
+        revision: dc0cfb9d43c224721c61ebaeb23a563c5620a134
+        url: https://github.com/stolostron/multicluster-observability-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/siteconfig-acm-216@sha256:b223fb031708a97815193074c7cb015a4bdcf2c326369df4cd1332f087afe040
+    name: siteconfig-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile
+        revision: 47f87da7d16e5cd7baf3236ae9a0547e8330b244
+        url: https://github.com/stolostron/siteconfig
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-216@sha256:1693f1cb6c7eebbb721ff70d1847a1f3e37d6203e3a2ccc8971ef19a8388a353
+    name: submariner-addon-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.konflux
+        revision: a5de2aabbc1f8347c31f66c2052527741ba829e7
+        url: https://github.com/stolostron/submariner-addon
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-cli-acm-216@sha256:0384dda5d9f35026198b5a75ae3087654761a8dcd1ebea1ce7e1716fe41d318a
+    name: acm-cli-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: aa2b3d560c2494ad95d333bd2a57cd36c1eb277e
+        url: https://github.com/stolostron/acm-cli
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-216@sha256:6b5e819f34ae908624d87800ae14749e556624d372dac38e25f0142b17d42387
+    name: console-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.acm.konflux
+        revision: 4e9ab5d47d4d39abba83449dd71679c6d2b83f87
+        url: https://github.com/stolostron/console
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/endpoint-monitoring-operator-acm-216@sha256:cf4071d7fcb6204344a13ffc1fe2a8fea4b9f3adab27bc132492a1472a619835
+    name: endpoint-monitoring-operator-acm-216
+    source:
+      git:
+        revision: dc0cfb9d43c224721c61ebaeb23a563c5620a134
+        url: https://github.com/stolostron/multicluster-observability-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-state-metrics-acm-216@sha256:321c07a8be52f426d6bc59d52ee2ffae2ae186a15d8b504d29cf8a678642a598
+    name: kube-state-metrics-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: f0cb6a40e9f0a663c3b8cfefd49035d0c45421da
+        url: https://github.com/stolostron/kube-state-metrics
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/metrics-collector-acm-216@sha256:8556dea3ed4740890693bb9cb8933c40892240249289bb56fcb9c57e5bd77671
+    name: metrics-collector-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: collectors/metrics/Containerfile.operator
+        revision: dc0cfb9d43c224721c61ebaeb23a563c5620a134
+        url: https://github.com/stolostron/multicluster-observability-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-operator-acm-216@sha256:de26c930def52bca04a126a8d24fec14b0f120015f3fad9a1aa8f996e096940e
+    name: multicluster-observability-operator-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: operators/multiclusterobservability/Containerfile.operator
+        revision: dc0cfb9d43c224721c61ebaeb23a563c5620a134
+        url: https://github.com/stolostron/multicluster-observability-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/rbac-query-proxy-acm-216@sha256:73b2afbb25b444c7c4a682999800f4e7b6e2380389a6b0f7c2437d09473d6727
+    name: rbac-query-proxy-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: proxy/Containerfile.operator
+        revision: dc0cfb9d43c224721c61ebaeb23a563c5620a134
+        url: https://github.com/stolostron/multicluster-observability-operator
 status:
   conditions:
-  - lastTransitionTime: "2026-01-16T03:01:33Z"
+  - lastTransitionTime: "2026-01-16T08:45:11Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-01-16T03:01:33Z"
+  - lastTransitionTime: "2026-01-16T08:45:11Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-01-16T03:01:33Z"
+  - lastTransitionTime: "2026-01-16T08:45:11Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
