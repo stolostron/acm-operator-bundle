@@ -2,82 +2,64 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/governance-policy-framework-addon?rev=5e775b3ab9efb7bc8c129ad0a4f65ea0f6b53952
-    build.appstudio.redhat.com/commit_sha: 5e775b3ab9efb7bc8c129ad0a4f65ea0f6b53952
-    build.appstudio.redhat.com/target_branch: release-2.16
-    pac.test.appstudio.openshift.io/branch: release-2.16
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/klusterlet-addon-controller?rev=607d1e44e060136df9fc50822e8be4a107700017
+    build.appstudio.redhat.com/commit_sha: 607d1e44e060136df9fc50822e8be4a107700017
+    build.appstudio.redhat.com/target_branch: main
+    pac.test.appstudio.openshift.io/branch: main
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "60943427992"
+    pac.test.appstudio.openshift.io/check-run-id: "60971390014"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-wpleeu
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-mcpjgm
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/governance-policy-framework-addon-acm-216-on-push-lsqd5
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/klusterlet-addon-controller-acm-216-on-push-b9z4z
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
-      == "release-2.16"
-    pac.test.appstudio.openshift.io/original-prname: governance-policy-framework-addon-acm-216-on-push
-    pac.test.appstudio.openshift.io/pull-request: "948"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/governance-policy-framework-addon
-    pac.test.appstudio.openshift.io/repository: governance-policy-framework-addon-dfsa
+      == "main"
+    pac.test.appstudio.openshift.io/original-prname: klusterlet-addon-controller-acm-216-on-push
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/klusterlet-addon-controller
+    pac.test.appstudio.openshift.io/repository: klusterlet-addon-controller-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
-    pac.test.appstudio.openshift.io/sender: acm-grc-security
-    pac.test.appstudio.openshift.io/sha: 5e775b3ab9efb7bc8c129ad0a4f65ea0f6b53952
+    pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
+    pac.test.appstudio.openshift.io/sha: 607d1e44e060136df9fc50822e8be4a107700017
     pac.test.appstudio.openshift.io/sha-title: |-
-      Improve stability of policy history
+      Upgrade Go to 1.25 (#557)
 
-      We noticed in tests that sometimes the controller would repeatedly
-      update the status of certain Policies, changing the order of some of the
-      events, and not always deduplicating the correct events.
-
-      This commit uses higher precision timestamps (from the event names) when
-      possible, before sorting the history. This should allow recovery of the
-      high precision timestamps when the original events are missing, since
-      the stamps saved in the Policy history are truncated by Kubernetes to
-      only seconds precision. The controller now also truncates the timestamps
-      itself, so that comparisons with the resource on the cluster can work
-      properly, preventing other unnecessary dropped updates.
-
-      Refs:
-       - https://issues.redhat.com/browse/ACM-28668
-
-      Signed-off-by: Justin Kulikauskas <jkulikau@redhat.com>
-      (cherry picked from commit 88dce60ba9379ad4a5057a18d32919540a8f1357)
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/governance-policy-framework-addon/commit/5e775b3ab9efb7bc8c129ad0a4f65ea0f6b53952
-    pac.test.appstudio.openshift.io/source-branch: refs/heads/release-2.16
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/governance-policy-framework-addon
+      Signed-off-by: Qing Hao <qhao@redhat.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/klusterlet-addon-controller/commit/607d1e44e060136df9fc50822e8be4a107700017
+    pac.test.appstudio.openshift.io/source-branch: refs/heads/main
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/klusterlet-addon-controller
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: governance-policy-framework-addon
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-01-20T21:03:39Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-216-release-acm-216-hqk5f":{"lastUpdateTime":"2026-01-20T21:04:18.098793655Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: klusterlet-addon-controller
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-01-21T03:19:15Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-216-release-acm-216-tdfzr":{"lastUpdateTime":"2026-01-21T03:19:49.816804925Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1768942258"
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/governance-policy-framework-addon
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-216","status":"TestPassed","lastUpdateTime":"2026-01-20T21:04:18.098793655Z","details":"Integration
-      test passed","startTime":"2026-01-20T21:03:39.446494637Z","completionTime":"2026-01-20T21:04:18.098793655Z","testPipelineRunName":"enterprise-contract-acm-216-j6qdc"}]'
-  creationTimestamp: "2026-01-20T21:03:39Z"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1768965050"
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/klusterlet-addon-controller
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-216","status":"TestPassed","lastUpdateTime":"2026-01-21T03:19:49.816804925Z","details":"Integration
+      test passed","startTime":"2026-01-21T03:19:16.1469975Z","completionTime":"2026-01-21T03:19:49.816804925Z","testPipelineRunName":"enterprise-contract-acm-216-tm2gt"}]'
+  creationTimestamp: "2026-01-21T03:19:16Z"
   generateName: release-acm-216-
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-216
-    appstudio.openshift.io/build-pipelinerun: governance-policy-framework-addon-acm-216-on-push-lsqd5
-    appstudio.openshift.io/component: governance-policy-framework-addon-acm-216
+    appstudio.openshift.io/build-pipelinerun: klusterlet-addon-controller-acm-216-on-push-b9z4z
+    appstudio.openshift.io/component: klusterlet-addon-controller-acm-216
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "60943427992"
+    pac.test.appstudio.openshift.io/check-run-id: "60971390014"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: governance-policy-framework-addon-acm-216-on-push
-    pac.test.appstudio.openshift.io/pull-request: "948"
-    pac.test.appstudio.openshift.io/repository: governance-policy-framework-addon-dfsa
-    pac.test.appstudio.openshift.io/sha: 5e775b3ab9efb7bc8c129ad0a4f65ea0f6b53952
+    pac.test.appstudio.openshift.io/original-prname: klusterlet-addon-controller-acm-216-on-push
+    pac.test.appstudio.openshift.io/repository: klusterlet-addon-controller-acm-210
+    pac.test.appstudio.openshift.io/sha: 607d1e44e060136df9fc50822e8be4a107700017
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: governance-policy-framework-addon
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1768943007"
+    pac.test.appstudio.openshift.io/url-repository: klusterlet-addon-controller
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1768965549"
     test.appstudio.openshift.io/type: component
-  name: release-acm-216-hqk5f
+  name: release-acm-216-tdfzr
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -86,12 +68,34 @@ metadata:
     kind: Application
     name: release-acm-216
     uid: 36e17c1d-3fe4-44ec-96e0-7fac572eda72
-  resourceVersion: "6783749789"
-  uid: 9535f4ac-9a47-44fe-a6a0-afa1ce1717ca
+  resourceVersion: "6788591877"
+  uid: b7355d53-3175-4183-ad3f-f04d9ab9016b
 spec:
   application: release-acm-216
   artifacts: {}
   components:
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-216@sha256:6ff42dde29e8da2ca5c2ebb3feef7c61f86b68f3df52b49bccc35c15137dda01
+    name: klusterlet-addon-controller-acm-216
+    source:
+      git:
+        revision: 607d1e44e060136df9fc50822e8be4a107700017
+        url: https://github.com/stolostron/klusterlet-addon-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-216@sha256:05ce62f691df080e29cfbc29d3729f0e052935fef7b7a6df7fa516713e44cbf5
+    name: mtv-integrations-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile
+        revision: 24821520f58bf32d295b58ff4f17a3224307ad6e
+        url: https://github.com/stolostron/mtv-integrations
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-addon-acm-216@sha256:61785e60864cf866db2b48531efe4239e00968567a07f3b1d581926667f498c7
+    name: multicluster-observability-addon-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile
+        revision: 2a5f4e2d8a59cf741aaa5b3ca4c9fe2ebc0d9b59
+        url: https://github.com/stolostron/multicluster-observability-addon
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-operator-acm-216@sha256:661205f51e003f926a0d8b89339a98f6ec6309756e3ea4b28c60811b88bfc643
     name: prometheus-operator-acm-216
     source:
@@ -344,6 +348,8 @@ spec:
     name: governance-policy-framework-addon-acm-216
     source:
       git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
         revision: 5e775b3ab9efb7bc8c129ad0a4f65ea0f6b53952
         url: https://github.com/stolostron/governance-policy-framework-addon
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-api-acm-216@sha256:7045cee2a7206a70a481efee83293a392f28ef8bf4b57ce55410893c88bd84f9
@@ -434,44 +440,20 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: 9382b4d6b0d197cad3023d4399e7610870d67c31
         url: https://github.com/stolostron/grafana
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-216@sha256:a05703984e626e1f967becb352f3dc5c263d323cacdf9e78e19998e8169f2504
-    name: klusterlet-addon-controller-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 647f760b1315b459345d570fbc74969234e28c1e
-        url: https://github.com/stolostron/klusterlet-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-216@sha256:05ce62f691df080e29cfbc29d3729f0e052935fef7b7a6df7fa516713e44cbf5
-    name: mtv-integrations-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile
-        revision: 24821520f58bf32d295b58ff4f17a3224307ad6e
-        url: https://github.com/stolostron/mtv-integrations
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-addon-acm-216@sha256:61785e60864cf866db2b48531efe4239e00968567a07f3b1d581926667f498c7
-    name: multicluster-observability-addon-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile
-        revision: 2a5f4e2d8a59cf741aaa5b3ca4c9fe2ebc0d9b59
-        url: https://github.com/stolostron/multicluster-observability-addon
 status:
   conditions:
-  - lastTransitionTime: "2026-01-20T21:04:18Z"
+  - lastTransitionTime: "2026-01-21T03:19:49Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-01-20T21:04:18Z"
+  - lastTransitionTime: "2026-01-21T03:19:49Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-01-20T21:04:18Z"
+  - lastTransitionTime: "2026-01-21T03:19:49Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
