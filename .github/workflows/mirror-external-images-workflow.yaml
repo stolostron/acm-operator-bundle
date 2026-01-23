@@ -1,5 +1,20 @@
 name: Mirror External Images
 
+# SECURITY NOTES:
+# 1. This workflow handles sensitive secrets (registry credentials, private keys)
+# 2. Command injection mitigations:
+#    - All untrusted inputs (branch names, etc.) are passed via environment variables
+#    - Never use ${{ }} syntax directly in bash contexts with untrusted data
+# 3. workflow_run validation:
+#    - Only accepts triggers from this repository (not forks)
+#    - Validates repository source before processing
+# 4. Minimal GITHUB_TOKEN permissions (permissions: {})
+# 5. If secrets are compromised, rotate immediately:
+#    - TOOLS_REPO_READER_PRIVATE_KEY
+#    - REGISTRY_REDHAT_IO_RGY_PASSWORD
+#    - QUAY_IO_ACMD_RGY_PASSWORD
+#    - SLACK_WEBHOOK_URL
+
 on:
   workflow_dispatch:
     inputs:
@@ -21,6 +36,10 @@ defaults:
   run:
     shell: bash
 
+# Restrict GITHUB_TOKEN permissions to minimum required
+# This prevents token misuse if the workflow is compromised
+permissions: {}
+
 jobs:
   mirror-images:
     runs-on: ubuntu-24.04
@@ -28,16 +47,41 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
-    - name: Log workflow trigger context
+    - name: Validate workflow_run repository
+      if: github.event_name == 'workflow_run'
+      env:
+        WORKFLOW_REPO: ${{ github.event.workflow_run.head_repository.full_name }}
+        EXPECTED_REPO: ${{ github.repository }}
       run: |
-        echo "Workflow triggered by: ${{ github.event_name }}"
-        if [ "${{ github.event_name }}" = "workflow_run" ]; then
-          echo "Triggering workflow: ${{ github.event.workflow_run.name }}"
-          echo "Triggering commit SHA: ${{ github.event.workflow_run.head_sha }}"
-          echo "Triggering branch: ${{ github.event.workflow_run.head_branch }}"
-          echo "Triggering repo: ${{ github.event.workflow_run.head_repository.full_name }}"
-        elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-          echo "Manual trigger - branch input: ${{ inputs.branch }}"
+        echo "Validating workflow_run trigger source..."
+        echo "Expected repository: ${EXPECTED_REPO}"
+        echo "Triggering repository: ${WORKFLOW_REPO}"
+
+        if [ "${WORKFLOW_REPO}" != "${EXPECTED_REPO}" ]; then
+          echo "ERROR: workflow_run triggered from untrusted repository!"
+          echo "This workflow only accepts triggers from ${EXPECTED_REPO}"
+          exit 1
+        fi
+
+        echo "Repository validation passed."
+
+    - name: Log workflow trigger context
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
+        WORKFLOW_SHA: ${{ github.event.workflow_run.head_sha }}
+        WORKFLOW_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        WORKFLOW_REPO: ${{ github.event.workflow_run.head_repository.full_name }}
+        INPUT_BRANCH: ${{ inputs.branch }}
+      run: |
+        echo "Workflow triggered by: ${EVENT_NAME}"
+        if [ "${EVENT_NAME}" = "workflow_run" ]; then
+          echo "Triggering workflow: ${WORKFLOW_NAME}"
+          echo "Triggering commit SHA: ${WORKFLOW_SHA}"
+          echo "Triggering branch: ${WORKFLOW_BRANCH}"
+          echo "Triggering repo: ${WORKFLOW_REPO}"
+        elif [ "${EVENT_NAME}" = "workflow_dispatch" ]; then
+          echo "Manual trigger - branch input: ${INPUT_BRANCH}"
         fi
 
     - name: Checkout repository
@@ -109,6 +153,9 @@ jobs:
 
     - name: Send Slack notification
       if: always()
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        REF_NAME: ${{ github.ref_name }}
       run: |
         # Read results from the JSON file
         if [ ! -f workflow/mirror-results.json ]; then
@@ -168,11 +215,11 @@ jobs:
               "fields": [
                 {
                   "type": "mrkdwn",
-                  "text": "*Triggered by:*\n${{ github.event_name }}"
+                  "text": "*Triggered by:*\n${EVENT_NAME}"
                 },
                 {
                   "type": "mrkdwn",
-                  "text": "*Branch:*\n${{ github.ref_name }}"
+                  "text": "*Branch:*\n${REF_NAME}"
                 }
               ]
             },
