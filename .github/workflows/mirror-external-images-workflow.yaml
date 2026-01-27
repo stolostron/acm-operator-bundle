@@ -12,6 +12,7 @@ name: Mirror External Images
 # 5. If secrets are compromised, rotate immediately:
 #    - TOOLS_REPO_READER_PRIVATE_KEY
 #    - REGISTRY_REDHAT_IO_RGY_PASSWORD
+#    - REGISTRY_STAGE_REDHAT_IO_RGY_PASSWORD
 #    - QUAY_IO_ACMD_RGY_PASSWORD
 #    - SLACK_WEBHOOK_URL
 
@@ -135,6 +136,11 @@ jobs:
         echo "Doing skopeo login to registry.redhat.io"
         echo "${{ secrets.REGISTRY_REDHAT_IO_RGY_PASSWORD }}" \
            | skopeo login -u="${{ vars.REGISTRY_REDHAT_IO_RGY_USERNAME }}" --password-stdin registry.redhat.io
+
+        # Access to registry.stage.redhat.io needed to resolve staging image references:
+        echo "Doing skopeo login to registry.stage.redhat.io"
+        echo "${{ secrets.REGISTRY_STAGE_REDHAT_IO_RGY_PASSWORD }}" \
+           | skopeo login -u="${{ vars.REGISTRY_STAGE_REDHAT_IO_RGY_USERNAME }}" --password-stdin registry.stage.redhat.io
 
         # Access to quay.io/acm-d needed to resolve external image references (in-dev images):
         echo "Doing skopeo login to quay.io (for acm-d)"
