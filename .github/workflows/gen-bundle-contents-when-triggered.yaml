@@ -102,6 +102,11 @@ jobs:
         echo "${{ secrets.REGISTRY_REDHAT_IO_RGY_PASSWORD }}" \
            | docker login -u="${{ vars.REGISTRY_REDHAT_IO_RGY_USERNAME }}" --password-stdin registry.redhat.io
 
+        # Access to registry.stage.redhat.io needed to resolve staging image references:
+        echo "Doing Docker login to registry.stage.redhat.io"
+        echo "${{ secrets.REGISTRY_STAGE_REDHAT_IO_RGY_PASSWORD }}" \
+           | docker login -u="${{ vars.REGISTRY_STAGE_REDHAT_IO_RGY_USERNAME }}" --password-stdin registry.stage.redhat.io
+
         # Access to quay.iio/acm-d needed to resolve external image references (in-dev images):
         echo "Doing Docker login to quay.io (for acm-d)"
         echo "${{ secrets.QUAY_IO_ACMD_RGY_PASSWORD }}" \
