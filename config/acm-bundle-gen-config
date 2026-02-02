@@ -1,0 +1,81 @@
+# This Bash fragment is sourced by various scripts.
+#
+# Its job is to set a bunch of configuration variables as expected by the
+# bundle manifest generation scripts that source it. Because it is Bash, you
+# can use any Bash constructs you want here, but be careful about setting
+# variables that might break the sourcing script.
+
+#--------------------------------------------------------------------
+# Config properties that are unique for each product (ACM vs. MCE)
+# and often/occasionally differ release-to-release.
+#
+# Be sure to consider these settings in release-to-release cutovers.
+#--------------------------------------------------------------------
+
+# List or range of OCP versions to which bundles should be published.
+# Note: This variable is used/effective only for CPASS builds. For Konflux
+# builds, this range is now set in configuration files for the catalog
+# generation steps.
+
+# Note: ACM 2.16 is compatible with OCP 4.21.
+# Official support covers [N+1, N-2], with [N-3/4] allowed as an exception.
+ocp_versions="v4.19-v4.23"
+
+# Specify the lists of architectures and operating systems we support.
+
+# Since ACM 1.0:
+cfg_supported_op_syss=("linux")
+cfg_supported_archs=("amd64")
+
+# Since ACM 2.3
+cfg_supported_archs+=("ppc64le")
+
+# Since ACM 2.4:
+cfg_supported_archs+=("s390x")
+
+# Since ACM 2.5:
+cfg_supported_archs+=("arm64")
+
+# Specify EUS-release configuration:
+
+cfg_first_eus_release_xy=2.11
+cfg_eus_release_cadence=2
+
+#-----------------------------------------------------------------
+# Config properties that are unique for each product (ACM vs. MCE)
+# but usually constant across releases of the product.
+#-----------------------------------------------------------------
+
+# Name of the OLM operator package:
+
+cfg_pkg_name="advanced-cluster-management"
+cfg_short_display_name="ACM"
+olm_package="$cfg_pkg_name" # Alternate name for this config variable
+
+# Pathname (in bundle repo) of the CSV template file.
+cfg_csv_template="config/acm-csv-template.yaml"
+
+# Pathnames (in tools repo) of the scripts used to generate the unbound
+# and bound bundle manifests for this product.
+
+unbound_bundle_manifests_gen_script="tools/konflux/bundle/gen-unbound-acm-bundle.sh"
+bound_bundle_manifests_gen_script="tools/konflux/bundle/gen-bound-acm-bundle.sh"
+
+# Pathname (in bundle repo) of the config file for the image manifest generation
+# script referenced by $image_manifest_gen_script
+# Note: This is relative to the top of the bundle repo (release branch).
+image_manifest_gen_config_file="config/acm-manifest-gen-config.json"
+
+# Set to non-zero to have image manifest generation ignore errors like missing
+# image info or missing images and emit placeholder entries rather than failing.
+ignore_image_errors=1
+
+# Set to non-zero to have iteration/build-number suffixes appended to bundle versions.
+add_iteration_suffix=1
+
+#----------------------------------------------------
+# Config properties likely the same for all products
+#----------------------------------------------------
+
+# Pathname (in tools repo) of the script that generates the image manifest.
+image_manifest_gen_script="tools/konflux/bundle/generate-image-manifest.py"
