@@ -1,0 +1,53 @@
+name: Gen Latest Dev Snapshot - ACM 2.17
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 4 * * *'   # 12:00AM EST every day (UTC-4)
+    - cron: '0 10 * * *'  # 6:00AM EST every day (UTC-4)
+    - cron: '0 16 * * *'  # 12:00PM EST every day (UTC-4)
+    - cron: '0 22 * * *'  # 6:00PM EST every day (UTC-4)
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    strategy:
+        fail-fast: false
+        matrix:
+          branch: ['release-2.17']
+          include:
+            - branch: release-2.17
+              release-plan: "dev-publish-acm-217"
+
+    steps:
+      - name: Checkout tooling branch
+        uses: actions/checkout@v3
+        with:
+          ref: tooling
+
+      # Run the snapshot collector script and create a PR with the latest snapshot in the correct branch
+      - name: Run snapshot collection and file handling
+        env:
+          SA_TOKEN: ${{ secrets.KONFLUX_SERVICE_ACCOUNT_TOKEN }}
+        run: |
+          chmod +x snapshot-collector.sh
+          ./snapshot-collector.sh ${{ matrix.release-plan }} "$SA_TOKEN"
+
+      - name: Generate GitHub token for workflow actions
+        id: gen-workflow-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.WORKFLOW_BOT_APP_ID }}
+          private-key: ${{ secrets.WORKFLOW_BOT_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      # Create Pull Request
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: "update-snapshot-${{ matrix.branch }}"
+          base: "${{ matrix.branch }}"
+          delete-branch: true
+          title: "Gen Latest Snapshot [${{ matrix.branch }}]"
+          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+          token: ${{ steps.gen-workflow-token.outputs.token }}
