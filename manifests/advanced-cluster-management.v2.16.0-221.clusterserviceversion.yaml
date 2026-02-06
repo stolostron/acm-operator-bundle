@@ -8,7 +8,7 @@ metadata:
     categories: Integration & Delivery
     certified: 'true'
     support: Red Hat
-    createdAt: '2026-02-06T10:17:18Z'
+    createdAt: '2026-02-06T16:12:40Z'
     description: Advanced provisioning and management of OpenShift and Kubernetes clusters
     operatorframework.io/suggested-namespace: open-cluster-management
     operatorframework.io/initialization-resource: '{"apiVersion":"operator.open-cluster-management.io/v1",
@@ -29,9 +29,9 @@ metadata:
     features.operators.openshift.io/token-auth-azure: 'false'
     features.operators.openshift.io/token-auth-gcp: 'false'
     olm.properties: '[{"type": "olm.maxOpenShiftVersion", "value": "4.22"}]'
-    olm.skipRange: '>=2.15.0 <2.16.0-220'
+    olm.skipRange: '>=2.15.0 <2.16.0-221'
     operators.openshift.io/must-gather-image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:8beabd4f31a15d78e54fbf12d9148bc3d3630b3e393037c2bf73e506da9d8b9a
-  name: advanced-cluster-management.v2.16.0-220
+  name: advanced-cluster-management.v2.16.0-221
   namespace: placeholder
   labels:
     operatorframework.io/arch.amd64: supported
@@ -41,7 +41,7 @@ metadata:
     operatorframework.io/os.linux: supported
 spec:
   displayName: Advanced Cluster Management for Kubernetes
-  version: 2.16.0-220
+  version: 2.16.0-221
   provider:
     name: Red Hat
   maintainers:
@@ -1917,7 +1917,7 @@ spec:
                 - name: OPERAND_IMAGE_CONFIG_POLICY_CONTROLLER
                   value: registry.redhat.io/rhacm2/config-policy-controller-rhel9@sha256:dfea1043023d79db70b15de24d164ccc6832e8d5e65ae17d997430848c16c930
                 - name: OPERAND_IMAGE_CONSOLE
-                  value: registry.redhat.io/rhacm2/console-rhel9@sha256:b50aef64e6cc26172f4c3269d8c5bf5ecefc2103da23db897b2360f0418c7638
+                  value: registry.redhat.io/rhacm2/console-rhel9@sha256:2a2d441a7bbef2bd52c12a670cb57907501d148136d6805e21f19fb7561ddf07
                 - name: OPERAND_IMAGE_ENDPOINT_MONITORING_OPERATOR
                   value: registry.redhat.io/rhacm2/endpoint-monitoring-rhel9-operator@sha256:95d2621fd73ea3b2eb3e812fd641aad6ca4d1d01e8525dc6db147ea7cfe23bbe
                 - name: OPERAND_IMAGE_GOVERNANCE_POLICY_ADDON_CONTROLLER
@@ -1949,7 +1949,7 @@ spec:
                 - name: OPERAND_IMAGE_MULTICLOUD_INTEGRATIONS
                   value: registry.redhat.io/rhacm2/multicloud-integrations-rhel9@sha256:2363378caa89768f02f44072d81d38d1deb80eae9ff97dfa60ff3f823a0496e7
                 - name: OPERAND_IMAGE_MULTICLUSTER_OBSERVABILITY_ADDON
-                  value: registry.redhat.io/rhacm2/acm-multicluster-observability-addon-rhel9@sha256:2a19d4a51583a7b042f484a96b7aa1262658aae11c1ee4fd9ea72dfaa28482c8
+                  value: registry.redhat.io/rhacm2/acm-multicluster-observability-addon-rhel9@sha256:b2dc72fdef1c7b6d1d64ebcdae0dfb69f2f9805f5e542609c7409b4350d64e44
                 - name: OPERAND_IMAGE_MULTICLUSTER_OBSERVABILITY_OPERATOR
                   value: registry.redhat.io/rhacm2/multicluster-observability-rhel9-operator@sha256:b39675263629da3824952967d6d3c54740a6b74a8b4442606ce3315c6b20a5d2
                 - name: OPERAND_IMAGE_MULTICLUSTER_OPERATORS_APPLICATION
@@ -1964,10 +1964,12 @@ spec:
                   value: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:6396bf60bd43260d1e71400c48a5429427b14e5675966f0dcdea131f45ce4e5a
                 - name: OPERAND_IMAGE_NODE_EXPORTER
                   value: registry.redhat.io/rhacm2/node-exporter-rhel9@sha256:1aca428af48ae5bdaae3a41af90f1a42906abf9e4fb08bfad616d21fce43febb
+                - name: OPERAND_IMAGE_OBO_PROMETHEUS_RHEL9_OPERATOR
+                  value: registry.redhat.io/rhacm2/obo-prometheus-rhel9-operator@sha256:bf7c3ad36ece77e17673713d21d122a409a3bcadc115cde1e931341e269f3df9
                 - name: OPERAND_IMAGE_OBSERVATORIUM
                   value: registry.redhat.io/rhacm2/observatorium-rhel9@sha256:969e922b36aae20e046656248d588817a092d86ed5be936071f7e554cd41912e
                 - name: OPERAND_IMAGE_OBSERVATORIUM_OPERATOR
-                  value: registry.redhat.io/rhacm2/observatorium-rhel9-operator@sha256:12962fee989d8d4cd5a386711b1396b7c771ac97af81be9439ee92b5c27c8400
+                  value: registry.redhat.io/rhacm2/observatorium-rhel9-operator@sha256:eb70c3a1760626f316bbb39148cae32563c73a0832de81ba7f4a5374ba029e10
                 - name: OPERAND_IMAGE_PROMETHEUS
                   value: registry.redhat.io/rhacm2/prometheus-rhel9@sha256:dc9d1a33d904144d0a3955e194d123686ba295cfbdae648922585c157434bc42
                 - name: OPERAND_IMAGE_PROMETHEUS_ALERTMANAGER
@@ -1983,11 +1985,11 @@ spec:
                 - name: OPERAND_IMAGE_SEARCH_INDEXER
                   value: registry.redhat.io/rhacm2/acm-search-indexer-rhel9@sha256:cdf38548cb570fbd427b02e3bac5f7c19acd51377d8ab62803dc95529fe2dcb0
                 - name: OPERAND_IMAGE_SEARCH_V2_API
-                  value: registry.redhat.io/rhacm2/acm-search-v2-api-rhel9@sha256:fd12b4250442348713210586f5918b56875c82f212abc646bd715b38b4bba750
+                  value: registry.redhat.io/rhacm2/acm-search-v2-api-rhel9@sha256:319c6afb323af04c900c3f0ac8475056343ade50cad9e3aeca6834e3d992e965
                 - name: OPERAND_IMAGE_SEARCH_V2_OPERATOR
                   value: registry.redhat.io/rhacm2/acm-search-v2-rhel9@sha256:1f437c8aad1170b48b60aa9ab73bbb8a8781eae2e2dce03ebd61ec6186fb46ee
                 - name: OPERAND_IMAGE_SITECONFIG_OPERATOR
-                  value: registry.redhat.io/rhacm2/acm-siteconfig-rhel9@sha256:67ed315cb4fc66a5e3f5ab3f516a4cda520a20880312a3bf1165967f949f6269
+                  value: registry.redhat.io/rhacm2/acm-siteconfig-rhel9@sha256:d0063e5b02a3962d6c29115f73f3b46791968324427974cc7087f6eebcae1b5d
                 - name: OPERAND_IMAGE_SUBMARINER_ADDON
                   value: registry.redhat.io/rhacm2/submariner-addon-rhel9@sha256:9d66588a5d812c1834df4ea9052cb2edc8d0d8186b0a4907092ad0244b15c2e0
                 - name: OPERAND_IMAGE_THANOS
@@ -2028,14 +2030,12 @@ spec:
                   value: registry.redhat.io/rhel8/postgresql-16@sha256:d4abbd9492347e0aa7e1b0ff967e74d4b6a4edd6fd20d896f2f2ae03c623181c
                 - name: OPERAND_IMAGE_MEMCACHED
                   value: registry.redhat.io/rhel9/memcached@sha256:955138db9a7a23ee31198aabebd0811438fee11bb0b624c38ddb90efe52bd07c
-                - name: OPERAND_IMAGE_OBO_PROMETHEUS_RHEL9_OPERATOR
-                  value: registry.redhat.io/cluster-observability-operator/obo-prometheus-rhel9-operator@sha256:e2681bce57dc9c15701f5591532c2dfe8f19778606661339553a28dc003dbca5
                 - name: OPERAND_IMAGE_OSE_KUBE_RBAC_PROXY
                   value: registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:c1a84feb88d53e93bdcf2cd5f76e2cbb18541c8b0e2979c132a888d6c280b664
                 - name: OPERAND_IMAGE_VOLSYNC
                   value: registry.redhat.io/rhacm2/volsync-rhel9@sha256:4d5b9ff573ff2ca3285d6db3ce3293bdc62b6aa116df551d86bcc632622e9b42
                 - name: OPERATOR_VERSION
-                  value: 2.16.0-220
+                  value: 2.16.0-221
                 - name: OPERATOR_PACKAGE
                   value: advanced-cluster-management
                 image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:6396bf60bd43260d1e71400c48a5429427b14e5675966f0dcdea131f45ce4e5a
@@ -2095,7 +2095,7 @@ spec:
   - name: config_policy_controller
     image: registry.redhat.io/rhacm2/config-policy-controller-rhel9@sha256:dfea1043023d79db70b15de24d164ccc6832e8d5e65ae17d997430848c16c930
   - name: console
-    image: registry.redhat.io/rhacm2/console-rhel9@sha256:b50aef64e6cc26172f4c3269d8c5bf5ecefc2103da23db897b2360f0418c7638
+    image: registry.redhat.io/rhacm2/console-rhel9@sha256:2a2d441a7bbef2bd52c12a670cb57907501d148136d6805e21f19fb7561ddf07
   - name: endpoint_monitoring_operator
     image: registry.redhat.io/rhacm2/endpoint-monitoring-rhel9-operator@sha256:95d2621fd73ea3b2eb3e812fd641aad6ca4d1d01e8525dc6db147ea7cfe23bbe
   - name: governance_policy_addon_controller
@@ -2127,7 +2127,7 @@ spec:
   - name: multicloud_integrations
     image: registry.redhat.io/rhacm2/multicloud-integrations-rhel9@sha256:2363378caa89768f02f44072d81d38d1deb80eae9ff97dfa60ff3f823a0496e7
   - name: multicluster_observability_addon
-    image: registry.redhat.io/rhacm2/acm-multicluster-observability-addon-rhel9@sha256:2a19d4a51583a7b042f484a96b7aa1262658aae11c1ee4fd9ea72dfaa28482c8
+    image: registry.redhat.io/rhacm2/acm-multicluster-observability-addon-rhel9@sha256:b2dc72fdef1c7b6d1d64ebcdae0dfb69f2f9805f5e542609c7409b4350d64e44
   - name: multicluster_observability_operator
     image: registry.redhat.io/rhacm2/multicluster-observability-rhel9-operator@sha256:b39675263629da3824952967d6d3c54740a6b74a8b4442606ce3315c6b20a5d2
   - name: multicluster_operators_application
@@ -2140,10 +2140,12 @@ spec:
     image: registry.redhat.io/rhacm2/multicluster-role-assignment-rhel9@sha256:be9327aef4cf749f69c1998617d0d235655a26b0e517a19ad954fb162da2a165
   - name: node_exporter
     image: registry.redhat.io/rhacm2/node-exporter-rhel9@sha256:1aca428af48ae5bdaae3a41af90f1a42906abf9e4fb08bfad616d21fce43febb
+  - name: obo_prometheus_rhel9_operator
+    image: registry.redhat.io/rhacm2/obo-prometheus-rhel9-operator@sha256:bf7c3ad36ece77e17673713d21d122a409a3bcadc115cde1e931341e269f3df9
   - name: observatorium
     image: registry.redhat.io/rhacm2/observatorium-rhel9@sha256:969e922b36aae20e046656248d588817a092d86ed5be936071f7e554cd41912e
   - name: observatorium_operator
-    image: registry.redhat.io/rhacm2/observatorium-rhel9-operator@sha256:12962fee989d8d4cd5a386711b1396b7c771ac97af81be9439ee92b5c27c8400
+    image: registry.redhat.io/rhacm2/observatorium-rhel9-operator@sha256:eb70c3a1760626f316bbb39148cae32563c73a0832de81ba7f4a5374ba029e10
   - name: prometheus
     image: registry.redhat.io/rhacm2/prometheus-rhel9@sha256:dc9d1a33d904144d0a3955e194d123686ba295cfbdae648922585c157434bc42
   - name: prometheus_alertmanager
@@ -2159,11 +2161,11 @@ spec:
   - name: search_indexer
     image: registry.redhat.io/rhacm2/acm-search-indexer-rhel9@sha256:cdf38548cb570fbd427b02e3bac5f7c19acd51377d8ab62803dc95529fe2dcb0
   - name: search_v2_api
-    image: registry.redhat.io/rhacm2/acm-search-v2-api-rhel9@sha256:fd12b4250442348713210586f5918b56875c82f212abc646bd715b38b4bba750
+    image: registry.redhat.io/rhacm2/acm-search-v2-api-rhel9@sha256:319c6afb323af04c900c3f0ac8475056343ade50cad9e3aeca6834e3d992e965
   - name: search_v2_operator
     image: registry.redhat.io/rhacm2/acm-search-v2-rhel9@sha256:1f437c8aad1170b48b60aa9ab73bbb8a8781eae2e2dce03ebd61ec6186fb46ee
   - name: siteconfig_operator
-    image: registry.redhat.io/rhacm2/acm-siteconfig-rhel9@sha256:67ed315cb4fc66a5e3f5ab3f516a4cda520a20880312a3bf1165967f949f6269
+    image: registry.redhat.io/rhacm2/acm-siteconfig-rhel9@sha256:d0063e5b02a3962d6c29115f73f3b46791968324427974cc7087f6eebcae1b5d
   - name: submariner_addon
     image: registry.redhat.io/rhacm2/submariner-addon-rhel9@sha256:9d66588a5d812c1834df4ea9052cb2edc8d0d8186b0a4907092ad0244b15c2e0
   - name: thanos
@@ -2204,8 +2206,6 @@ spec:
     image: registry.redhat.io/rhel8/postgresql-16@sha256:d4abbd9492347e0aa7e1b0ff967e74d4b6a4edd6fd20d896f2f2ae03c623181c
   - name: memcached
     image: registry.redhat.io/rhel9/memcached@sha256:955138db9a7a23ee31198aabebd0811438fee11bb0b624c38ddb90efe52bd07c
-  - name: obo_prometheus_rhel9_operator
-    image: registry.redhat.io/cluster-observability-operator/obo-prometheus-rhel9-operator@sha256:e2681bce57dc9c15701f5591532c2dfe8f19778606661339553a28dc003dbca5
   - name: ose_kube_rbac_proxy
     image: registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:c1a84feb88d53e93bdcf2cd5f76e2cbb18541c8b0e2979c132a888d6c280b664
   - name: volsync
