@@ -8,7 +8,7 @@ metadata:
     categories: Integration & Delivery
     certified: 'true'
     support: Red Hat
-    createdAt: '2026-02-06T05:24:10Z'
+    createdAt: '2026-02-06T17:14:31Z'
     description: Advanced provisioning and management of OpenShift and Kubernetes clusters
     operatorframework.io/suggested-namespace: open-cluster-management
     operatorframework.io/initialization-resource: '{"apiVersion":"operator.open-cluster-management.io/v1",
@@ -29,9 +29,9 @@ metadata:
     features.operators.openshift.io/token-auth-azure: 'false'
     features.operators.openshift.io/token-auth-gcp: 'false'
     olm.properties: '[{"type": "olm.maxOpenShiftVersion", "value": "4.21"}]'
-    olm.skipRange: '>=2.13.0 <2.15.1'
-    operators.openshift.io/must-gather-image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:8bbd6c258bf0ec0fef39e7a4014cafcf1b7a4a63b0c1a7f7f2ac7901c7e115fe
-  name: advanced-cluster-management.v2.15.1
+    olm.skipRange: '>=2.13.0 <2.15.2'
+    operators.openshift.io/must-gather-image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:140370638a25074bc6933c700c29f6d7d184cdb29bde999434308a2985bb22e0
+  name: advanced-cluster-management.v2.15.2
   namespace: placeholder
   labels:
     operatorframework.io/arch.amd64: supported
@@ -41,7 +41,7 @@ metadata:
     operatorframework.io/os.linux: supported
 spec:
   displayName: Advanced Cluster Management for Kubernetes
-  version: 2.15.1
+  version: 2.15.2
   provider:
     name: Red Hat
   maintainers:
@@ -1939,7 +1939,7 @@ spec:
                 - name: OPERAND_IMAGE_ACM_CLI
                   value: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:af4e3d01c303f04922654f94e19dc734856dab2cee747f37d96482fa042d734b
                 - name: OPERAND_IMAGE_ACM_MUST_GATHER
-                  value: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:8bbd6c258bf0ec0fef39e7a4014cafcf1b7a4a63b0c1a7f7f2ac7901c7e115fe
+                  value: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:140370638a25074bc6933c700c29f6d7d184cdb29bde999434308a2985bb22e0
                 - name: OPERAND_IMAGE_CERT_POLICY_CONTROLLER
                   value: registry.redhat.io/rhacm2/cert-policy-controller-rhel9@sha256:91c0ba3da6d3e6ba466c97a76be7cc4a767245fafd28611ade8fd8076e3eb748
                 - name: OPERAND_IMAGE_CLUSTER_BACKUP_CONTROLLER
@@ -1973,7 +1973,7 @@ spec:
                 - name: OPERAND_IMAGE_KUBE_STATE_METRICS
                   value: registry.redhat.io/rhacm2/kube-state-metrics-rhel9@sha256:b03edf72012c76360617a1c87d0f5fa72f548154d56affe1cbcec417598e7c19
                 - name: OPERAND_IMAGE_MEMCACHED_EXPORTER
-                  value: registry.redhat.io/rhacm2/memcached-exporter-rhel9@sha256:315a59fba6fb084a32c115fa400bec033136305d925e5deba3d47ef2b0f0cdf1
+                  value: registry.redhat.io/rhacm2/memcached-exporter-rhel9@sha256:9ae962eeda48495ab7bc6ec4a3352587ef061e40019f538a6caf5078bacd8771
                 - name: OPERAND_IMAGE_METRICS_COLLECTOR
                   value: registry.redhat.io/rhacm2/metrics-collector-rhel9@sha256:61e86f95207972296981030c326b94229e79182b1e93b096277edfafc8dc5bfe
                 - name: OPERAND_IMAGE_MTV_INTEGRATIONS
@@ -2019,7 +2019,7 @@ spec:
                 - name: OPERAND_IMAGE_SEARCH_V2_OPERATOR
                   value: registry.redhat.io/rhacm2/acm-search-v2-rhel9@sha256:8368d40db41276f605fcdff287f63df8dab17e19d03c37ae860d5d678675765b
                 - name: OPERAND_IMAGE_SITECONFIG_OPERATOR
-                  value: registry.redhat.io/rhacm2/acm-siteconfig-rhel9@sha256:006cf856d698514bf007d15d33e90d1f9674b5f43f058f413a8a14395f7c07b6
+                  value: registry.redhat.io/rhacm2/acm-siteconfig-rhel9@sha256:8bc67da2d340cd7a0e67980cf1d0e6fd0e8afd96e0cf611439f50836e2487d87
                 - name: OPERAND_IMAGE_SUBMARINER_ADDON
                   value: registry.redhat.io/rhacm2/submariner-addon-rhel9@sha256:489f5f72abe2396f40722ad7b9ffcaaf29a754a77bc2bd9d18e1cea55bc63ac3
                 - name: OPERAND_IMAGE_THANOS
@@ -2067,7 +2067,7 @@ spec:
                 - name: OPERAND_IMAGE_VOLSYNC
                   value: registry.redhat.io/rhacm2/volsync-rhel9@sha256:f4683a9a3f130bc9816c4d100abacbe134a2a26b62c120a476b9c3549822e762
                 - name: OPERATOR_VERSION
-                  value: 2.15.1
+                  value: 2.15.2
                 - name: OPERATOR_PACKAGE
                   value: advanced-cluster-management
                 image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:78876fe1f2884c8181d17c8a8e9a1cd21bb7d268cca2f0468fa298dbdbd4b992
@@ -2113,12 +2113,12 @@ spec:
                 secret:
                   defaultMode: 420
                   secretName: multiclusterhub-operator-webhook
-  replaces: advanced-cluster-management.v2.15.0
+  replaces: advanced-cluster-management.v2.15.1
   relatedImages:
   - name: acm_cli
     image: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:af4e3d01c303f04922654f94e19dc734856dab2cee747f37d96482fa042d734b
   - name: acm_must_gather
-    image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:8bbd6c258bf0ec0fef39e7a4014cafcf1b7a4a63b0c1a7f7f2ac7901c7e115fe
+    image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:140370638a25074bc6933c700c29f6d7d184cdb29bde999434308a2985bb22e0
   - name: cert_policy_controller
     image: registry.redhat.io/rhacm2/cert-policy-controller-rhel9@sha256:91c0ba3da6d3e6ba466c97a76be7cc4a767245fafd28611ade8fd8076e3eb748
   - name: cluster_backup_controller
@@ -2152,7 +2152,7 @@ spec:
   - name: kube_state_metrics
     image: registry.redhat.io/rhacm2/kube-state-metrics-rhel9@sha256:b03edf72012c76360617a1c87d0f5fa72f548154d56affe1cbcec417598e7c19
   - name: memcached_exporter
-    image: registry.redhat.io/rhacm2/memcached-exporter-rhel9@sha256:315a59fba6fb084a32c115fa400bec033136305d925e5deba3d47ef2b0f0cdf1
+    image: registry.redhat.io/rhacm2/memcached-exporter-rhel9@sha256:9ae962eeda48495ab7bc6ec4a3352587ef061e40019f538a6caf5078bacd8771
   - name: metrics_collector
     image: registry.redhat.io/rhacm2/metrics-collector-rhel9@sha256:61e86f95207972296981030c326b94229e79182b1e93b096277edfafc8dc5bfe
   - name: mtv_integrations
@@ -2196,7 +2196,7 @@ spec:
   - name: search_v2_operator
     image: registry.redhat.io/rhacm2/acm-search-v2-rhel9@sha256:8368d40db41276f605fcdff287f63df8dab17e19d03c37ae860d5d678675765b
   - name: siteconfig_operator
-    image: registry.redhat.io/rhacm2/acm-siteconfig-rhel9@sha256:006cf856d698514bf007d15d33e90d1f9674b5f43f058f413a8a14395f7c07b6
+    image: registry.redhat.io/rhacm2/acm-siteconfig-rhel9@sha256:8bc67da2d340cd7a0e67980cf1d0e6fd0e8afd96e0cf611439f50836e2487d87
   - name: submariner_addon
     image: registry.redhat.io/rhacm2/submariner-addon-rhel9@sha256:489f5f72abe2396f40722ad7b9ffcaaf29a754a77bc2bd9d18e1cea55bc63ac3
   - name: thanos
