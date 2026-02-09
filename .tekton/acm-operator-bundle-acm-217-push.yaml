@@ -1,0 +1,49 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  annotations:
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/acm-operator-bundle?rev={{revision}}
+    build.appstudio.redhat.com/commit_sha: '{{revision}}'
+    build.appstudio.redhat.com/target_branch: '{{target_branch}}'
+    pipelinesascode.tekton.dev/cancel-in-progress: "false"
+    pipelinesascode.tekton.dev/max-keep-runs: "3"
+    pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch == "release-2.17"
+  creationTimestamp: null
+  labels:
+    appstudio.openshift.io/application: bundle-release-acm-217
+    appstudio.openshift.io/component: acm-operator-bundle-acm-217
+    pipelines.appstudio.openshift.io/type: build
+  name: acm-operator-bundle-acm-217-on-push
+  namespace: crt-redhat-acm-tenant
+spec:
+  params:
+    - name: git-url
+      value: '{{source_url}}'
+    - name: revision
+      value: '{{revision}}'
+    - name: output-image
+      value: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-operator-bundle-acm-217:{{revision}}
+    - name: dockerfile
+      value: Dockerfile
+    - name: path-context
+      value: .
+    - name: build-source-image
+      value: "true"
+    - name: hermetic
+      value: "true"
+  taskRunTemplate:
+    serviceAccountName: build-pipeline-acm-operator-bundle-acm-217
+  workspaces:
+    - name: git-auth
+      secret:
+        secretName: '{{ git_auth_secret }}'
+  pipelineRef:
+    resolver: git
+    params:
+      - name: url
+        value: https://github.com/stolostron/konflux-build-catalog.git
+      - name: revision
+        value: main
+      - name: pathInRepo
+        value: pipelines/common-oci-ta.yaml
+status: {}
