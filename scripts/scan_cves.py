@@ -138,9 +138,10 @@ def scan_image_trivy(image_ref, output_file, severity, timeout, format_type, pod
                 f.write(f"Failed to pull image: {pull_result.stderr}\n")
             return False
 
-        # Scan from podman local storage (don't specify --image-src, let Trivy auto-detect)
+        # Scan from podman local storage (requires podman socket to be running)
         cmd_podman = [
             'trivy', 'image',
+            '--image-src', 'podman',
             '--severity', severity,
             '--timeout', timeout,
             '--format', format_type,
