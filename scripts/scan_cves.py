@@ -79,64 +79,47 @@ def get_podman_socket():
 
 
 def scan_image_trivy(image_ref, output_file, severity, timeout, format_type, podman_socket=None):
-    """Scan image with Trivy (tries remote scan first, falls back to local download)"""
+    """Scan image with Trivy using podman backend"""
 
-    # Set up environment with podman socket and auth if available
+    # Set up environment for Trivy
     env = os.environ.copy()
-    if podman_socket:
-        env['DOCKER_HOST'] = f'unix://{podman_socket}'
 
-    # Use podman's auth file for registry authentication
-    # Trivy uses Docker config format, so point DOCKER_CONFIG to containers dir
+    # Set REGISTRY_AUTH_FILE to point to podman's auth
     containers_dir = os.path.expanduser('~/.config/containers')
     auth_file = os.path.join(containers_dir, 'auth.json')
     if os.path.exists(auth_file):
-        # Copy auth.json to config.json if it doesn't exist
-        config_file = os.path.join(containers_dir, 'config.json')
-        if not os.path.exists(config_file):
-            import shutil
-            shutil.copy(auth_file, config_file)
-        env['DOCKER_CONFIG'] = containers_dir
+        env['REGISTRY_AUTH_FILE'] = auth_file
 
-    # Try remote scanning first (faster, no download)
+    # Pull image with podman first (uses podman's authentication)
     try:
-        cmd_remote = [
-            'trivy', 'image',
-            '--image-src', 'remote',
-            '--severity', severity,
-            '--timeout', timeout,
-            '--format', format_type,
-            image_ref
-        ]
+        pull_cmd = ['podman', 'pull', '--quiet', image_ref]
+        pull_result = subprocess.run(
+            pull_cmd,
+            capture_output=True,
+            timeout=300,  # 5 minute timeout for pull
+            text=True
+        )
 
-        # Suppress INFO/WARN logs when using JSON format for clean JSON output
-        if format_type == 'json':
-            cmd_remote.insert(2, '--quiet')
-
-        with open(output_file, 'w') as f:
-            result = subprocess.run(
-                cmd_remote,
-                stdout=f,
-                stderr=subprocess.PIPE,
-                timeout=600,  # 10 minute timeout
-                env=env
-            )
-
-        if result.returncode == 0:
-            return True
-
-        # Remote scan failed, try local scan (download image)
-        # console.print(f"[yellow]Remote scan failed, attempting local scan (downloading image)...[/yellow]")
+        if pull_result.returncode != 0:
+            # Failed to pull - write error to output file
+            with open(output_file, 'w') as f:
+                f.write(f"Failed to pull image: {pull_result.stderr}\n")
+            return False
 
     except subprocess.TimeoutExpired:
-        pass  # Fall through to local scan
-    except Exception:
-        pass  # Fall through to local scan
+        with open(output_file, 'w') as f:
+            f.write("Timeout pulling image\n")
+        return False
+    except Exception as e:
+        with open(output_file, 'w') as f:
+            f.write(f"Error pulling image: {e}\n")
+        return False
 
-    # Fall back to local scanning (downloads image)
+    # Now scan the image with Trivy using podman backend
     try:
-        cmd_local = [
+        cmd = [
             'trivy', 'image',
+            '--image-src', 'podman',
             '--severity', severity,
             '--timeout', timeout,
             '--format', format_type,
@@ -145,11 +128,11 @@ def scan_image_trivy(image_ref, output_file, severity, timeout, format_type, pod
 
         # Suppress INFO/WARN logs when using JSON format for clean JSON output
         if format_type == 'json':
-            cmd_local.insert(2, '--quiet')
+            cmd.insert(2, '--quiet')
 
         with open(output_file, 'w') as f:
             result = subprocess.run(
-                cmd_local,
+                cmd,
                 stdout=f,
                 stderr=subprocess.STDOUT,
                 timeout=600,  # 10 minute timeout
