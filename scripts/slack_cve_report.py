@@ -282,8 +282,16 @@ def create_slack_message(version, results, format_type='summary', image_details=
             reverse=True
         )[:10]  # Limit to top 10
 
-        # Determine severity level for header
-        severity_emoji = "🚨" if total_critical > 10 else "⚠️" if total_critical > 0 else "✅"
+        # Determine severity level for header (consider both CVEs and scan failures)
+        total_images = total_scanned + total_failed
+        failure_rate = (total_failed / total_images * 100) if total_images > 0 else 0
+
+        if total_critical > 10 or failure_rate >= 75:
+            severity_emoji = "🚨"  # Critical alert
+        elif total_critical > 0 or failure_rate >= 25:
+            severity_emoji = "⚠️"  # Warning
+        else:
+            severity_emoji = "✅"  # Success
 
         # Use Block Kit for header and summary, plain text for components
         blocks = [
@@ -551,11 +559,15 @@ def create_slack_message(version, results, format_type='summary', image_details=
         # Add divider before risk assessment
         blocks.append({"type": "divider"})
 
-        # Risk assessment
-        if total_critical > 10:
+        # Risk assessment (consider both CVEs and scan failures)
+        failure_pct = int(failure_rate)
+
+        # High risk if: many critical CVEs OR high failure rate
+        if total_critical > 10 or failure_pct >= 75:
             risk_level = "HIGH"
             risk_emoji = "🔴"
-        elif total_critical > 0:
+        # Medium risk if: some critical CVEs OR moderate failure rate
+        elif total_critical > 0 or failure_pct >= 25:
             risk_level = "MEDIUM"
             risk_emoji = "🟠"
         else:
@@ -568,8 +580,7 @@ def create_slack_message(version, results, format_type='summary', image_details=
         if total_critical > 0:
             risk_text += f"   • {total_critical} CRITICAL vulnerabilities present in runtime components\n"
 
-        if total_failed > 20:
-            failure_pct = int(total_failed/(total_scanned+total_failed)*100)
+        if failure_pct >= 25:
             risk_text += f"   • Scan reliability degraded ({failure_pct}% failure rate)\n"
 
         blocks.append({
