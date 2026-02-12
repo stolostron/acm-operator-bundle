@@ -2,81 +2,142 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/volsync-addon-controller?rev=304c9b5d9f6705ae9d881b31dc9cd369a4d87556
-    build.appstudio.redhat.com/commit_sha: 304c9b5d9f6705ae9d881b31dc9cd369a4d87556
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/console?rev=1ec3b27b1373f915367b917f097584144f2e8537
+    build.appstudio.redhat.com/commit_sha: 1ec3b27b1373f915367b917f097584144f2e8537
     build.appstudio.redhat.com/target_branch: release-2.17
     pac.test.appstudio.openshift.io/branch: release-2.17
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "63303170463"
+    pac.test.appstudio.openshift.io/check-run-id: "63320384382"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-fwuptf
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-dhmqfd
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/volsync-addon-controller-acm-217-on-push-4fhw8
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/console-acm-217-on-push-kmjzd
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-2.17"
-    pac.test.appstudio.openshift.io/original-prname: volsync-addon-controller-acm-217-on-push
-    pac.test.appstudio.openshift.io/pull-request: "1278"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/volsync-addon-controller
-    pac.test.appstudio.openshift.io/repository: volsync-addon-controller-acm-210
+    pac.test.appstudio.openshift.io/original-prname: console-acm-217-on-push
+    pac.test.appstudio.openshift.io/pull-request: "5688"
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/console
+    pac.test.appstudio.openshift.io/repository: console
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/sender: acm-cicd-prow-bot
-    pac.test.appstudio.openshift.io/sha: 304c9b5d9f6705ae9d881b31dc9cd369a4d87556
+    pac.test.appstudio.openshift.io/sha: 1ec3b27b1373f915367b917f097584144f2e8537
     pac.test.appstudio.openshift.io/sha-title: |-
-      update main/2.17 for volsync 0.16 (#1278)
+      Preserve custom Konflux configuration for ACM 217 (#5688)
 
-      Signed-off-by: Tesshu Flower <tflower@redhat.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/volsync-addon-controller/commit/304c9b5d9f6705ae9d881b31dc9cd369a4d87556
+      * Red Hat Konflux update console-acm-217
+
+      Signed-off-by: red-hat-konflux <konflux@no-reply.konflux-ci.dev>
+
+      * Preserve custom Konflux configuration for ACM 217
+
+      This commit addresses the following issues from the upstream PR:
+
+      1. Fixed CEL expression for pull-request to target "main" branch
+         - Changed from: target_branch == "release-2.17"
+         - Changed to: target_branch == "main"
+
+      2. Restored multi-architecture build support
+         - Added: linux/ppc64le, linux/s390x, linux/arm64
+         - Original PR only included: linux/x86_64
+
+      3. Added custom build parameters (pull-request and push):
+         - hermetic: "true"
+         - build-source-image: "true"
+         - prefetch-input: npm paths for root, frontend, backend
+         - enable-cache-proxy: "true"
+
+      4. Added Slack notification parameters (push only):
+         - send-slack-notification: true
+         - konflux-application-name: release-acm-217
+         - slack-group-id: S09M3BVC3T3
+
+      5. Converted from pipelineSpec to pipelineRef:
+         - Changed from inline pipeline definition (~600 lines each)
+         - Changed to external pipeline reference via git resolver
+         - References: https://github.com/stolostron/konflux-build-catalog.git
+         - Pipeline: pipelines/common.yaml
+         - Reduces config files from 1256 lines to 127 lines
+         - Maintains consistency with existing ACM-216 approach
+
+      These changes preserve the custom configuration patterns established
+      in the existing ACM-216 Konflux configs.
+
+      Signed-off-by: Claude Sonnet 4.5 <noreply@anthropic.com>
+
+      * remove old Konflux config
+
+      Signed-off-by: Randy Bruno Piverger <21374229+Randy424@users.noreply.github.com>
+
+      * mce konflux config update
+
+      Signed-off-by: Randy Bruno Piverger <21374229+Randy424@users.noreply.github.com>
+
+      * Update CPE label for ACM
+
+      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
+
+      ---------
+
+      Signed-off-by: red-hat-konflux <konflux@no-reply.konflux-ci.dev>
+      Signed-off-by: Claude Sonnet 4.5 <noreply@anthropic.com>
+      Signed-off-by: Randy Bruno Piverger <21374229+Randy424@users.noreply.github.com>
+      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
+      Co-authored-by: red-hat-konflux <konflux@no-reply.konflux-ci.dev>
+      Co-authored-by: Randy Bruno Piverger <21374229+Randy424@users.noreply.github.com>
+      Co-authored-by: Kevin Cormier <kcormier@redhat.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/console/commit/1ec3b27b1373f915367b917f097584144f2e8537
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-2.17
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/volsync-addon-controller
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: volsync-addon-controller
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-02-11T20:36:31Z"}'
-    test.appstudio.openshift.io/create-snapshot-status: Component(s) 'search-v2-api-acm-217,
-      config-policy-controller-acm-217, must-gather-acm-217, prometheus-config-reloader-acm-217,
-      thanos-receive-controller-acm-217, thanos-acm-217, governance-policy-framework-addon-acm-217,
-      kube-state-metrics-acm-217, memcached-exporter-acm-217, siteconfig-acm-217,
-      acm-cli-acm-217, cert-policy-controller-acm-217, kube-rbac-proxy-acm-217, multicluster-operators-subscription-acm-217,
-      prometheus-acm-217, submariner-addon-acm-217, obo-prometheus-operator-acm-217,
-      grafana-acm-217, multicluster-observability-addon-acm-217, node-exporter-acm-217,
-      prometheus-operator-acm-217, rbac-query-proxy-acm-217, search-indexer-acm-217,
-      console-acm-217, metrics-collector-acm-217, mtv-integrations-acm-217, multicloud-integrations-acm-217,
-      multicluster-operators-channel-acm-217, observatorium-operator-acm-217, observatorium-acm-217,
-      governance-policy-propagator-acm-217, insights-client-acm-217, multicluster-observability-operator-acm-217,
-      prometheus-alertmanager-acm-217, search-collector-acm-217, search-v2-operator-acm-217,
-      endpoint-monitoring-operator-acm-217, grafana-dashboard-loader-acm-217, multicluster-operators-application-acm-217,
+    pac.test.appstudio.openshift.io/url-repository: console
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-02-11T23:26:44Z"}'
+    test.appstudio.openshift.io/create-snapshot-status: Component(s) 'multicluster-observability-addon-acm-217,
+      node-exporter-acm-217, prometheus-operator-acm-217, rbac-query-proxy-acm-217,
+      search-indexer-acm-217, metrics-collector-acm-217, mtv-integrations-acm-217,
+      multicloud-integrations-acm-217, multicluster-operators-channel-acm-217, observatorium-operator-acm-217,
+      observatorium-acm-217, governance-policy-propagator-acm-217, insights-client-acm-217,
+      multicluster-observability-operator-acm-217, prometheus-alertmanager-acm-217,
+      search-collector-acm-217, search-v2-operator-acm-217, endpoint-monitoring-operator-acm-217,
+      grafana-dashboard-loader-acm-217, multicluster-operators-application-acm-217,
       multicluster-role-assignment-acm-217, governance-policy-addon-controller-acm-217,
-      insights-metrics-acm-217' is(are) not included in snapshot due to missing valid
-      containerImage or git source
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20260211-202129-000":{"lastUpdateTime":"2026-02-11T20:37:38.86871101Z"}}}'
+      insights-metrics-acm-217, search-v2-api-acm-217, config-policy-controller-acm-217,
+      must-gather-acm-217, prometheus-config-reloader-acm-217, thanos-receive-controller-acm-217,
+      thanos-acm-217, governance-policy-framework-addon-acm-217, kube-state-metrics-acm-217,
+      memcached-exporter-acm-217, siteconfig-acm-217, acm-cli-acm-217, cert-policy-controller-acm-217,
+      kube-rbac-proxy-acm-217, multicluster-operators-subscription-acm-217, prometheus-acm-217,
+      submariner-addon-acm-217, obo-prometheus-operator-acm-217, grafana-acm-217'
+      is(are) not included in snapshot due to missing valid containerImage or git
+      source
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20260211-230414-000":{"lastUpdateTime":"2026-02-11T23:27:21.681251101Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1770841289000"
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/volsync-addon-controller
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"TestPassed","lastUpdateTime":"2026-02-11T20:37:38.86871101Z","details":"Integration
-      test passed","startTime":"2026-02-11T20:36:31.321560306Z","completionTime":"2026-02-11T20:37:38.86871101Z","testPipelineRunName":"enterprise-contract-acm-217-mltz8"}]'
-  creationTimestamp: "2026-02-11T20:36:31Z"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1770851054000"
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"TestPassed","lastUpdateTime":"2026-02-11T23:27:21.681251101Z","details":"Integration
+      test passed","startTime":"2026-02-11T23:26:44.866475903Z","completionTime":"2026-02-11T23:27:21.681251101Z","testPipelineRunName":"enterprise-contract-acm-217-7fn52"}]'
+  creationTimestamp: "2026-02-11T23:26:44Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-217
-    appstudio.openshift.io/build-pipelinerun: volsync-addon-controller-acm-217-on-push-4fhw8
-    appstudio.openshift.io/component: volsync-addon-controller-acm-217
+    appstudio.openshift.io/build-pipelinerun: console-acm-217-on-push-kmjzd
+    appstudio.openshift.io/component: console-acm-217
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "63303170463"
+    pac.test.appstudio.openshift.io/check-run-id: "63320384382"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: volsync-addon-controller-acm-217-on-push
-    pac.test.appstudio.openshift.io/pull-request: "1278"
-    pac.test.appstudio.openshift.io/repository: volsync-addon-controller-acm-210
-    pac.test.appstudio.openshift.io/sha: 304c9b5d9f6705ae9d881b31dc9cd369a4d87556
+    pac.test.appstudio.openshift.io/original-prname: console-acm-217-on-push
+    pac.test.appstudio.openshift.io/pull-request: "5688"
+    pac.test.appstudio.openshift.io/repository: console
+    pac.test.appstudio.openshift.io/sha: 1ec3b27b1373f915367b917f097584144f2e8537
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: volsync-addon-controller
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1770842147"
+    pac.test.appstudio.openshift.io/url-repository: console
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1770852398"
     test.appstudio.openshift.io/type: component
-  name: release-acm-217-20260211-202129-000
+  name: release-acm-217-20260211-230414-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -85,12 +146,18 @@ metadata:
     kind: Application
     name: release-acm-217
     uid: f6a47cb4-5edb-49df-b280-ca2ad71f1d6c
-  resourceVersion: "7223973949"
-  uid: 5f0a1359-db63-4c05-a320-7ecd6ca37780
+  resourceVersion: "7226290062"
+  uid: 3abc7f57-3d33-44d1-a2a0-1f9ef5a0f425
 spec:
   application: release-acm-217
   artifacts: {}
   components:
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-217@sha256:76b7639b54e9f90644a091870703071fbecbcb416471cbb4647deee3a99c68c9
+    name: console-acm-217
+    source:
+      git:
+        revision: 1ec3b27b1373f915367b917f097584144f2e8537
+        url: https://github.com/stolostron/console
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-217@sha256:335900bab1a31f35bc3f83318ef0f52b1bfed4e8ae03a45792b99e441efcd450
     name: klusterlet-addon-controller-acm-217
     source:
@@ -111,6 +178,8 @@ spec:
     name: volsync-addon-controller-acm-217
     source:
       git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
         revision: 304c9b5d9f6705ae9d881b31dc9cd369a4d87556
         url: https://github.com/stolostron/volsync-addon-controller
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-backup-operator-acm-217@sha256:d97d6e9892c55a3978b10532582218c67c3c1f6f1f98f36f77a8bb563b063402
@@ -131,18 +200,18 @@ spec:
         url: https://github.com/stolostron/cluster-permission
 status:
   conditions:
-  - lastTransitionTime: "2026-02-11T20:37:38Z"
+  - lastTransitionTime: "2026-02-11T23:27:21Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-02-11T20:37:38Z"
+  - lastTransitionTime: "2026-02-11T23:27:21Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-02-11T20:37:39Z"
+  - lastTransitionTime: "2026-02-11T23:27:22Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
