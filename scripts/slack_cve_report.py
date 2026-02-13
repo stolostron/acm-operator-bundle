@@ -779,12 +779,18 @@ def send_to_slack_threaded(bot_token, channel, main_message, thread_messages):
             thread_payload = {
                 'channel': channel,
                 'thread_ts': parent_ts,
-                'text': thread_msg if isinstance(thread_msg, str) else thread_msg.get('text', ''),
             }
 
-            # Add blocks if present
-            if isinstance(thread_msg, dict) and 'blocks' in thread_msg:
-                thread_payload['blocks'] = thread_msg['blocks']
+            # Add text and/or blocks
+            if isinstance(thread_msg, str):
+                thread_payload['text'] = thread_msg
+            elif isinstance(thread_msg, dict):
+                if 'blocks' in thread_msg:
+                    thread_payload['blocks'] = thread_msg['blocks']
+                    # Provide fallback text for blocks
+                    thread_payload['text'] = thread_msg.get('text', 'CVE scan details')
+                else:
+                    thread_payload['text'] = thread_msg.get('text', 'Details')
 
             data = json.dumps(thread_payload).encode('utf-8')
             req = urllib.request.Request(
@@ -797,7 +803,11 @@ def send_to_slack_threaded(bot_token, channel, main_message, thread_messages):
                 result = json.loads(response.read().decode('utf-8'))
 
                 if not result.get('ok'):
-                    console.print(f"[red]Thread reply {i} error: {result.get('error')}[/red]")
+                    error_msg = result.get('error', 'unknown')
+                    console.print(f"[red]Thread reply {i} error: {error_msg}[/red]")
+                    # Log details for debugging
+                    if error_msg == 'invalid_blocks':
+                        console.print(f"[yellow]Payload had {len(thread_payload.get('blocks', []))} blocks[/yellow]")
                     return False
 
                 console.print(f"[green]✓ Thread reply {i} posted[/green]")
