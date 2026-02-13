@@ -316,7 +316,7 @@ def create_slack_message(version, results, format_type='summary', image_details=
                 "text": {
                     "type": "mrkdwn",
                     "text": f"📦 *Images Scanned:* {total_scanned} successful, {total_failed} failed"
-                           + (f" (⚠️ {int(total_failed/(total_scanned+total_failed)*100)}% failure rate)" if total_failed > 10 else "")
+                           + (f" (⚠️ {int(total_failed/(total_scanned+total_failed)*100)}% failure rate)" if total_failed > 0 else "")
                 }
             },
             {
