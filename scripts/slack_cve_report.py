@@ -275,23 +275,31 @@ def create_slack_message(version, results, format_type='summary', image_details=
         # Sort ALL results alphabetically (including failed scans)
         all_components = sorted(results, key=lambda x: x['image'])
 
-        # Get top impacted (critical CVEs only, sorted by critical count, limit to top 10)
+        # Get top impacted (critical CVEs only, sorted by critical count, limit to top 5)
         top_impacted = sorted(
             [r for r in results if r.get('cve_count') and r['cve_count'].get('critical', 0) > 0],
             key=lambda x: (x['cve_count'].get('critical', 0), x['cve_count'].get('high', 0)),
             reverse=True
-        )[:10]  # Limit to top 10
+        )[:5]  # Limit to top 5
 
         # Determine severity level for header (consider both CVEs and scan failures)
         total_images = total_scanned + total_failed
         failure_rate = (total_failed / total_images * 100) if total_images > 0 else 0
+        failure_pct = int(failure_rate)
 
-        if total_critical > 10 or failure_rate >= 75:
-            severity_emoji = "🚨"  # Critical alert
-        elif total_critical > 0 or failure_rate >= 25:
-            severity_emoji = "⚠️"  # Warning
+        # Calculate risk level
+        if total_critical > 10 or failure_pct >= 75:
+            risk_level = "HIGH"
+            risk_emoji = "🔴"
+            severity_emoji = "🚨"  # Critical alert for header
+        elif total_critical > 0 or failure_pct >= 25:
+            risk_level = "MEDIUM"
+            risk_emoji = "🟠"
+            severity_emoji = "⚠️"  # Warning for header
         else:
-            severity_emoji = "✅"  # Success
+            risk_level = "LOW"
+            risk_emoji = "🟢"
+            severity_emoji = "✅"  # Success for header
 
         # Use Block Kit for header and summary, plain text for components
         blocks = [
@@ -299,7 +307,7 @@ def create_slack_message(version, results, format_type='summary', image_details=
                 "type": "header",
                 "text": {
                     "type": "plain_text",
-                    "text": f"{severity_emoji} CVE ALERT - ACM {version} Scan Results",
+                    "text": f"{severity_emoji} CVE Gate Report – ACM {version}",
                     "emoji": True
                 }
             },
@@ -307,8 +315,7 @@ def create_slack_message(version, results, format_type='summary', image_details=
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": f"📅 *Scan Time:* {datetime.now().strftime('%Y-%m-%d %H:%M')}\n"
-                           f"📦 *Images Scanned:* {total_scanned} successful, {total_failed} failed"
+                    "text": f"📦 *Images Scanned:* {total_scanned} successful, {total_failed} failed"
                            + (f" (⚠️ {int(total_failed/(total_scanned+total_failed)*100)}% failure rate)" if total_failed > 10 else "")
                 }
             },
@@ -316,81 +323,32 @@ def create_slack_message(version, results, format_type='summary', image_details=
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": f"🛑 *Total Vulnerabilities:* {total_cves}\n"
-                           f"   • {total_critical} CRITICAL\n"
-                           f"   • {total_high} HIGH"
+                    "text": f"{risk_emoji} *Production Release Risk: {risk_level}*\n"
+                           f"   • {total_critical} CRITICAL, {total_high} HIGH ({total_cves} total)"
                 }
-            },
-            {
-                "type": "divider"
             }
         ]
 
-        # Add CVE trends section if comparison data is available
-        if comparison:
-            net_change = comparison['net_change']
-            critical_delta = net_change['critical']
-            high_delta = net_change['high']
-            total_delta = net_change['total']
-
-            # Determine trend emoji and color
-            if critical_delta < 0:
-                trend_emoji = "📉"
-                trend_color = "green"
-            elif critical_delta > 0:
-                trend_emoji = "📈"
-                trend_color = "red"
-            else:
-                trend_emoji = "➡️"
-                trend_color = "yellow"
-
-            # Build trend summary
-            trend_text = f"{trend_emoji} *CVE Trends (vs. previous scan):*\n"
-
-            if total_delta == 0:
-                trend_text += "   • No change in total CVE count\n"
-            else:
-                sign = "+" if total_delta > 0 else ""
-                trend_text += f"   • Total CVEs: {sign}{total_delta}\n"
-
-            if critical_delta != 0:
-                sign = "+" if critical_delta > 0 else ""
-                trend_text += f"   • CRITICAL: {sign}{critical_delta}\n"
-
-            if high_delta != 0:
-                sign = "+" if high_delta > 0 else ""
-                trend_text += f"   • HIGH: {sign}{high_delta}\n"
-
-            # Add component changes
-            improved_count = len(comparison['improved'])
-            worsened_count = len(comparison['worsened'])
-            new_count = len(comparison['new_components'])
-            removed_count = len(comparison['removed_components'])
-
-            if improved_count > 0:
-                trend_text += f"   • ✅ {improved_count} component(s) improved\n"
-            if worsened_count > 0:
-                trend_text += f"   • ⚠️ {worsened_count} component(s) worsened\n"
-            if new_count > 0:
-                trend_text += f"   • 🆕 {new_count} new component(s)\n"
-            if removed_count > 0:
-                trend_text += f"   • ➖ {removed_count} component(s) removed\n"
-
-            blocks.append({
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": trend_text
-                }
-            })
+        # Add artifacts link if available
+        github_run_id = os.getenv('GITHUB_RUN_ID')
+        github_repository = os.getenv('GITHUB_REPOSITORY')
+        if github_run_id and github_repository:
+            artifacts_url = f"https://github.com/{github_repository}/actions/runs/{github_run_id}"
             blocks.append({"type": "divider"})
+            blocks.append({
+                "type": "context",
+                "elements": [{
+                    "type": "mrkdwn",
+                    "text": f"📊 <{artifacts_url}|View detailed reports in workflow artifacts>"
+                }]
+            })
 
         # Build Top Impacted Components section (CRITICAL CVEs only)
         plain_text = ""
         if top_impacted:
             total_with_critical = len([r for r in results if r.get('cve_count') and r['cve_count'].get('critical', 0) > 0])
-            if total_with_critical > 10:
-                plain_text = f"🔥 *Top 10 Impacted Components ({total_with_critical} total with CRITICAL CVEs):*\n"
+            if total_with_critical > 5:
+                plain_text = f"🔥 *Top 5 Impacted Components ({total_with_critical} total with CRITICAL CVEs):*\n"
             else:
                 plain_text = f"🔥 *Top Impacted Components ({len(top_impacted)} with CRITICAL CVEs):*\n"
 
@@ -564,86 +522,6 @@ def create_slack_message(version, results, format_type='summary', image_details=
 
         # In webhook mode, DON'T add component details to main message
         # Keep it concise for multi-release scanning
-
-        # Add divider before risk assessment
-        blocks.append({"type": "divider"})
-
-        # Risk assessment (consider both CVEs and scan failures)
-        failure_pct = int(failure_rate)
-
-        # High risk if: many critical CVEs OR high failure rate
-        if total_critical > 10 or failure_pct >= 75:
-            risk_level = "HIGH"
-            risk_emoji = "🔴"
-        # Medium risk if: some critical CVEs OR moderate failure rate
-        elif total_critical > 0 or failure_pct >= 25:
-            risk_level = "MEDIUM"
-            risk_emoji = "🟠"
-        else:
-            risk_level = "LOW"
-            risk_emoji = "🟢"
-
-        risk_text = f"{risk_emoji} *Risk Assessment:*\n"
-        risk_text += f"   • Production release risk: *{risk_level}*\n"
-
-        if total_critical > 0:
-            risk_text += f"   • {total_critical} CRITICAL vulnerabilities present in runtime components\n"
-
-        if failure_pct >= 25:
-            risk_text += f"   • Scan reliability degraded ({failure_pct}% failure rate)\n"
-
-        blocks.append({
-            "type": "section",
-            "text": {
-                "type": "mrkdwn",
-                "text": risk_text
-            }
-        })
-
-        # Action items
-        action_text = "🎯 *Recommended Actions:*\n"
-
-        if total_failed > 10:
-            action_text += f"1. Investigate {total_failed} scan failures (registry/auth/connectivity?)\n"
-
-        if total_critical > 5:
-            action_text += "2. Block release promotion until CRITICAL CVEs are reviewed\n"
-
-        if top_impacted and len(top_impacted) > 0:
-            top_image = top_impacted[0]['image']
-            action_text += f"3. Triage `{top_image}` first (highest concentration of CRIT)\n"
-
-        action_text += "4. Check detailed reports in workflow artifacts\n"
-
-        if total_high > 50:
-            action_text += f"5. Verify base image updates for affected components\n"
-
-        blocks.append({
-            "type": "section",
-            "text": {
-                "type": "mrkdwn",
-                "text": action_text
-            }
-        })
-
-        # Footer with owner/follow-up
-        if total_critical > 0 or total_failed > 10:
-            blocks.append({"type": "divider"})
-            footer_text = "🧪 *Suggested Follow-up:*\n"
-            footer_text += "• Re-run full scan to confirm results\n"
-            footer_text += "• Compare image digests between scans\n"
-            if total_critical > 0:
-                footer_text += "• Check for upstream base image CVE disclosures\n"
-                footer_text += "• Scan specific images locally:\n"
-                footer_text += "  ```trivy image --severity HIGH,CRITICAL quay.io/acm-d/multiclusterhub-rhel9@sha256:...```\n"
-
-            blocks.append({
-                "type": "context",
-                "elements": [{
-                    "type": "mrkdwn",
-                    "text": footer_text
-                }]
-            })
 
         # Return based on mode
         if threaded:
