@@ -185,6 +185,10 @@ def parse_trivy_json(json_file):
         with open(json_file, 'r') as f:
             data = json.load(f)
 
+        # Check if scan failed (error field present)
+        if 'error' in data:
+            return None
+
         critical = 0
         high = 0
         medium = 0

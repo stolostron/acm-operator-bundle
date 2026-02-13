@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Scan all images for CVEs using Trivy"""
 
+import argparse
 import json
 import os
 import subprocess
@@ -59,6 +60,7 @@ def check_trivy_available():
 
 def get_podman_socket():
     """Detect podman socket path for Trivy to use"""
+    # Try macOS podman machine socket
     try:
         result = subprocess.run(
             ['podman', 'machine', 'inspect', 'podman-machine-default'],
@@ -75,6 +77,17 @@ def get_podman_socket():
                 return socket_path
     except:
         pass
+
+    # Try Linux user socket (CI environment)
+    user_socket = f"/run/user/{os.getuid()}/podman/podman.sock"
+    if os.path.exists(user_socket):
+        return user_socket
+
+    # Try system socket
+    system_socket = "/run/podman/podman.sock"
+    if os.path.exists(system_socket):
+        return system_socket
+
     return None
 
 
@@ -90,20 +103,25 @@ def scan_image_trivy(image_ref, output_file, severity, timeout, format_type, pod
     if os.path.exists(auth_file):
         env['REGISTRY_AUTH_FILE'] = auth_file
 
+    # Set podman socket for Trivy if available (Trivy uses DOCKER_HOST)
+    if podman_socket:
+        env['DOCKER_HOST'] = f'unix://{podman_socket}'
+
     # Try remote scanning (no pull required, uses registry auth)
     try:
-        cmd = [
-            'trivy', 'image',
+        cmd = ['trivy', 'image']
+
+        # Suppress INFO/WARN logs when using JSON format for clean JSON output
+        if format_type == 'json':
+            cmd.append('--quiet')
+
+        cmd.extend([
             '--image-src', 'remote',
             '--severity', severity,
             '--timeout', timeout,
             '--format', format_type,
             image_ref
-        ]
-
-        # Suppress INFO/WARN logs when using JSON format for clean JSON output
-        if format_type == 'json':
-            cmd.insert(2, '--quiet')
+        ])
 
         with open(output_file, 'w') as f:
             result = subprocess.run(
@@ -150,18 +168,18 @@ def scan_image_trivy(image_ref, output_file, severity, timeout, format_type, pod
                     f.write(f"Failed to pull image: {pull_result.stderr}\n")
             return False
 
-        # Scan from podman local storage (requires podman socket to be running)
-        cmd_podman = [
-            'trivy', 'image',
-            '--image-src', 'podman',
+        # Scan from podman local storage using local daemon
+        cmd_podman = ['trivy', 'image']
+
+        if format_type == 'json':
+            cmd_podman.append('--quiet')
+
+        cmd_podman.extend([
             '--severity', severity,
             '--timeout', timeout,
             '--format', format_type,
             image_ref
-        ]
-
-        if format_type == 'json':
-            cmd_podman.insert(2, '--quiet')
+        ])
 
         with open(output_file, 'w') as f:
             result = subprocess.run(
@@ -234,6 +252,41 @@ def parse_trivy_json_for_counts(scan_file):
         return {'critical': 0, 'high': 0, 'medium': 0, 'low': 0, 'total': 0}
 
 
+def parse_text_severity_counts(scan_file):
+    """Parse severity counts from text output (looks for 'Total: X (CRITICAL: Y, HIGH: Z, ...)' lines)"""
+    counts = {'critical': 0, 'high': 0, 'medium': 0, 'low': 0, 'total': 0}
+    try:
+        import re
+        with open(scan_file, 'r') as f:
+            content = f.read()
+
+        # Look for lines like: "Total: 5 (HIGH: 4, CRITICAL: 1)"
+        # There may be multiple "Total:" lines (one per target in the image)
+        total_lines = re.findall(r'Total:\s*(\d+)\s*\(([^)]+)\)', content)
+
+        for total_str, severity_str in total_lines:
+            # Parse individual severities
+            critical = re.search(r'CRITICAL:\s*(\d+)', severity_str)
+            high = re.search(r'HIGH:\s*(\d+)', severity_str)
+            medium = re.search(r'MEDIUM:\s*(\d+)', severity_str)
+            low = re.search(r'LOW:\s*(\d+)', severity_str)
+
+            if critical:
+                counts['critical'] += int(critical.group(1))
+            if high:
+                counts['high'] += int(high.group(1))
+            if medium:
+                counts['medium'] += int(medium.group(1))
+            if low:
+                counts['low'] += int(low.group(1))
+
+            counts['total'] += int(total_str)
+
+        return counts
+    except:
+        return {'critical': 0, 'high': 0, 'medium': 0, 'low': 0, 'total': 0}
+
+
 def count_vulnerabilities(scan_file, format_type):
     """Try to count vulnerabilities from scan file"""
     try:
@@ -254,6 +307,10 @@ def count_vulnerabilities(scan_file, format_type):
 
 
 def main():
+    parser = argparse.ArgumentParser(description='Scan images for CVEs using Trivy')
+    parser.add_argument('--image-key', type=str, help='Scan only the image with this key (e.g., multicluster-operators-application)')
+    args = parser.parse_args()
+
     extras_dir = os.getenv('EXTRAS_DIR', 'extras')
     reports_dir = os.getenv('REPORTS_DIR', 'reports')
     severity = os.getenv('TRIVY_SEVERITY', 'HIGH,CRITICAL')
@@ -353,6 +410,15 @@ def main():
             console.print(f"[red]Error reading {json_file}: {e}[/red]")
             continue
 
+        # Filter by image-key if specified
+        if args.image_key:
+            original_count = len(images)
+            images = [img for img in images if img.get('image-key') == args.image_key]
+            if not images:
+                console.print(f"[yellow]No image found with key '{args.image_key}' in {json_file}[/yellow]")
+                continue
+            console.print(f"[blue]Filtering: scanning only '{args.image_key}' (1 of {original_count} images)[/blue]\n")
+
         total_images = 0
         scanned = 0
         failed = 0
@@ -362,6 +428,8 @@ def main():
         with open(summary_file, 'w') as summary:
             summary.write(f"CVE Scan Summary - {datetime.now()}\n")
             summary.write(f"Severity Filter: {severity}\n")
+            if args.image_key:
+                summary.write(f"Image Filter: {args.image_key}\n")
             if icsp_mirrors:
                 summary.write(f"ICSP Mirrors: {len(icsp_mirrors)} configured\n")
             summary.write("=" * 60 + "\n\n")
@@ -411,10 +479,14 @@ def main():
                     total_scan_time += elapsed
 
                     # Try to get vulnerability details
-                    if result and format_type == 'json':
-                        vuln_data = parse_trivy_json_for_counts(scan_file)
+                    if result:
+                        if format_type == 'json':
+                            vuln_data = parse_trivy_json_for_counts(scan_file)
+                        else:
+                            # Parse text output for severity breakdown
+                            vuln_data = parse_text_severity_counts(scan_file)
                     else:
-                        vuln_data = count_vulnerabilities(scan_file, format_type) if result else 0
+                        vuln_data = 0
 
                     if result:
                         results.append((image_key, "✓ OK", f"{elapsed:.1f}s", vuln_data, "green"))

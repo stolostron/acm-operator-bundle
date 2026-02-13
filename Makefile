@@ -6,9 +6,19 @@ export REPORTS_DIR ?= reports
 export TRIVY_SEVERITY ?= HIGH,CRITICAL
 export TRIVY_FORMAT ?= table
 export TRIVY_TIMEOUT ?= 10m
+IMAGE_KEY ?=
+RELEASE ?=
 
 # Scripts directory
 SCRIPTS_DIR := scripts
+
+# Build scan_cves arguments
+SCAN_ARGS := $(if $(IMAGE_KEY),--image-key $(IMAGE_KEY),)
+
+# Helper to run setup-release if RELEASE is specified
+define setup-if-release
+	$(if $(RELEASE),@$(MAKE) setup-release RELEASE=$(RELEASE),)
+endef
 
 help: ## Show this help message
 	@echo "Available targets:"
@@ -17,6 +27,13 @@ help: ## Show this help message
 	@echo "Quick commands for multi-release testing:"
 	@echo "  make verify-release RELEASE=release-2.17    # Setup + verify a release"
 	@echo "  make scan-release RELEASE=release-2.17      # Setup + scan a release"
+	@echo ""
+	@echo "CVE scanning options:"
+	@echo "  make scan-cves                                        # Scan current extras/"
+	@echo "  make scan-cves RELEASE=release-2.17                   # Setup + scan release"
+	@echo "  make scan-cves IMAGE_KEY=multiclusterhub_operator     # Scan single component"
+	@echo "  make scan-cves RELEASE=release-2.17 IMAGE_KEY=...     # Release + component"
+	@echo "  make scan-cves TRIVY_SEVERITY=CRITICAL,HIGH,MEDIUM    # Custom severity"
 
 list-images: ## List all images from extras/*.json files
 	@python3 $(SCRIPTS_DIR)/list_images.py
@@ -56,16 +73,20 @@ verify-release: setup-release verify-images ## Verify images for a release (Usag
 scan-release: setup-release scan-cves-json-icsp ## Scan a release for CVEs (Usage: make scan-release RELEASE=release-2.17)
 
 scan-cves: ## Scan all images for CVEs using Trivy (text output)
-	@python3 $(SCRIPTS_DIR)/scan_cves.py
+	$(setup-if-release)
+	@python3 $(SCRIPTS_DIR)/scan_cves.py $(SCAN_ARGS)
 
 scan-cves-icsp: ## Scan images using ICSP registry redirects (text output)
-	@ICSP_CONFIG=icsp-config.json python3 $(SCRIPTS_DIR)/scan_cves.py
+	$(setup-if-release)
+	@ICSP_CONFIG=icsp-config.json python3 $(SCRIPTS_DIR)/scan_cves.py $(SCAN_ARGS)
 
 scan-cves-json: ## Scan images and output results in JSON format
-	@OUTPUT_JSON=true python3 $(SCRIPTS_DIR)/scan_cves.py
+	$(setup-if-release)
+	@OUTPUT_JSON=true python3 $(SCRIPTS_DIR)/scan_cves.py $(SCAN_ARGS)
 
 scan-cves-json-icsp: ## Scan images with ICSP and output JSON (for Slack reports)
-	@ICSP_CONFIG=icsp-config.json OUTPUT_JSON=true python3 $(SCRIPTS_DIR)/scan_cves.py
+	$(setup-if-release)
+	@ICSP_CONFIG=icsp-config.json OUTPUT_JSON=true python3 $(SCRIPTS_DIR)/scan_cves.py $(SCAN_ARGS)
 
 image-report: ## Generate comprehensive image report
 	@python3 $(SCRIPTS_DIR)/image_report.py
