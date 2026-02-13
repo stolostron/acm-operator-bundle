@@ -135,7 +135,19 @@ def scan_image_trivy(image_ref, output_file, severity, timeout, format_type, pod
 
         if pull_result.returncode != 0:
             with open(output_file, 'w') as f:
-                f.write(f"Failed to pull image: {pull_result.stderr}\n")
+                if format_type == 'json':
+                    error_obj = {
+                        "SchemaVersion": 2,
+                        "ArtifactName": image_ref,
+                        "ArtifactType": "container_image",
+                        "Metadata": {},
+                        "Results": [],
+                        "error": "Failed to pull image",
+                        "error_details": pull_result.stderr
+                    }
+                    json.dump(error_obj, f, indent=2)
+                else:
+                    f.write(f"Failed to pull image: {pull_result.stderr}\n")
             return False
 
         # Scan from podman local storage (requires podman socket to be running)
@@ -162,10 +174,36 @@ def scan_image_trivy(image_ref, output_file, severity, timeout, format_type, pod
 
         return result.returncode == 0
     except subprocess.TimeoutExpired:
+        with open(output_file, 'w') as f:
+            if format_type == 'json':
+                error_obj = {
+                    "SchemaVersion": 2,
+                    "ArtifactName": image_ref,
+                    "ArtifactType": "container_image",
+                    "Metadata": {},
+                    "Results": [],
+                    "error": "Scan timeout",
+                    "error_details": "Scan exceeded timeout limit"
+                }
+                json.dump(error_obj, f, indent=2)
+            else:
+                f.write(f"Error: Scan timeout\n")
         return False
     except Exception as e:
-        with open(output_file, 'a') as f:
-            f.write(f"\nError during scan: {e}\n")
+        with open(output_file, 'w') as f:
+            if format_type == 'json':
+                error_obj = {
+                    "SchemaVersion": 2,
+                    "ArtifactName": image_ref,
+                    "ArtifactType": "container_image",
+                    "Metadata": {},
+                    "Results": [],
+                    "error": "Scan failed",
+                    "error_details": str(e)
+                }
+                json.dump(error_obj, f, indent=2)
+            else:
+                f.write(f"\nError during scan: {e}\n")
         return False
 
 
