@@ -328,17 +328,21 @@ def main():
                 summary.write(f"ICSP Mirrors: {len(icsp_mirrors)} configured\n")
             summary.write("=" * 60 + "\n\n")
 
+            # Detect if we're in CI to adjust output
+            in_ci = os.getenv('CI') == 'true' or os.getenv('GITHUB_ACTIONS') == 'true'
+
             with Progress(
                 SpinnerColumn(),
                 TextColumn("[progress.description]{task.description}"),
                 BarColumn(),
                 TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
                 TimeElapsedColumn(),
-                console=console
+                console=console,
+                disable=in_ci  # Disable rich progress in CI
             ) as progress:
                 task = progress.add_task("[cyan]Scanning images...", total=len(images))
 
-                for image in images:
+                for idx, image in enumerate(images, 1):
                     image_key = image.get('image-key', 'unknown')
                     image_remote = image.get('image-remote', '')
                     image_name = image.get('image-name', '')
@@ -349,6 +353,10 @@ def main():
                     scan_image, redirect_source = apply_icsp_redirect(full_image, icsp_mirrors)
 
                     progress.update(task, description=f"[cyan]Scanning {image_key}...")
+
+                    # Print plain progress in CI for visibility
+                    if in_ci:
+                        print(f"[{idx}/{len(images)}] Scanning {image_key}...", flush=True)
 
                     # Determine output file extension and path
                     ext = 'json' if format_type == 'json' else 'txt'
@@ -386,8 +394,22 @@ def main():
                                 summary.write(f"{vuln_data.get('high', 0)} HIGH, ")
                                 summary.write(f"{vuln_data.get('medium', 0)} MED, ")
                                 summary.write(f"{vuln_data.get('low', 0)} LOW\n")
+
+                                # Print in CI for visibility
+                                if in_ci:
+                                    print(f"  ✓ Completed in {elapsed:.1f}s - Found {total_vulns} vulns: "
+                                          f"{vuln_data.get('critical', 0)} CRIT, {vuln_data.get('high', 0)} HIGH, "
+                                          f"{vuln_data.get('medium', 0)} MED, {vuln_data.get('low', 0)} LOW", flush=True)
+                            else:
+                                if in_ci:
+                                    print(f"  ✓ Completed in {elapsed:.1f}s - No vulnerabilities found", flush=True)
                         elif vuln_data > 0:
                             summary.write(f"  Found {vuln_data} vulnerabilities\n")
+                            if in_ci:
+                                print(f"  ✓ Completed in {elapsed:.1f}s - Found {vuln_data} vulnerabilities", flush=True)
+                        else:
+                            if in_ci:
+                                print(f"  ✓ Completed in {elapsed:.1f}s", flush=True)
 
                         scanned += 1
                     else:
@@ -397,6 +419,11 @@ def main():
                             summary.write(f"  → Failed even with ICSP mirror: {scan_image}\n")
                         else:
                             summary.write(f"✗ {image_key}: {full_image} - Scan failed ({elapsed:.1f}s)\n")
+
+                        # Print failure in CI
+                        if in_ci:
+                            print(f"  ✗ FAILED in {elapsed:.1f}s", flush=True)
+
                         failed += 1
 
                     total_images += 1
