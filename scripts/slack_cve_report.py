@@ -625,8 +625,8 @@ def create_slack_message(version, results, format_type='summary', image_details=
             footer_text += "• Compare image digests between scans\n"
             if total_critical > 0:
                 footer_text += "• Check for upstream base image CVE disclosures\n"
-
-            footer_text += "\n_Owner: @security-team_"
+                footer_text += "• Scan specific images locally:\n"
+                footer_text += "  ```trivy image --severity HIGH,CRITICAL quay.io/acm-d/multiclusterhub-rhel9@sha256:...```\n"
 
             blocks.append({
                 "type": "context",
