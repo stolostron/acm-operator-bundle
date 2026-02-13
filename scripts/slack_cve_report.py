@@ -481,6 +481,10 @@ def create_slack_message(version, results, format_type='summary', image_details=
             # In threaded mode, save component sections for thread replies
             # Main message gets ONLY summary, details go in thread
             if plain_text:
+                # Slack section blocks have a 3000 character limit
+                if len(plain_text) > 3000:
+                    plain_text = plain_text[:2950] + "\n\n... (truncated, see full report in artifacts)"
+
                 top_impacted_block = {
                     "type": "section",
                     "text": {
@@ -488,6 +492,11 @@ def create_slack_message(version, results, format_type='summary', image_details=
                         "text": plain_text
                     }
                 }
+
+            # Slack section blocks have a 3000 character limit
+            if len(all_components_text) > 3000:
+                # Truncate and add notice
+                all_components_text = all_components_text[:2950] + "\n\n... (truncated, see full report in artifacts)"
 
             all_components_block = {
                 "type": "section",
