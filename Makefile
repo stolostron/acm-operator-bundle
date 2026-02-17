@@ -1,4 +1,4 @@
-.PHONY: help list-images list-images-full check-dummy-shas verify-images verify-images-icsp verify-images-podman verify-images-arm64 verify-images-amd64 verify-images-ppc64le verify-images-s390x verify-release scan-release scan-cves scan-cves-icsp scan-cves-json scan-cves-json-icsp image-report clean-reports check-tools install-deps all-checks make-scripts-executable setup-release
+.PHONY: help list-images list-images-full check-dummy-shas verify-images verify-images-icsp verify-images-podman verify-images-arm64 verify-images-amd64 verify-images-ppc64le verify-images-s390x verify-release scan-release scan-cves scan-cves-icsp scan-cves-json scan-cves-json-icsp image-report clean-reports check-tools install-deps all-checks full-scan make-scripts-executable setup-release
 
 # Configuration
 export EXTRAS_DIR ?= extras
@@ -43,9 +43,6 @@ list-images-full: ## List all images with full SHA digests
 
 check-dummy-shas: ## Check for dummy or flagged SHA digests
 	@python3 $(SCRIPTS_DIR)/check_dummy_shas.py
-
-check-dummy-shas-warn: ## Check for dummy SHAs (warning only, for pre-GA)
-	@WARN_ONLY=true python3 $(SCRIPTS_DIR)/check_dummy_shas.py
 
 verify-images: ## Verify all images are pullable using skopeo
 	@python3 $(SCRIPTS_DIR)/verify_images.py
