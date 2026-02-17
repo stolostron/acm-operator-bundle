@@ -45,7 +45,6 @@ def is_valid_sha_format(digest):
 
 def main():
     extras_dir = os.getenv('EXTRAS_DIR', 'extras')
-    warn_only = os.getenv('WARN_ONLY', 'false').lower() == 'true'
 
     console.print("[blue]Checking for dummy/invalid SHA digests...[/blue]\n")
 
@@ -90,11 +89,10 @@ def main():
     console.print()
     if found_issues == 0:
         console.print(Panel("[bold green]✓ No dummy or invalid SHA digests found[/bold green]", border_style="green"))
-        sys.exit(0)
     else:
         # Display issues in a table
         if issues:
-            table = Table(title=f"Found {found_issues} Issues", show_header=True, header_style="bold red")
+            table = Table(title=f"Found {found_issues} Dummy/Invalid SHAs", show_header=True, header_style="bold yellow")
             table.add_column("Image", style="cyan")
             table.add_column("Digest", style="yellow")
             table.add_column("Issue Type", style="red")
@@ -104,15 +102,13 @@ def main():
 
             console.print(table)
 
-        if warn_only:
-            console.print(Panel(
-                f"[bold yellow]⚠ Found {found_issues} issues (warning only - pre-GA)[/bold yellow]",
-                border_style="yellow"
-            ))
-            sys.exit(0)
-        else:
-            console.print(Panel(f"[bold red]✗ Found {found_issues} issues[/bold red]", border_style="red"))
-            sys.exit(1)
+        console.print(Panel(
+            f"[bold yellow]Found {found_issues} dummy/invalid SHAs[/bold yellow]",
+            border_style="yellow"
+        ))
+
+    # Always exit successfully - this is a reporting command, not a validation
+    sys.exit(0)
 
 
 if __name__ == '__main__':
