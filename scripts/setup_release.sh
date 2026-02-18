@@ -30,6 +30,10 @@ fi
 
 echo -e "${BLUE}Setting up extras/ from ${RELEASE_BRANCH}...${NC}"
 
+# Fetch latest remote refs to ensure we have up-to-date branches
+echo -e "${BLUE}Fetching latest remote refs...${NC}"
+git fetch origin
+
 # Check if release branch exists
 if ! git rev-parse --verify "origin/${RELEASE_BRANCH}" > /dev/null 2>&1; then
     echo -e "${RED}Error: Release branch 'origin/${RELEASE_BRANCH}' not found${NC}"
