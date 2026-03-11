@@ -8,7 +8,7 @@ metadata:
     categories: Integration & Delivery
     certified: 'true'
     support: Red Hat
-    createdAt: '2026-03-11T16:30:18Z'
+    createdAt: '2026-03-11T22:07:42Z'
     description: Advanced provisioning and management of OpenShift and Kubernetes clusters
     operatorframework.io/suggested-namespace: open-cluster-management
     operatorframework.io/initialization-resource: '{"apiVersion":"operator.open-cluster-management.io/v1",
@@ -29,9 +29,9 @@ metadata:
     features.operators.openshift.io/token-auth-azure: 'false'
     features.operators.openshift.io/token-auth-gcp: 'false'
     olm.properties: '[{"type": "olm.maxOpenShiftVersion", "value": "4.22"}]'
-    olm.skipRange: '>=2.15.0 <2.16.0'
+    olm.skipRange: '>=2.15.0 <2.16.1'
     operators.openshift.io/must-gather-image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:cdcdaec9d75dd620a4df0b4bc27ac82bcd8b63f8346edc08f65229bf8e26ded1
-  name: advanced-cluster-management.v2.16.0
+  name: advanced-cluster-management.v2.16.1
   namespace: placeholder
   labels:
     operatorframework.io/arch.amd64: supported
@@ -41,7 +41,7 @@ metadata:
     operatorframework.io/os.linux: supported
 spec:
   displayName: Advanced Cluster Management for Kubernetes
-  version: 2.16.0
+  version: 2.16.1
   provider:
     name: Red Hat
   maintainers:
@@ -1917,7 +1917,7 @@ spec:
                 - name: OPERAND_IMAGE_CONFIG_POLICY_CONTROLLER
                   value: registry.redhat.io/rhacm2/config-policy-controller-rhel9@sha256:324fec6080cbbb7b463e64069d184a6e100433ecc0c386b753d72b92696effd1
                 - name: OPERAND_IMAGE_CONSOLE
-                  value: registry.redhat.io/rhacm2/console-rhel9@sha256:d6e52db1e91dcf4fdb0f7617de914f5dc75ad66a06544500577f026f19ad2794
+                  value: registry.redhat.io/rhacm2/console-rhel9@sha256:a69d9514cef053784df26f2f2bea1532fdcb8b67133a2e5ea697abfc3c564ff3
                 - name: OPERAND_IMAGE_ENDPOINT_MONITORING_OPERATOR
                   value: registry.redhat.io/rhacm2/endpoint-monitoring-rhel9-operator@sha256:bd1a1e6582ae8403c80bb0d0ec477f48f76cc0e27e95fcb225ee9d8995b48829
                 - name: OPERAND_IMAGE_GOVERNANCE_POLICY_ADDON_CONTROLLER
@@ -2035,7 +2035,7 @@ spec:
                 - name: OPERAND_IMAGE_VOLSYNC
                   value: registry.redhat.io/rhacm2/volsync-rhel9@sha256:7b37c58174b9e69eccfb58c90db5b92895df0f10bf5cef0ab0a968aa27f5c683
                 - name: OPERATOR_VERSION
-                  value: 2.16.0
+                  value: 2.16.1
                 - name: OPERATOR_PACKAGE
                   value: advanced-cluster-management
                 image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:d811b1db65592d8136f3101f74bc9c7f47c7161ce75b3c8e8b3548c40dbc9e00
@@ -2081,6 +2081,7 @@ spec:
                 secret:
                   defaultMode: 420
                   secretName: multiclusterhub-operator-webhook
+  replaces: advanced-cluster-management.v2.16.0
   relatedImages:
   - name: acm_cli
     image: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:1d4f755726cead3d2f9d7aaf39dd083116da9d125044f21676a3130c2561883f
@@ -2095,7 +2096,7 @@ spec:
   - name: config_policy_controller
     image: registry.redhat.io/rhacm2/config-policy-controller-rhel9@sha256:324fec6080cbbb7b463e64069d184a6e100433ecc0c386b753d72b92696effd1
   - name: console
-    image: registry.redhat.io/rhacm2/console-rhel9@sha256:d6e52db1e91dcf4fdb0f7617de914f5dc75ad66a06544500577f026f19ad2794
+    image: registry.redhat.io/rhacm2/console-rhel9@sha256:a69d9514cef053784df26f2f2bea1532fdcb8b67133a2e5ea697abfc3c564ff3
   - name: endpoint_monitoring_operator
     image: registry.redhat.io/rhacm2/endpoint-monitoring-rhel9-operator@sha256:bd1a1e6582ae8403c80bb0d0ec477f48f76cc0e27e95fcb225ee9d8995b48829
   - name: governance_policy_addon_controller
