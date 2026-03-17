@@ -2,67 +2,119 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/multiclusterhub-operator?rev=761a476e30fcfda606a7efbfe21f2d16f347b631
-    build.appstudio.redhat.com/commit_sha: 761a476e30fcfda606a7efbfe21f2d16f347b631
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/multiclusterhub-operator?rev=31b9f79c4733b59a5ee3cd8474a6d74bb11d7057
+    build.appstudio.redhat.com/commit_sha: 31b9f79c4733b59a5ee3cd8474a6d74bb11d7057
     build.appstudio.redhat.com/target_branch: release-2.17
     pac.test.appstudio.openshift.io/branch: release-2.17
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "67415221783"
+    pac.test.appstudio.openshift.io/check-run-id: "67469219332"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-myymgb
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-fpeqlf
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/multiclusterhub-operator-acm-217-on-push-2zvxb
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/multiclusterhub-operator-acm-217-on-push-sqxkf
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-2.17"
     pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-217-on-push
-    pac.test.appstudio.openshift.io/pull-request: "3689"
+    pac.test.appstudio.openshift.io/pull-request: "3688"
     pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/multiclusterhub-operator
     pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/sender: acm-cicd-prow-bot
-    pac.test.appstudio.openshift.io/sha: 761a476e30fcfda606a7efbfe21f2d16f347b631
+    pac.test.appstudio.openshift.io/sha: 31b9f79c4733b59a5ee3cd8474a6d74bb11d7057
     pac.test.appstudio.openshift.io/sha-title: |-
-      Update golang.org/x/exp digest to 7ab1446 (#3689)
+      Remove legacy cleanup code (#3688)
 
-      Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
-      Co-authored-by: red-hat-konflux[bot] <126015336+red-hat-konflux[bot]@users.noreply.github.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/multiclusterhub-operator/commit/761a476e30fcfda606a7efbfe21f2d16f347b631
+      * Remove ACM 2.2, 2.5, 2.6, 2.7, 2.8 legacy cleanup code
+
+      Remove legacy cleanup code for very old ACM versions (2.2-2.8). These versions
+      are from 2021-2022 and users upgrading from those versions to current ACM 2.17
+      would be doing a massive version jump spanning 3+ years.
+
+      Changes:
+      - Remove LegacyConfigKind, MCHLegacyPrometheusRules, MCHLegacyServiceMonitors
+        and related helper functions from multiclusterhub_methods.go
+      - Remove legacy cleanup tests from multiclusterhub_methods_test.go
+      - Remove management-ingress and helm-repo component pruning from config.go
+        (these were removed in ACM 2.7)
+      - Remove cleanupGRCAppsub() call from reconcile.go (ACM 2.6->2.7 upgrade logic)
+      - Remove ensureAppsubsGone() call from reconcile.go (2022 appsub migration)
+      - Remove removeLegacyConfigurations() call from reconcile.go (ACM 2.2 cleanup)
+      - Remove legacy GRC PrometheusRule/ServiceMonitor test from controller test
+      - Remove SampleServiceMonitor test helper
+      - Add documentation comments to metrics infrastructure functions
+
+      Impact: Users on very old ACM versions (2.2-2.8) would need to manually clean
+      up legacy resources, but this is an extremely unlikely upgrade path.
+
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+
+      * Remove SeparateCertificateManagement and appsub migration cleanup code
+
+      Remove cleanup code for deprecated SeparateCertificateManagement functionality
+      and 2022-era appsub migration. Both features are 3+ years old and users
+      upgrading from those versions would be doing a massive version jump.
+
+      SeparateCertificateManagement cleanup removal:
+      - Add omitempty to SeparateCertificateManagement field (deprecated feature)
+      - Remove CertManagerNS() helper function
+      - Remove cert-manager namespace from TrackedNamespaces()
+      - Remove uninstallList cleanup (ACM 2.5, 2.7 resources + cert-manager secret)
+      - Remove ensureRemovalsGone() function
+      - Remove call to ensureRemovalsGone() in reconcile loop
+      - Remove related tests
+
+      Appsub migration cleanup removal (2022):
+      - Remove appsubCleanupList (old appsub subscription resources)
+      - Remove ensureAppsubsGone() function (helmrelease/OADP cleanup)
+      - Remove MonitoringAPIGroup constant (no longer used)
+      - Remove unused imports (strings, utils, rbacv1, apimeta, ctrl, client)
+
+      Impact: Simplifies codebase by removing 440 lines of upgrade cleanup logic
+      for very old ACM versions. Users on these old versions would need manual
+      cleanup, but this is an extremely unlikely upgrade path.
+
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+
+      ---------
+
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/multiclusterhub-operator/commit/31b9f79c4733b59a5ee3cd8474a6d74bb11d7057
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-2.17
     pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
     pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-03-17T14:30:36Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20260317-142038-000":{"lastUpdateTime":"2026-03-17T14:31:15.282872045Z"}}}'
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-03-17T20:09:42Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20260317-195914-000":{"lastUpdateTime":"2026-03-17T20:10:17.207806933Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1773757238000"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1773777554000"
     test.appstudio.openshift.io/pr-status: merged
     test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"TestPassed","lastUpdateTime":"2026-03-17T14:31:15.282872045Z","details":"Integration
-      test passed","startTime":"2026-03-17T14:30:36.333481019Z","completionTime":"2026-03-17T14:31:15.282872045Z","testPipelineRunName":"enterprise-contract-acm-217-pjpcn"}]'
-  creationTimestamp: "2026-03-17T14:30:36Z"
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"TestPassed","lastUpdateTime":"2026-03-17T20:10:17.207806933Z","details":"Integration
+      test passed","startTime":"2026-03-17T20:09:42.40471179Z","completionTime":"2026-03-17T20:10:17.207806933Z","testPipelineRunName":"enterprise-contract-acm-217-7cn6t"}]'
+  creationTimestamp: "2026-03-17T20:09:42Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-217
-    appstudio.openshift.io/build-pipelinerun: multiclusterhub-operator-acm-217-on-push-2zvxb
+    appstudio.openshift.io/build-pipelinerun: multiclusterhub-operator-acm-217-on-push-sqxkf
     appstudio.openshift.io/component: multiclusterhub-operator-acm-217
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "67415221783"
+    pac.test.appstudio.openshift.io/check-run-id: "67469219332"
     pac.test.appstudio.openshift.io/event-type: push
     pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-217-on-push
-    pac.test.appstudio.openshift.io/pull-request: "3689"
+    pac.test.appstudio.openshift.io/pull-request: "3688"
     pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
-    pac.test.appstudio.openshift.io/sha: 761a476e30fcfda606a7efbfe21f2d16f347b631
+    pac.test.appstudio.openshift.io/sha: 31b9f79c4733b59a5ee3cd8474a6d74bb11d7057
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
     pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1773757799"
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1773778176"
     test.appstudio.openshift.io/type: component
-  name: release-acm-217-20260317-142038-000
+  name: release-acm-217-20260317-195914-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -71,28 +123,12 @@ metadata:
     kind: Application
     name: release-acm-217
     uid: f6a47cb4-5edb-49df-b280-ca2ad71f1d6c
-  resourceVersion: "7789504011"
-  uid: 72688a90-fb30-41f6-94f8-0985222fd235
+  resourceVersion: "7795383246"
+  uid: ec5015a7-8e1d-451d-ac85-c61496d6cd72
 spec:
   application: release-acm-217
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/thanos-acm-217@sha256:a403ab4b92e2adcc08e19484a0611a20bb2e77ab8539ddaa43b8cbed8a8ea78c
-    name: thanos-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: a0a50e6c1904c7929d4400857e31b89b4fcb1dd8
-        url: https://github.com/stolostron/thanos
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/thanos-receive-controller-acm-217@sha256:9f1f0a9a104a013585a271201b8c16d41f43506a24689905cbaa5b8e73c37e03
-    name: thanos-receive-controller-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 45c40262b8bdbeba393070f072163817b609b6f3
-        url: https://github.com/stolostron/thanos-receive-controller
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-217@sha256:15d366b074a4fde5ea82eb365678276eeb889d2d2c3e084920ffa35f77ea351b
     name: klusterlet-addon-controller-acm-217
     source:
@@ -141,13 +177,13 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: 5ecce2307ed43026b34efa1ef1b8ce76b7dad3ce
         url: https://github.com/stolostron/config-policy-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-addon-controller-acm-217@sha256:997a84d1ab24f4179af3381f74b93f3a8fd264dcc96edf15675050184873fb11
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-addon-controller-acm-217@sha256:17515eb6901aa7ebc304df40c40a20e4645903febab728df87f9ec7caa1ce64b
     name: governance-policy-addon-controller-acm-217
     source:
       git:
         context: ./
         dockerfileUrl: build/Dockerfile.rhtap
-        revision: 906e2169f5c502626ee28cc107dfacd18a93ab35
+        revision: 460e67215c9fa3ff13e513b6f895e1937a6e5d3c
         url: https://github.com/stolostron/governance-policy-addon-controller
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/insights-client-acm-217@sha256:c9cfc4f0f21b4d23b83a7307b7bef153132e6ea886766185df1dbe8cbf7cef37
     name: insights-client-acm-217
@@ -341,11 +377,11 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: ab4cc07c1393e9d83f5a161153f5621a8bbc594e
         url: https://github.com/stolostron/search-indexer
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-217@sha256:0a8795ae6e96b8ca2be4c46132176d9e16d837ad8d4938b0f03bc07a322754d2
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-217@sha256:0da3856b7d6163e52c94684e99db38bf52e48b521be45373254389ecf0923df4
     name: multiclusterhub-operator-acm-217
     source:
       git:
-        revision: 761a476e30fcfda606a7efbfe21f2d16f347b631
+        revision: 31b9f79c4733b59a5ee3cd8474a6d74bb11d7057
         url: https://github.com/stolostron/multiclusterhub-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-rbac-proxy-acm-217@sha256:c08a4c58944a52e8f1d03a33cc1b1fd256fdd34da841a85ee18e19390c92ac9a
     name: kube-rbac-proxy-acm-217
@@ -371,13 +407,13 @@ spec:
         dockerfileUrl: operators/multiclusterobservability/Containerfile.operator
         revision: d7d2da18b1cda105daa91124fd7bf4a91facc9a6
         url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/must-gather-acm-217@sha256:61788c33b7902d047b1d77326a214925eb83e3b124dffc3ff15a8b54280cba58
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/must-gather-acm-217@sha256:9e1e9c1a0e6b9afceaaff01a3a79501deee9d2ec78559d9cbe9624ff75948b89
     name: must-gather-acm-217
     source:
       git:
         context: ./
         dockerfileUrl: build/Dockerfile.rhtap
-        revision: b2cf43100f4fd343520431733aa213b312e026e7
+        revision: aaa466dda3b4b359f8fc0b30e5409741f33d4adb
         url: https://github.com/stolostron/must-gather
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-alertmanager-acm-217@sha256:0fcf49978984397eaaf2325b6950cd4bea548db765af96be9bef4665c2a4fc50
     name: prometheus-alertmanager-acm-217
@@ -451,20 +487,36 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: b20b3ce3c9cfeba55e970a8e3a759b6112cb2e4a
         url: https://github.com/stolostron/search-v2-api
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/thanos-acm-217@sha256:a403ab4b92e2adcc08e19484a0611a20bb2e77ab8539ddaa43b8cbed8a8ea78c
+    name: thanos-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: a0a50e6c1904c7929d4400857e31b89b4fcb1dd8
+        url: https://github.com/stolostron/thanos
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/thanos-receive-controller-acm-217@sha256:9f1f0a9a104a013585a271201b8c16d41f43506a24689905cbaa5b8e73c37e03
+    name: thanos-receive-controller-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 45c40262b8bdbeba393070f072163817b609b6f3
+        url: https://github.com/stolostron/thanos-receive-controller
 status:
   conditions:
-  - lastTransitionTime: "2026-03-17T14:31:15Z"
+  - lastTransitionTime: "2026-03-17T20:10:17Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-03-17T14:31:15Z"
+  - lastTransitionTime: "2026-03-17T20:10:17Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-03-17T14:31:15Z"
+  - lastTransitionTime: "2026-03-17T20:10:17Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
