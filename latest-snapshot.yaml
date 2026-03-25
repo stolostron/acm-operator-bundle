@@ -2,105 +2,97 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/multiclusterhub-operator?rev=ce6958d2bfc92bed279a86783e6dd73cb61532ff
-    build.appstudio.redhat.com/commit_sha: ce6958d2bfc92bed279a86783e6dd73cb61532ff
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/multiclusterhub-operator?rev=18308a610b01f3c333333eef51c903d60980833f
+    build.appstudio.redhat.com/commit_sha: 18308a610b01f3c333333eef51c903d60980833f
     build.appstudio.redhat.com/target_branch: release-5.0
     pac.test.appstudio.openshift.io/branch: release-5.0
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "68261568408"
+    pac.test.appstudio.openshift.io/check-run-id: "68444149742"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-fcessj
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-tnbptv
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/multiclusterhub-operator-acm-50-on-push-ht6t9
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/multiclusterhub-operator-acm-50-on-push-gs8fh
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-5.0"
     pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-50-on-push
-    pac.test.appstudio.openshift.io/pull-request: "3742"
+    pac.test.appstudio.openshift.io/pull-request: "3771"
     pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/multiclusterhub-operator
     pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/sender: acm-cicd-prow-bot
-    pac.test.appstudio.openshift.io/sha: ce6958d2bfc92bed279a86783e6dd73cb61532ff
+    pac.test.appstudio.openshift.io/sha: 18308a610b01f3c333333eef51c903d60980833f
     pac.test.appstudio.openshift.io/sha-title: |-
-      fix(ACM-31341): restore ClusterPermission in MCHComponents, skip in reconcile loop (#3742)
+      ACM-30173 Add permission for console-chart to watch APIServers (#3771)
 
-      PR #3738 removed ClusterPermission from MCHComponents to fix the
-      infinite delete/recreate loop between MCH and MCE operators. However,
-      MCHComponents is also used by the webhook (ValidateCreate/
-      ValidateUpdate) to validate spec.overrides.components. Removing it
-      causes the webhook to reject any MCH CR update that references
-      cluster-permission — which breaks upgrades from ACM 2.16 where users
-      may have cluster-permission in their MCH spec.
+      * Add permission for console-chart to watch APIServers
 
-      Fix:
-      1. Restore ClusterPermission in MCHComponents so webhook validation
-         still accepts it as a valid component name.
-      2. Skip migrated components in the main reconcile loop using the
-         migratedComponentDeployments map. These components are already
-         handled by ensureMigratedComponentsCleanup earlier in the
-         reconcile function.
+      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
 
-      This approach keeps both the webhook and the reconcile loop correct:
-      - Webhook: accepts cluster-permission as valid ✓
-      - Reconcile loop: skips it (no delete/recreate conflict with MCE) ✓
-      - Migration cleanup: still works via migratedComponentDeployments ✓
+      * go generate
 
-      Signed-off-by: xuezhaojun <zxue@redhat.com>
-      Co-authored-by: Claude Opus 4.6 (1M context) <noreply@anthropic.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/multiclusterhub-operator/commit/ce6958d2bfc92bed279a86783e6dd73cb61532ff
+      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
+
+      * make manifests
+
+      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
+
+      ---------
+
+      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/multiclusterhub-operator/commit/18308a610b01f3c333333eef51c903d60980833f
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-5.0
     pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
     pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-03-23T21:31:02Z"}'
-    test.appstudio.openshift.io/create-snapshot-status: Component(s) 'governance-policy-addon-controller-acm-50,
-      governance-policy-framework-addon-acm-50, mtv-integrations-acm-50, multicluster-operators-application-acm-50,
-      multicluster-role-assignment-acm-50, observatorium-operator-acm-50, insights-client-acm-50,
-      insights-metrics-acm-50, kube-rbac-proxy-acm-50, obo-prometheus-operator-acm-50,
-      prometheus-acm-50, search-v2-operator-acm-50, thanos-acm-50, cluster-backup-operator-acm-50,
-      metrics-collector-acm-50, must-gather-acm-50, prometheus-operator-acm-50, rbac-query-proxy-acm-50,
-      config-policy-controller-acm-50, grafana-dashboard-loader-acm-50, multicluster-observability-operator-acm-50,
-      search-collector-acm-50, search-indexer-acm-50, siteconfig-acm-50, submariner-addon-acm-50,
-      acm-cli-acm-50, memcached-exporter-acm-50, multicluster-observability-addon-acm-50,
-      search-v2-api-acm-50, governance-policy-propagator-acm-50, klusterlet-addon-controller-acm-50,
-      kube-state-metrics-acm-50, prometheus-alertmanager-acm-50, cert-policy-controller-acm-50,
-      console-acm-50, multicloud-integrations-acm-50, prometheus-config-reloader-acm-50,
-      thanos-receive-controller-acm-50, volsync-addon-controller-acm-50, grafana-acm-50,
-      multicluster-operators-channel-acm-50, multicluster-operators-subscription-acm-50,
-      node-exporter-acm-50, observatorium-acm-50, cluster-permission-acm-50, endpoint-monitoring-operator-acm-50'
-      is(are) not included in snapshot due to missing valid containerImage or git
-      source
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-50-release-acm-50-20260323-212133-000":{"lastUpdateTime":"2026-03-23T21:31:38.131054107Z"}}}'
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-03-24T22:21:26Z"}'
+    test.appstudio.openshift.io/create-snapshot-status: Component(s) 'grafana-acm-50,
+      observatorium-operator-acm-50, prometheus-operator-acm-50, rbac-query-proxy-acm-50,
+      search-v2-operator-acm-50, grafana-dashboard-loader-acm-50, multicluster-role-assignment-acm-50,
+      obo-prometheus-operator-acm-50, search-collector-acm-50, thanos-receive-controller-acm-50,
+      volsync-addon-controller-acm-50, klusterlet-addon-controller-acm-50, metrics-collector-acm-50,
+      multicluster-observability-addon-acm-50, thanos-acm-50, observatorium-acm-50,
+      prometheus-acm-50, search-v2-api-acm-50, submariner-addon-acm-50, cert-policy-controller-acm-50,
+      cluster-backup-operator-acm-50, governance-policy-propagator-acm-50, multicluster-operators-subscription-acm-50,
+      search-indexer-acm-50, siteconfig-acm-50, cluster-permission-acm-50, kube-state-metrics-acm-50,
+      mtv-integrations-acm-50, multicloud-integrations-acm-50, node-exporter-acm-50,
+      prometheus-alertmanager-acm-50, insights-metrics-acm-50, kube-rbac-proxy-acm-50,
+      multicluster-operators-application-acm-50, multicluster-operators-channel-acm-50,
+      config-policy-controller-acm-50, console-acm-50, endpoint-monitoring-operator-acm-50,
+      insights-client-acm-50, memcached-exporter-acm-50, multicluster-observability-operator-acm-50,
+      must-gather-acm-50, prometheus-config-reloader-acm-50, acm-cli-acm-50, governance-policy-addon-controller-acm-50,
+      governance-policy-framework-addon-acm-50' is(are) not included in snapshot due
+      to missing valid containerImage or git source
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-50-release-acm-50-20260324-221122-000":{"lastUpdateTime":"2026-03-24T22:22:00.132690092Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1774300893000"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1774390282000"
     test.appstudio.openshift.io/pr-status: merged
     test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-50","status":"TestPassed","lastUpdateTime":"2026-03-23T21:31:38.131054107Z","details":"Integration
-      test passed","startTime":"2026-03-23T21:31:03.111344658Z","completionTime":"2026-03-23T21:31:38.131054107Z","testPipelineRunName":"enterprise-contract-acm-50-rw8dg"}]'
-  creationTimestamp: "2026-03-23T21:31:03Z"
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-50","status":"BuildPLRInProgress","lastUpdateTime":"2026-03-24T22:22:00.132690092Z","details":"Integration
+      test passed with warnings","startTime":"2026-03-24T22:21:26.382577397Z","completionTime":"2026-03-24T22:22:00.132690092Z","testPipelineRunName":"enterprise-contract-acm-50-c5gtg"}]'
+  creationTimestamp: "2026-03-24T22:21:26Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-50
-    appstudio.openshift.io/build-pipelinerun: multiclusterhub-operator-acm-50-on-push-ht6t9
+    appstudio.openshift.io/build-pipelinerun: multiclusterhub-operator-acm-50-on-push-gs8fh
     appstudio.openshift.io/component: multiclusterhub-operator-acm-50
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "68261568408"
+    pac.test.appstudio.openshift.io/check-run-id: "68444149742"
     pac.test.appstudio.openshift.io/event-type: push
     pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-50-on-push
-    pac.test.appstudio.openshift.io/pull-request: "3742"
+    pac.test.appstudio.openshift.io/pull-request: "3771"
     pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
-    pac.test.appstudio.openshift.io/sha: ce6958d2bfc92bed279a86783e6dd73cb61532ff
+    pac.test.appstudio.openshift.io/sha: 18308a610b01f3c333333eef51c903d60980833f
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
     pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1774301456"
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1774390879"
     test.appstudio.openshift.io/type: component
-  name: release-acm-50-20260323-212133-000
+  name: release-acm-50-20260324-221122-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -109,32 +101,34 @@ metadata:
     kind: Application
     name: release-acm-50
     uid: 95420e61-ff03-40c3-a8b9-47011873be13
-  resourceVersion: "7888831406"
-  uid: 0e9afc60-1ca6-43db-bdb9-51b5c5598240
+  resourceVersion: "7912152017"
+  uid: 665bb2d1-262c-4e07-ad95-001f5d033e64
 spec:
   application: release-acm-50
   artifacts: {}
+  componentGroup: ""
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-50@sha256:6e14276f0b6a8c4192b412f0513fe1262f6df42b163f20336ed5fe43ca4c0c18
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-50@sha256:5769a82fb9a3d8c7742bea9606b858d2bce0c4c992c88430627ade57147a68fc
     name: multiclusterhub-operator-acm-50
     source:
       git:
-        revision: ce6958d2bfc92bed279a86783e6dd73cb61532ff
+        revision: 18308a610b01f3c333333eef51c903d60980833f
         url: https://github.com/stolostron/multiclusterhub-operator
+    version: ""
 status:
   conditions:
-  - lastTransitionTime: "2026-03-23T21:31:38Z"
+  - lastTransitionTime: "2026-03-24T22:22:00Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-03-23T21:31:38Z"
+  - lastTransitionTime: "2026-03-24T22:22:00Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-03-23T21:31:38Z"
+  - lastTransitionTime: "2026-03-24T22:22:00Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
