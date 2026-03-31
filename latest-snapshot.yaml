@@ -2,88 +2,149 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/console?rev=aac872b95f141cf14ea6a3defe4c278f06fa4c0a
-    build.appstudio.redhat.com/commit_sha: aac872b95f141cf14ea6a3defe4c278f06fa4c0a
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/search-v2-api?rev=8352abec0fcfaed0d06f8aa61c65d53f3976f06c
+    build.appstudio.redhat.com/commit_sha: 8352abec0fcfaed0d06f8aa61c65d53f3976f06c
     build.appstudio.redhat.com/target_branch: release-2.17
     pac.test.appstudio.openshift.io/branch: release-2.17
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "69233334464"
+    pac.test.appstudio.openshift.io/check-run-id: "69278476777"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-vlhaev
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-jsiujj
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/console-acm-217-on-push-fldjp
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/search-v2-api-acm-217-on-push-ws6k6
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-2.17"
-    pac.test.appstudio.openshift.io/original-prname: console-acm-217-on-push
-    pac.test.appstudio.openshift.io/pull-request: "5868"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/console
-    pac.test.appstudio.openshift.io/repository: console
+    pac.test.appstudio.openshift.io/original-prname: search-v2-api-acm-217-on-push
+    pac.test.appstudio.openshift.io/pull-request: "704"
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/search-v2-api
+    pac.test.appstudio.openshift.io/repository: search-v2-api-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/sender: acm-cicd-prow-bot
-    pac.test.appstudio.openshift.io/sha: aac872b95f141cf14ea6a3defe4c278f06fa4c0a
+    pac.test.appstudio.openshift.io/sha: 8352abec0fcfaed0d06f8aa61c65d53f3976f06c
     pac.test.appstudio.openshift.io/sha-title: |-
-      ACM-30787 Add column management to Applications table (#5868)
+      ACM-27856: Add wildcard (*) support for streaming subscription filters (#704)
 
-      * Add column management to Applications table
+      * ACM-27856: Add wildcard (*) support for streaming subscription filters
 
-      Signed-off-by: Oksana Bazylieva <obazylie@redhat.com>
+      Implements wildcard matching in the watch subscription event filter so
+      consumers can use '*' in property filter values (e.g. kind=Pod*).
 
-      * Reorder toolbar buttons in Applications table
+      - Add matchesWildcard helper using regex pattern conversion
+      - Update eventMatchesAllFilters to apply wildcard matching when filter
+        values contain '*'; kind remains case-insensitive with wildcards
+      - Remove the temporary validation that rejected wildcard filter values
+      - Add unit tests covering prefix, suffix, contains, and match-all patterns
 
-      Signed-off-by: Oksana Bazylieva <obazylie@redhat.com>
+      Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
 
-      * Adjust tests for Applications table
+      * ACM-27856: Address review comments
 
-      Signed-off-by: Oksana Bazylieva <obazylie@redhat.com>
+      - Add edge case tests: multiple wildcards, greedy matching, OR logic
+        with mixed wildcard and exact filter values
+      - Document wildcard support in GraphQL schema for SearchFilter.values
 
-      * Reorder toolbar buttons in Applications table
+      Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
 
-      Signed-off-by: Oksana Bazylieva <obazylie@redhat.com>
+      * ACM-27856: Remove kind case-insensitive special case from streaming
 
-      * Adjust Overview.test.tsx
+      Streaming filters use strict case-sensitive matching for all properties
+      including kind. The case-insensitive behavior was added for migration
+      compatibility with Search V1 and should not carry over to the watch API.
 
-      Signed-off-by: Oksana Bazylieva <obazylie@redhat.com>
+      - Remove EqualFold and wildcard lowercasing for kind in eventMatchesAllFilters
+      - Update schema doc: note wildcard matches are case-sensitive
+      - Update tests to reflect case-sensitive kind matching
+
+      Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
+
+      * ACM-27856: Address review comments
+
+      - Restore NOTE comment above operator validation in validateInputFilters
+      - Restore [AI] designation in kind case-sensitive test comment
+
+      Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
+
+      * ACM-27856: Regenerate GraphQL files after schema update
+
+      Run `make gqlgen` to update generated files after adding wildcard
+      documentation to the SearchFilter.values field in schema.graphqls.
+
+      Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
+
+      * Fix comment indentation in watchSubscription.go
+
+      Properly indent the comment lines to align with the if statement
+      since they are still within the loop scope.
+
+      Addresses review feedback from smcavey.
+
+      Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
+
+      * Fix GraphQL API syntax in wildcard filter documentation
+
+      Update wildcard filter examples to use correct GraphQL API syntax
+      with separate property and values fields, rather than the Search V1
+      colon-separated syntax. This improves clarity in the GraphQL playground.
+
+      Examples now show:
+      - property "name" with value "nginx-*" (instead of "name:nginx-*")
+      - property "namespace" with value "prod*" (instead of "namespace:prod*")
+
+      Also adds blank line between kind and wildcard sections for better
+      readability in the playground.
+
+      Addresses review feedback from smcavey.
+
+      Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
 
       ---------
 
-      Signed-off-by: Oksana Bazylieva <obazylie@redhat.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/console/commit/aac872b95f141cf14ea6a3defe4c278f06fa4c0a
+      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
+      Co-authored-by: Claude Sonnet 4.6 <noreply@anthropic.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/search-v2-api/commit/8352abec0fcfaed0d06f8aa61c65d53f3976f06c
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-2.17
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/search-v2-api
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: console
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-03-30T19:23:55Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20260330-190310-000":{"lastUpdateTime":"2026-03-30T19:24:29.726547652Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: search-v2-api
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-03-31T01:43:30Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20260331-013328-000":{"lastUpdateTime":"2026-03-31T01:44:03.779120345Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1774897390000"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1774920808000"
     test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"TestPassed","lastUpdateTime":"2026-03-30T19:24:29.726547652Z","details":"Integration
-      test passed","startTime":"2026-03-30T19:23:56.168894333Z","completionTime":"2026-03-30T19:24:29.726547652Z","testPipelineRunName":"enterprise-contract-acm-217-89nld"}]'
-  creationTimestamp: "2026-03-30T19:23:55Z"
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/search-v2-api
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"TestPassed","lastUpdateTime":"2026-03-31T01:44:03.779120345Z","details":"Integration
+      test passed","startTime":"2026-03-31T01:43:30.716925248Z","completionTime":"2026-03-31T01:44:03.779120345Z","testPipelineRunName":"enterprise-contract-acm-217-snchg"}]'
+  creationTimestamp: "2026-03-31T01:43:30Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-217
-    appstudio.openshift.io/build-pipelinerun: console-acm-217-on-push-fldjp
-    appstudio.openshift.io/component: console-acm-217
+    appstudio.openshift.io/build-pipelinerun: search-v2-api-acm-217-on-push-ws6k6
+    appstudio.openshift.io/component: search-v2-api-acm-217
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "69233334464"
+    pac.test.appstudio.openshift.io/check-run-id: "69278476777"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: console-acm-217-on-push
-    pac.test.appstudio.openshift.io/pull-request: "5868"
-    pac.test.appstudio.openshift.io/repository: console
-    pac.test.appstudio.openshift.io/sha: aac872b95f141cf14ea6a3defe4c278f06fa4c0a
+    pac.test.appstudio.openshift.io/original-prname: search-v2-api-acm-217-on-push
+    pac.test.appstudio.openshift.io/pull-request: "704"
+    pac.test.appstudio.openshift.io/repository: search-v2-api-acm-210
+    pac.test.appstudio.openshift.io/sha: 8352abec0fcfaed0d06f8aa61c65d53f3976f06c
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: console
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1774898629"
+    pac.test.appstudio.openshift.io/url-repository: search-v2-api
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1774921405"
     test.appstudio.openshift.io/type: component
-  name: release-acm-217-20260330-190310-000
+  name: release-acm-217-20260331-013328-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -92,202 +153,12 @@ metadata:
     kind: Application
     name: release-acm-217
     uid: f6a47cb4-5edb-49df-b280-ca2ad71f1d6c
-  resourceVersion: "8004882356"
-  uid: e47fe82f-7536-4bee-9c15-a2f754851e8d
+  resourceVersion: "8009201203"
+  uid: 4b0fc0ee-75dd-4ecf-95c4-95b395a7b113
 spec:
   application: release-acm-217
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-217@sha256:0b6e9bb5812679e4523d301950f379e324a25d28da4483e9c076efbfbaa78741
-    name: console-acm-217
-    source:
-      git:
-        revision: aac872b95f141cf14ea6a3defe4c278f06fa4c0a
-        url: https://github.com/stolostron/console
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-dashboard-loader-acm-217@sha256:f22293d275576e5956eca718d6ee6caf6c70406e541b2d4b9d4591bb3b9e1709
-    name: grafana-dashboard-loader-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: loaders/dashboards/Containerfile.operator
-        revision: 09fc127cb97cb89f1d3450f0336c914b9b01d1ff
-        url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-rbac-proxy-acm-217@sha256:1c8e1c2f86ce0faaee13533ba7455f1dc9a96a114615277682edc5f33a9adcbb
-    name: kube-rbac-proxy-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: e38fed8096d386f459cea233824dbf5fe892019c
-        url: https://github.com/stolostron/kube-rbac-proxy
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-217@sha256:422b7eed23a84dcd3a6a0203de45d531f7ac65f86cef17bbe2071800ef12b320
-    name: mtv-integrations-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile
-        revision: dc30d5ba452c665dad8d96c39eb9470820cbe552
-        url: https://github.com/stolostron/mtv-integrations
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-collector-acm-217@sha256:657b8de3d9b466703060df50da84fd54e3c5b3f50b051c8e826f4473379d3b32
-    name: search-collector-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: d7c39a8b01a43580d572628fb62e81795569d96e
-        url: https://github.com/stolostron/search-collector
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-api-acm-217@sha256:0e7bafed79640139e06102fb035cefc6f659fe8bd638e33840ec9f85df36c87a
-    name: search-v2-api-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 899569b28f372fdf54690d2116b2b586a56ac25d
-        url: https://github.com/stolostron/search-v2-api
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-cli-acm-217@sha256:7238b2f7998d8d105591d2a087d75f366dd1319fb097551528d7ef9a11a4c55f
-    name: acm-cli-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 24d22b481e4747344ce408f90f9c6d46d813fcc4
-        url: https://github.com/stolostron/acm-cli
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-propagator-acm-217@sha256:d9cc0a0ab5fa751d95b6c3d7bfd5e3445c5d66e52a50747882e28ded45211b3d
-    name: governance-policy-propagator-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 605104e71f92832137f2a941051091352cf2d911
-        url: https://github.com/stolostron/governance-policy-propagator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-217@sha256:ce737b4bee884032efd0056384a21e35baa0c8e84ae9e353edf8790ef10c9b87
-    name: klusterlet-addon-controller-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: d203df4c7d9ff8c4fc50e78033417b1c60a040d1
-        url: https://github.com/stolostron/klusterlet-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-state-metrics-acm-217@sha256:a53ee884ab6a950c9f9e86daa3ea85e2df987091c13f46311e2471b7d0ac13f3
-    name: kube-state-metrics-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: a6c01921ea0a10630723101f407f274586d0664b
-        url: https://github.com/stolostron/kube-state-metrics
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/memcached-exporter-acm-217@sha256:6ad916edc09f48660b3fa477203b2c43097ac2d779f94ca1db99dd2a78f5987e
-    name: memcached-exporter-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 3cbe96d61ed609be7727650f00ad7d7b0f64f10f
-        url: https://github.com/stolostron/memcached_exporter
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicloud-integrations-acm-217@sha256:943a0d52b6e1224fd7c0a3ff3a5bd0a25ddcba410645c0cd269a3f6fe36976b1
-    name: multicloud-integrations-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 7c1fef2a6ce433f7c759f9d7dae8c711a7a5409a
-        url: https://github.com/stolostron/multicloud-integrations
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-subscription-acm-217@sha256:14e9d93ec310e755690c2b8be5c0a85e7ec779e98c047700a4f4b4e4d0bb0a59
-    name: multicluster-operators-subscription-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: cb3e8a1f63e1f1eca872fb9bcbea5f67d1f2c000
-        url: https://github.com/stolostron/multicloud-operators-subscription
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-role-assignment-acm-217@sha256:8ad1b4fa49d9bce0456049da8dd17da1a3444bdd5d00b3c604a1496fdea0c2a3
-    name: multicluster-role-assignment-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile
-        revision: 37e0460faf341f04854aa00c80cc4c30e58a1ec9
-        url: https://github.com/stolostron/multicluster-role-assignment
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-backup-operator-acm-217@sha256:2413c76e114395e9287b2aef584fe814a06a95a912f88423edab907ea97b8bba
-    name: cluster-backup-operator-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: c6d3722837ac3b925583c13e6e82bdccfc343acd
-        url: https://github.com/stolostron/cluster-backup-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-permission-acm-217@sha256:28fd52f533b1e79aa9cf343165164b3d4bce95c7b67ff8a39e29ca118f25c460
-    name: cluster-permission-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 97deb24448b60b6231933eaba3e714adb64d55cd
-        url: https://github.com/stolostron/cluster-permission
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-config-reloader-acm-217@sha256:335452476f46f3eb4e3c494b25fb24d5c5e7a397fc3cb8f63e091d269d955a97
-    name: prometheus-config-reloader-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: cmd/prometheus-config-reloader/Containerfile.operator
-        revision: cd158b793341c19f418534815b4068481af99c2b
-        url: https://github.com/stolostron/prometheus-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-217@sha256:710fbbc304b547fc88c07b4149df8502a45ab66400e84c7f4e20d33dd5b493b8
-    name: search-indexer-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: ab4cc07c1393e9d83f5a161153f5621a8bbc594e
-        url: https://github.com/stolostron/search-indexer
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-operator-acm-217@sha256:61e62351e02b9c4b5c03eab23b82b2d4e0bf2edf03212509666c92fd286109bf
-    name: search-v2-operator-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: cb6a2e4f33d5ce4f0d5c0fc48c4fd23d2dd4c278
-        url: https://github.com/stolostron/search-v2-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/siteconfig-acm-217@sha256:04e848709ac4d4ea30a27b3bb8d3aa7875ec7486d6ae1f98d0721aa193a17570
-    name: siteconfig-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile
-        revision: 058e22fc8db761de01b2ca0c6fe8fbcccdc8742d
-        url: https://github.com/stolostron/siteconfig
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-217@sha256:59160587b9c7f0d46dcab1354fa051bb435b28ee74f00fe06dbffb7781a44523
-    name: submariner-addon-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.konflux
-        revision: 636c2188fb2df8463146615dd753006b749e9598
-        url: https://github.com/stolostron/submariner-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-217@sha256:e1eb051236bccd7e6a67e63106b8927cc5dde7be144945c67a0923d8484cb300
-    name: cert-policy-controller-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: be4353f75e6bd46dfd4eba67b89394d5f8ca1f93
-        url: https://github.com/stolostron/cert-policy-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/insights-metrics-acm-217@sha256:493323a42ccbf383b4c97cfdc00f4730cb93326b98300bfe2f10ec6f546eab68
-    name: insights-metrics-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: cbc50e7142d276c7de0c94f3cc51601b05332e22
-        url: https://github.com/stolostron/insights-metrics
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-operator-acm-217@sha256:59405db6c223ac4b66e9652a88bfbe37b874d7f21ff06630a178f2bdf447bc7f
-    name: multicluster-observability-operator-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: operators/multiclusterobservability/Containerfile.operator
-        revision: 09fc127cb97cb89f1d3450f0336c914b9b01d1ff
-        url: https://github.com/stolostron/multicluster-observability-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-channel-acm-217@sha256:0fddda87746dca97676f043f668a4eefbdbac9c79ab897053b86e48cbe720734
     name: multicluster-operators-channel-acm-217
     source:
@@ -456,7 +327,7 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: 89aa305ff0be1e1501c68c432725b64c27fbd27b
         url: https://github.com/stolostron/observatorium
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-acm-217@sha256:d21e92e43e64044058bda3fecf63e0e10ff56be5ac3f19c07cd0ceb5edcf4061
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-acm-217@sha256:c2eb5075c9c92a533ac70fdf188fdf4e28ed773f7a7eb2cc3463fd2581216f81
     name: prometheus-acm-217
     source:
       git:
@@ -472,20 +343,210 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: 489a79c59c84f49e4cf2df230dbe67bb1baa441e
         url: https://github.com/stolostron/volsync-addon-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-217@sha256:0b6e9bb5812679e4523d301950f379e324a25d28da4483e9c076efbfbaa78741
+    name: console-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.acm.konflux
+        revision: aac872b95f141cf14ea6a3defe4c278f06fa4c0a
+        url: https://github.com/stolostron/console
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-dashboard-loader-acm-217@sha256:f22293d275576e5956eca718d6ee6caf6c70406e541b2d4b9d4591bb3b9e1709
+    name: grafana-dashboard-loader-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: loaders/dashboards/Containerfile.operator
+        revision: 09fc127cb97cb89f1d3450f0336c914b9b01d1ff
+        url: https://github.com/stolostron/multicluster-observability-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-rbac-proxy-acm-217@sha256:1c8e1c2f86ce0faaee13533ba7455f1dc9a96a114615277682edc5f33a9adcbb
+    name: kube-rbac-proxy-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: e38fed8096d386f459cea233824dbf5fe892019c
+        url: https://github.com/stolostron/kube-rbac-proxy
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-217@sha256:422b7eed23a84dcd3a6a0203de45d531f7ac65f86cef17bbe2071800ef12b320
+    name: mtv-integrations-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile
+        revision: dc30d5ba452c665dad8d96c39eb9470820cbe552
+        url: https://github.com/stolostron/mtv-integrations
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-collector-acm-217@sha256:657b8de3d9b466703060df50da84fd54e3c5b3f50b051c8e826f4473379d3b32
+    name: search-collector-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: d7c39a8b01a43580d572628fb62e81795569d96e
+        url: https://github.com/stolostron/search-collector
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-api-acm-217@sha256:4bb6bdb86a6d2b614fd59957598cc789397c13dc624045833d1b24b18678271c
+    name: search-v2-api-acm-217
+    source:
+      git:
+        revision: 8352abec0fcfaed0d06f8aa61c65d53f3976f06c
+        url: https://github.com/stolostron/search-v2-api
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-cli-acm-217@sha256:7238b2f7998d8d105591d2a087d75f366dd1319fb097551528d7ef9a11a4c55f
+    name: acm-cli-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 24d22b481e4747344ce408f90f9c6d46d813fcc4
+        url: https://github.com/stolostron/acm-cli
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-propagator-acm-217@sha256:d9cc0a0ab5fa751d95b6c3d7bfd5e3445c5d66e52a50747882e28ded45211b3d
+    name: governance-policy-propagator-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 605104e71f92832137f2a941051091352cf2d911
+        url: https://github.com/stolostron/governance-policy-propagator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-217@sha256:ce737b4bee884032efd0056384a21e35baa0c8e84ae9e353edf8790ef10c9b87
+    name: klusterlet-addon-controller-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: d203df4c7d9ff8c4fc50e78033417b1c60a040d1
+        url: https://github.com/stolostron/klusterlet-addon-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-state-metrics-acm-217@sha256:a53ee884ab6a950c9f9e86daa3ea85e2df987091c13f46311e2471b7d0ac13f3
+    name: kube-state-metrics-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: a6c01921ea0a10630723101f407f274586d0664b
+        url: https://github.com/stolostron/kube-state-metrics
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/memcached-exporter-acm-217@sha256:6ad916edc09f48660b3fa477203b2c43097ac2d779f94ca1db99dd2a78f5987e
+    name: memcached-exporter-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 3cbe96d61ed609be7727650f00ad7d7b0f64f10f
+        url: https://github.com/stolostron/memcached_exporter
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicloud-integrations-acm-217@sha256:943a0d52b6e1224fd7c0a3ff3a5bd0a25ddcba410645c0cd269a3f6fe36976b1
+    name: multicloud-integrations-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 7c1fef2a6ce433f7c759f9d7dae8c711a7a5409a
+        url: https://github.com/stolostron/multicloud-integrations
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-subscription-acm-217@sha256:14e9d93ec310e755690c2b8be5c0a85e7ec779e98c047700a4f4b4e4d0bb0a59
+    name: multicluster-operators-subscription-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: cb3e8a1f63e1f1eca872fb9bcbea5f67d1f2c000
+        url: https://github.com/stolostron/multicloud-operators-subscription
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-role-assignment-acm-217@sha256:8ad1b4fa49d9bce0456049da8dd17da1a3444bdd5d00b3c604a1496fdea0c2a3
+    name: multicluster-role-assignment-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile
+        revision: 37e0460faf341f04854aa00c80cc4c30e58a1ec9
+        url: https://github.com/stolostron/multicluster-role-assignment
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-backup-operator-acm-217@sha256:2413c76e114395e9287b2aef584fe814a06a95a912f88423edab907ea97b8bba
+    name: cluster-backup-operator-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: c6d3722837ac3b925583c13e6e82bdccfc343acd
+        url: https://github.com/stolostron/cluster-backup-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-permission-acm-217@sha256:28fd52f533b1e79aa9cf343165164b3d4bce95c7b67ff8a39e29ca118f25c460
+    name: cluster-permission-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 97deb24448b60b6231933eaba3e714adb64d55cd
+        url: https://github.com/stolostron/cluster-permission
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-config-reloader-acm-217@sha256:335452476f46f3eb4e3c494b25fb24d5c5e7a397fc3cb8f63e091d269d955a97
+    name: prometheus-config-reloader-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: cmd/prometheus-config-reloader/Containerfile.operator
+        revision: cd158b793341c19f418534815b4068481af99c2b
+        url: https://github.com/stolostron/prometheus-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-217@sha256:710fbbc304b547fc88c07b4149df8502a45ab66400e84c7f4e20d33dd5b493b8
+    name: search-indexer-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: ab4cc07c1393e9d83f5a161153f5621a8bbc594e
+        url: https://github.com/stolostron/search-indexer
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-operator-acm-217@sha256:61e62351e02b9c4b5c03eab23b82b2d4e0bf2edf03212509666c92fd286109bf
+    name: search-v2-operator-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: cb6a2e4f33d5ce4f0d5c0fc48c4fd23d2dd4c278
+        url: https://github.com/stolostron/search-v2-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/siteconfig-acm-217@sha256:04e848709ac4d4ea30a27b3bb8d3aa7875ec7486d6ae1f98d0721aa193a17570
+    name: siteconfig-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile
+        revision: 058e22fc8db761de01b2ca0c6fe8fbcccdc8742d
+        url: https://github.com/stolostron/siteconfig
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-217@sha256:59160587b9c7f0d46dcab1354fa051bb435b28ee74f00fe06dbffb7781a44523
+    name: submariner-addon-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.konflux
+        revision: 636c2188fb2df8463146615dd753006b749e9598
+        url: https://github.com/stolostron/submariner-addon
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-217@sha256:e1eb051236bccd7e6a67e63106b8927cc5dde7be144945c67a0923d8484cb300
+    name: cert-policy-controller-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: be4353f75e6bd46dfd4eba67b89394d5f8ca1f93
+        url: https://github.com/stolostron/cert-policy-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/insights-metrics-acm-217@sha256:493323a42ccbf383b4c97cfdc00f4730cb93326b98300bfe2f10ec6f546eab68
+    name: insights-metrics-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: cbc50e7142d276c7de0c94f3cc51601b05332e22
+        url: https://github.com/stolostron/insights-metrics
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-operator-acm-217@sha256:59405db6c223ac4b66e9652a88bfbe37b874d7f21ff06630a178f2bdf447bc7f
+    name: multicluster-observability-operator-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: operators/multiclusterobservability/Containerfile.operator
+        revision: 09fc127cb97cb89f1d3450f0336c914b9b01d1ff
+        url: https://github.com/stolostron/multicluster-observability-operator
 status:
   conditions:
-  - lastTransitionTime: "2026-03-30T19:24:29Z"
+  - lastTransitionTime: "2026-03-31T01:44:03Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-03-30T19:24:30Z"
+  - lastTransitionTime: "2026-03-31T01:44:03Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-03-30T19:24:30Z"
+  - lastTransitionTime: "2026-03-31T01:44:03Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
