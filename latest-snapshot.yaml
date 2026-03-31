@@ -2,149 +2,60 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/search-v2-api?rev=8352abec0fcfaed0d06f8aa61c65d53f3976f06c
-    build.appstudio.redhat.com/commit_sha: 8352abec0fcfaed0d06f8aa61c65d53f3976f06c
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/grafana?rev=7fa188e290449e5ba5eae6019aa247daf5d9626a
+    build.appstudio.redhat.com/commit_sha: 7fa188e290449e5ba5eae6019aa247daf5d9626a
     build.appstudio.redhat.com/target_branch: release-2.17
     pac.test.appstudio.openshift.io/branch: release-2.17
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "69278476777"
+    pac.test.appstudio.openshift.io/check-run-id: "69311398797"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
-    pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-jsiujj
+    pac.test.appstudio.openshift.io/event-type: incoming
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-vbsgov
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/search-v2-api-acm-217-on-push-ws6k6
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/grafana-acm-217-on-push-4bh2m
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-2.17"
-    pac.test.appstudio.openshift.io/original-prname: search-v2-api-acm-217-on-push
-    pac.test.appstudio.openshift.io/pull-request: "704"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/search-v2-api
-    pac.test.appstudio.openshift.io/repository: search-v2-api-acm-210
+    pac.test.appstudio.openshift.io/original-prname: grafana-acm-217-on-push
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/grafana
+    pac.test.appstudio.openshift.io/repository: grafana-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
-    pac.test.appstudio.openshift.io/sender: acm-cicd-prow-bot
-    pac.test.appstudio.openshift.io/sha: 8352abec0fcfaed0d06f8aa61c65d53f3976f06c
-    pac.test.appstudio.openshift.io/sha-title: |-
-      ACM-27856: Add wildcard (*) support for streaming subscription filters (#704)
-
-      * ACM-27856: Add wildcard (*) support for streaming subscription filters
-
-      Implements wildcard matching in the watch subscription event filter so
-      consumers can use '*' in property filter values (e.g. kind=Pod*).
-
-      - Add matchesWildcard helper using regex pattern conversion
-      - Update eventMatchesAllFilters to apply wildcard matching when filter
-        values contain '*'; kind remains case-insensitive with wildcards
-      - Remove the temporary validation that rejected wildcard filter values
-      - Add unit tests covering prefix, suffix, contains, and match-all patterns
-
-      Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
-
-      * ACM-27856: Address review comments
-
-      - Add edge case tests: multiple wildcards, greedy matching, OR logic
-        with mixed wildcard and exact filter values
-      - Document wildcard support in GraphQL schema for SearchFilter.values
-
-      Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
-
-      * ACM-27856: Remove kind case-insensitive special case from streaming
-
-      Streaming filters use strict case-sensitive matching for all properties
-      including kind. The case-insensitive behavior was added for migration
-      compatibility with Search V1 and should not carry over to the watch API.
-
-      - Remove EqualFold and wildcard lowercasing for kind in eventMatchesAllFilters
-      - Update schema doc: note wildcard matches are case-sensitive
-      - Update tests to reflect case-sensitive kind matching
-
-      Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
-
-      * ACM-27856: Address review comments
-
-      - Restore NOTE comment above operator validation in validateInputFilters
-      - Restore [AI] designation in kind case-sensitive test comment
-
-      Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
-
-      * ACM-27856: Regenerate GraphQL files after schema update
-
-      Run `make gqlgen` to update generated files after adding wildcard
-      documentation to the SearchFilter.values field in schema.graphqls.
-
-      Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
-
-      * Fix comment indentation in watchSubscription.go
-
-      Properly indent the comment lines to align with the if statement
-      since they are still within the loop scope.
-
-      Addresses review feedback from smcavey.
-
-      Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
-
-      * Fix GraphQL API syntax in wildcard filter documentation
-
-      Update wildcard filter examples to use correct GraphQL API syntax
-      with separate property and values fields, rather than the Search V1
-      colon-separated syntax. This improves clarity in the GraphQL playground.
-
-      Examples now show:
-      - property "name" with value "nginx-*" (instead of "name:nginx-*")
-      - property "namespace" with value "prod*" (instead of "namespace:prod*")
-
-      Also adds blank line between kind and wildcard sections for better
-      readability in the playground.
-
-      Addresses review feedback from smcavey.
-
-      Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
-
-      ---------
-
-      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
-      Co-authored-by: Claude Sonnet 4.6 <noreply@anthropic.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/search-v2-api/commit/8352abec0fcfaed0d06f8aa61c65d53f3976f06c
-    pac.test.appstudio.openshift.io/source-branch: refs/heads/release-2.17
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/search-v2-api
+    pac.test.appstudio.openshift.io/sender: incoming
+    pac.test.appstudio.openshift.io/sha: 7fa188e290449e5ba5eae6019aa247daf5d9626a
+    pac.test.appstudio.openshift.io/sha-title: 'Merge pull request #391 from rhobs/automated-updates-acm-release-2.17'
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/grafana/commit/7fa188e290449e5ba5eae6019aa247daf5d9626a
+    pac.test.appstudio.openshift.io/source-branch: release-2.17
+    pac.test.appstudio.openshift.io/source-repo-url: ""
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: search-v2-api
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-03-31T01:43:30Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20260331-013328-000":{"lastUpdateTime":"2026-03-31T01:44:03.779120345Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: grafana
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-03-31T08:31:54Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20260331-075451-000":{"lastUpdateTime":"2026-03-31T08:32:53.022265352Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1774920808000"
-    test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/search-v2-api
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"TestPassed","lastUpdateTime":"2026-03-31T01:44:03.779120345Z","details":"Integration
-      test passed","startTime":"2026-03-31T01:43:30.716925248Z","completionTime":"2026-03-31T01:44:03.779120345Z","testPipelineRunName":"enterprise-contract-acm-217-snchg"}]'
-  creationTimestamp: "2026-03-31T01:43:30Z"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1774943691000"
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/grafana
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"TestPassed","lastUpdateTime":"2026-03-31T08:32:53.022265352Z","details":"Integration
+      test passed","startTime":"2026-03-31T08:31:54.958183146Z","completionTime":"2026-03-31T08:32:53.022265352Z","testPipelineRunName":"enterprise-contract-acm-217-tmxxj"}]'
+  creationTimestamp: "2026-03-31T08:31:54Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-217
-    appstudio.openshift.io/build-pipelinerun: search-v2-api-acm-217-on-push-ws6k6
-    appstudio.openshift.io/component: search-v2-api-acm-217
+    appstudio.openshift.io/build-pipelinerun: grafana-acm-217-on-push-4bh2m
+    appstudio.openshift.io/component: grafana-acm-217
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "69278476777"
-    pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: search-v2-api-acm-217-on-push
-    pac.test.appstudio.openshift.io/pull-request: "704"
-    pac.test.appstudio.openshift.io/repository: search-v2-api-acm-210
-    pac.test.appstudio.openshift.io/sha: 8352abec0fcfaed0d06f8aa61c65d53f3976f06c
+    pac.test.appstudio.openshift.io/check-run-id: "69311398797"
+    pac.test.appstudio.openshift.io/event-type: incoming
+    pac.test.appstudio.openshift.io/original-prname: grafana-acm-217-on-push
+    pac.test.appstudio.openshift.io/repository: grafana-acm-210
+    pac.test.appstudio.openshift.io/sha: 7fa188e290449e5ba5eae6019aa247daf5d9626a
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: search-v2-api
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1774921405"
+    pac.test.appstudio.openshift.io/url-repository: grafana
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1774945909"
     test.appstudio.openshift.io/type: component
-  name: release-acm-217-20260331-013328-000
+  name: release-acm-217-20260331-075451-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -153,76 +64,12 @@ metadata:
     kind: Application
     name: release-acm-217
     uid: f6a47cb4-5edb-49df-b280-ca2ad71f1d6c
-  resourceVersion: "8009201203"
-  uid: 4b0fc0ee-75dd-4ecf-95c4-95b395a7b113
+  resourceVersion: "8014507294"
+  uid: 4152b055-6241-49f1-86c0-e6f629be63e5
 spec:
   application: release-acm-217
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-channel-acm-217@sha256:0fddda87746dca97676f043f668a4eefbdbac9c79ab897053b86e48cbe720734
-    name: multicluster-operators-channel-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: f0d8fd3254a72f5ce87a74ab0571aa2235ca65c8
-        url: https://github.com/stolostron/multicloud-operators-channel
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/node-exporter-acm-217@sha256:66c4c74cccdf82d00a7307c05f24d74f67588f6e273eaa6768b6df29ca6b8543
-    name: node-exporter-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 4b96f5f2fb5f08236c04f4e0a32157972b831cb6
-        url: https://github.com/stolostron/node-exporter
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-addon-acm-217@sha256:b8b5d409c8490e8a5b0d33b5adfb930cbae77ef40ee45e2883c8fb5702414dd4
-    name: multicluster-observability-addon-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile
-        revision: 073c2864ccd0303495883e6c74170ebf45a1c2d9
-        url: https://github.com/stolostron/multicluster-observability-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-217@sha256:53b62a7446342e66aac222e1d2a710576b571efff48cc699f15c93ed8fe37534
-    name: multicluster-operators-application-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: d506a91e7942ec655d2cc37673f959efea1c3163
-        url: https://github.com/stolostron/multicloud-operators-application
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/config-policy-controller-acm-217@sha256:db928eea644c5858c460e7255b55e3cf71aff0d00ddbc9c2383edd2e043b7928
-    name: config-policy-controller-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: e54f31c97cf0d66a00a689ba0dc7cbe64d76d344
-        url: https://github.com/stolostron/config-policy-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-framework-addon-acm-217@sha256:bec55d8b3ae68a3f4bb0408d016104afcdbc2617189be79096499c09d6dafd44
-    name: governance-policy-framework-addon-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 00cb99bc6061f9262d3a7b4e799ee5161f6adb7f
-        url: https://github.com/stolostron/governance-policy-framework-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-acm-217@sha256:a80ceb0239c1c511ca553e6d99431aa44183db157a244bb453a3b275eb669063
-    name: grafana-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 7fa188e290449e5ba5eae6019aa247daf5d9626a
-        url: https://github.com/stolostron/grafana
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/metrics-collector-acm-217@sha256:0855d55350652fea4e9d107d1072a30b9e527ea44e70e215f42c279aa1b901cb
-    name: metrics-collector-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: collectors/metrics/Containerfile.operator
-        revision: 09fc127cb97cb89f1d3450f0336c914b9b01d1ff
-        url: https://github.com/stolostron/multicluster-observability-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/rbac-query-proxy-acm-217@sha256:027ded5a08a0540b9102a24e7de8630f4d0e97af20c0251ea90b3fbefda5c480
     name: rbac-query-proxy-acm-217
     source:
@@ -343,7 +190,7 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: 489a79c59c84f49e4cf2df230dbe67bb1baa441e
         url: https://github.com/stolostron/volsync-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-217@sha256:0b6e9bb5812679e4523d301950f379e324a25d28da4483e9c076efbfbaa78741
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-217@sha256:2621affe1884a0f3237a9d777f0c57ee3baacf9023827651f1f8ddec1ba87b2f
     name: console-acm-217
     source:
       git:
@@ -387,6 +234,8 @@ spec:
     name: search-v2-api-acm-217
     source:
       git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
         revision: 8352abec0fcfaed0d06f8aa61c65d53f3976f06c
         url: https://github.com/stolostron/search-v2-api
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-cli-acm-217@sha256:7238b2f7998d8d105591d2a087d75f366dd1319fb097551528d7ef9a11a4c55f
@@ -421,7 +270,7 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: a6c01921ea0a10630723101f407f274586d0664b
         url: https://github.com/stolostron/kube-state-metrics
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/memcached-exporter-acm-217@sha256:6ad916edc09f48660b3fa477203b2c43097ac2d779f94ca1db99dd2a78f5987e
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/memcached-exporter-acm-217@sha256:2772cdb7120c30c1692fe5de7b7becb6004d4dc6f8640cee70f672e66c1f8d78
     name: memcached-exporter-acm-217
     source:
       git:
@@ -461,7 +310,7 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: c6d3722837ac3b925583c13e6e82bdccfc343acd
         url: https://github.com/stolostron/cluster-backup-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-permission-acm-217@sha256:28fd52f533b1e79aa9cf343165164b3d4bce95c7b67ff8a39e29ca118f25c460
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-permission-acm-217@sha256:4093df81e9d779d63785c331dd7f3e1d58341eb7edf78a9ddab671fc8b97c596
     name: cluster-permission-acm-217
     source:
       git:
@@ -533,20 +382,82 @@ spec:
         dockerfileUrl: operators/multiclusterobservability/Containerfile.operator
         revision: 09fc127cb97cb89f1d3450f0336c914b9b01d1ff
         url: https://github.com/stolostron/multicluster-observability-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-channel-acm-217@sha256:0fddda87746dca97676f043f668a4eefbdbac9c79ab897053b86e48cbe720734
+    name: multicluster-operators-channel-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: f0d8fd3254a72f5ce87a74ab0571aa2235ca65c8
+        url: https://github.com/stolostron/multicloud-operators-channel
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/node-exporter-acm-217@sha256:66c4c74cccdf82d00a7307c05f24d74f67588f6e273eaa6768b6df29ca6b8543
+    name: node-exporter-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 4b96f5f2fb5f08236c04f4e0a32157972b831cb6
+        url: https://github.com/stolostron/node-exporter
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-addon-acm-217@sha256:b8b5d409c8490e8a5b0d33b5adfb930cbae77ef40ee45e2883c8fb5702414dd4
+    name: multicluster-observability-addon-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile
+        revision: 073c2864ccd0303495883e6c74170ebf45a1c2d9
+        url: https://github.com/stolostron/multicluster-observability-addon
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-217@sha256:53b62a7446342e66aac222e1d2a710576b571efff48cc699f15c93ed8fe37534
+    name: multicluster-operators-application-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: d506a91e7942ec655d2cc37673f959efea1c3163
+        url: https://github.com/stolostron/multicloud-operators-application
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/config-policy-controller-acm-217@sha256:db928eea644c5858c460e7255b55e3cf71aff0d00ddbc9c2383edd2e043b7928
+    name: config-policy-controller-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: e54f31c97cf0d66a00a689ba0dc7cbe64d76d344
+        url: https://github.com/stolostron/config-policy-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-framework-addon-acm-217@sha256:bec55d8b3ae68a3f4bb0408d016104afcdbc2617189be79096499c09d6dafd44
+    name: governance-policy-framework-addon-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 00cb99bc6061f9262d3a7b4e799ee5161f6adb7f
+        url: https://github.com/stolostron/governance-policy-framework-addon
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-acm-217@sha256:ccea8c565582e01e9aa6289d513744c87a98db38453dc2ecca0e0421d5a99327
+    name: grafana-acm-217
+    source:
+      git:
+        revision: 7fa188e290449e5ba5eae6019aa247daf5d9626a
+        url: https://github.com/stolostron/grafana
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/metrics-collector-acm-217@sha256:94967f1c49211c05a0e73514fe6efd54d0d3e3e56731dc3899669d7fcba2cdfd
+    name: metrics-collector-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: collectors/metrics/Containerfile.operator
+        revision: 09fc127cb97cb89f1d3450f0336c914b9b01d1ff
+        url: https://github.com/stolostron/multicluster-observability-operator
 status:
   conditions:
-  - lastTransitionTime: "2026-03-31T01:44:03Z"
+  - lastTransitionTime: "2026-03-31T08:32:55Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-03-31T01:44:03Z"
+  - lastTransitionTime: "2026-03-31T08:32:55Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-03-31T01:44:03Z"
+  - lastTransitionTime: "2026-03-31T08:32:55Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
