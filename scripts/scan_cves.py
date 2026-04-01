@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Scan all images for CVEs using Trivy"""
+"""Scan all images for CVEs using Grype"""
 
 import argparse
 import json
@@ -49,17 +49,58 @@ def apply_icsp_redirect(image_ref, icsp_mirrors):
     return image_ref, None
 
 
-def check_trivy_available():
-    """Check if trivy is available"""
+def filter_grype_output_by_severity(input_file, output_file, severity_filter, format_type):
+    """Filter Grype output to only include specified severity levels
+
+    Args:
+        input_file: Path to unfiltered Grype output
+        output_file: Path to write filtered output
+        severity_filter: List of severity levels to include (e.g., ['high', 'critical'])
+        format_type: 'json' or 'table'
+    """
+    if format_type == 'json':
+        # Filter JSON output
+        with open(input_file, 'r') as f:
+            data = json.load(f)
+
+        # Filter matches by severity
+        filtered_matches = [
+            match for match in data.get('matches', [])
+            if match.get('vulnerability', {}).get('severity', '').lower() in severity_filter
+        ]
+
+        data['matches'] = filtered_matches
+
+        with open(output_file, 'w') as f:
+            json.dump(data, f, indent=2)
+    else:
+        # Filter table output
+        with open(input_file, 'r') as f_in, open(output_file, 'w') as f_out:
+            for line in f_in:
+                # Keep header lines and decorative lines
+                if any(x in line for x in ['NAME', 'INSTALLED', '─', '┃', '┏', '┗', '┣', '┫']):
+                    f_out.write(line)
+                    continue
+
+                # Check if line contains one of the filtered severities
+                line_upper = line.upper()
+                for sev in severity_filter:
+                    if sev.upper() in line_upper:
+                        f_out.write(line)
+                        break
+
+
+def check_grype_available():
+    """Check if grype is available"""
     try:
-        subprocess.run(['trivy', '--version'], capture_output=True, check=True)
+        subprocess.run(['grype', 'version'], capture_output=True, check=True)
         return True
     except (FileNotFoundError, subprocess.CalledProcessError):
         return False
 
 
 def get_podman_socket():
-    """Detect podman socket path for Trivy to use"""
+    """Detect podman socket path for Grype to use"""
     # Try macOS podman machine socket
     try:
         result = subprocess.run(
@@ -91,10 +132,10 @@ def get_podman_socket():
     return None
 
 
-def scan_image_trivy(image_ref, output_file, severity, timeout, format_type, podman_socket=None):
-    """Scan image with Trivy using remote scanning with authentication"""
+def scan_image_grype(image_ref, output_file, severity, timeout, format_type, podman_socket=None):
+    """Scan image with Grype using remote scanning with authentication"""
 
-    # Set up environment for Trivy with registry authentication
+    # Set up environment for Grype with registry authentication
     env = os.environ.copy()
 
     # Set REGISTRY_AUTH_FILE to point to podman's auth for remote scanning
@@ -103,36 +144,40 @@ def scan_image_trivy(image_ref, output_file, severity, timeout, format_type, pod
     if os.path.exists(auth_file):
         env['REGISTRY_AUTH_FILE'] = auth_file
 
-    # Set podman socket for Trivy if available (Trivy uses DOCKER_HOST)
+    # Set podman socket for Grype if available (Grype uses DOCKER_HOST)
     if podman_socket:
         env['DOCKER_HOST'] = f'unix://{podman_socket}'
 
+    # Parse severity filter (e.g., "HIGH,CRITICAL" -> ["high", "critical"])
+    severity_filter = [s.strip().lower() for s in severity.split(',')]
+
     # Try remote scanning (no pull required, uses registry auth)
     try:
-        cmd = ['trivy', 'image']
+        cmd = ['grype', image_ref]
 
         # Suppress INFO/WARN logs when using JSON format for clean JSON output
         if format_type == 'json':
-            cmd.append('--quiet')
+            cmd.extend(['-o', 'json', '-q'])
+        else:
+            cmd.extend(['-o', 'table'])
 
-        cmd.extend([
-            '--image-src', 'remote',
-            '--severity', severity,
-            '--timeout', timeout,
-            '--format', format_type,
-            image_ref
-        ])
+        # Grype scans all severities, so we need to filter the output
+        temp_file = str(output_file) + '.tmp'
 
-        with open(output_file, 'w') as f:
+        with open(temp_file, 'w') as f:
             result = subprocess.run(
                 cmd,
                 stdout=f,
-                stderr=subprocess.STDOUT,
+                stderr=subprocess.PIPE,
                 timeout=600,  # 10 minute timeout
-                env=env
+                env=env,
+                text=True
             )
 
-        if result.returncode == 0:
+        # Filter the output based on severity
+        if os.path.exists(temp_file) and os.path.getsize(temp_file) > 0:
+            filter_grype_output_by_severity(temp_file, output_file, severity_filter, format_type)
+            os.remove(temp_file)
             return True
 
         # Remote scan failed, try with podman pull + scan as fallback
@@ -169,28 +214,33 @@ def scan_image_trivy(image_ref, output_file, severity, timeout, format_type, pod
             return False
 
         # Scan from podman local storage using local daemon
-        cmd_podman = ['trivy', 'image']
+        cmd_podman = ['grype', image_ref]
 
         if format_type == 'json':
-            cmd_podman.append('--quiet')
+            cmd_podman.extend(['-o', 'json', '-q'])
+        else:
+            cmd_podman.extend(['-o', 'table'])
 
-        cmd_podman.extend([
-            '--severity', severity,
-            '--timeout', timeout,
-            '--format', format_type,
-            image_ref
-        ])
+        # Scan to temp file first, then filter
+        temp_file = str(output_file) + '.tmp'
 
-        with open(output_file, 'w') as f:
+        with open(temp_file, 'w') as f:
             result = subprocess.run(
                 cmd_podman,
                 stdout=f,
-                stderr=subprocess.STDOUT,
+                stderr=subprocess.PIPE,
                 timeout=600,
-                env=env
+                env=env,
+                text=True
             )
 
-        return result.returncode == 0
+        # Filter and save final output
+        if os.path.exists(temp_file) and os.path.getsize(temp_file) > 0:
+            filter_grype_output_by_severity(temp_file, output_file, severity_filter, format_type)
+            os.remove(temp_file)
+            return True
+
+        return False
     except subprocess.TimeoutExpired:
         with open(output_file, 'w') as f:
             if format_type == 'json':
@@ -225,27 +275,28 @@ def scan_image_trivy(image_ref, output_file, severity, timeout, format_type, pod
         return False
 
 
-def parse_trivy_json_for_counts(scan_file):
-    """Parse Trivy JSON to get vulnerability counts by severity"""
+def parse_grype_json_for_counts(scan_file):
+    """Parse Grype JSON to get vulnerability counts by severity"""
     try:
         with open(scan_file, 'r') as f:
             data = json.load(f)
 
         counts = {'critical': 0, 'high': 0, 'medium': 0, 'low': 0, 'total': 0}
 
-        if 'Results' in data:
-            for result in data.get('Results', []):
-                for vuln in result.get('Vulnerabilities', []):
-                    severity = vuln.get('Severity', '').upper()
-                    if severity == 'CRITICAL':
-                        counts['critical'] += 1
-                    elif severity == 'HIGH':
-                        counts['high'] += 1
-                    elif severity == 'MEDIUM':
-                        counts['medium'] += 1
-                    elif severity == 'LOW':
-                        counts['low'] += 1
-                    counts['total'] += 1
+        # Grype uses 'matches' instead of 'Results'
+        if 'matches' in data:
+            for match in data.get('matches', []):
+                vuln = match.get('vulnerability', {})
+                severity = vuln.get('severity', '').upper()
+                if severity == 'CRITICAL':
+                    counts['critical'] += 1
+                elif severity == 'HIGH':
+                    counts['high'] += 1
+                elif severity == 'MEDIUM':
+                    counts['medium'] += 1
+                elif severity == 'LOW':
+                    counts['low'] += 1
+                counts['total'] += 1
 
         return counts
     except:
@@ -253,34 +304,34 @@ def parse_trivy_json_for_counts(scan_file):
 
 
 def parse_text_severity_counts(scan_file):
-    """Parse severity counts from text output (looks for 'Total: X (CRITICAL: Y, HIGH: Z, ...)' lines)"""
+    """Parse severity counts from Grype table output by counting rows"""
     counts = {'critical': 0, 'high': 0, 'medium': 0, 'low': 0, 'total': 0}
     try:
-        import re
         with open(scan_file, 'r') as f:
-            content = f.read()
+            for line in f:
+                # Count each line that contains a severity keyword
+                # Grype format: NAME  INSTALLED  FIXED  TYPE  VULNERABILITY  SEVERITY  ...
+                line_upper = line.upper()
 
-        # Look for lines like: "Total: 5 (HIGH: 4, CRITICAL: 1)"
-        # There may be multiple "Total:" lines (one per target in the image)
-        total_lines = re.findall(r'Total:\s*(\d+)\s*\(([^)]+)\)', content)
+                # Skip header lines and decorative lines
+                if 'NAME' in line and 'INSTALLED' in line:
+                    continue
+                if line.strip().startswith(('─', '┃', '┏', '┗', '┣', '┫')):
+                    continue
 
-        for total_str, severity_str in total_lines:
-            # Parse individual severities
-            critical = re.search(r'CRITICAL:\s*(\d+)', severity_str)
-            high = re.search(r'HIGH:\s*(\d+)', severity_str)
-            medium = re.search(r'MEDIUM:\s*(\d+)', severity_str)
-            low = re.search(r'LOW:\s*(\d+)', severity_str)
-
-            if critical:
-                counts['critical'] += int(critical.group(1))
-            if high:
-                counts['high'] += int(high.group(1))
-            if medium:
-                counts['medium'] += int(medium.group(1))
-            if low:
-                counts['low'] += int(low.group(1))
-
-            counts['total'] += int(total_str)
+                # Count by severity column (case-insensitive)
+                if 'CRITICAL' in line_upper:
+                    counts['critical'] += 1
+                    counts['total'] += 1
+                elif 'HIGH' in line_upper:
+                    counts['high'] += 1
+                    counts['total'] += 1
+                elif 'MEDIUM' in line_upper:
+                    counts['medium'] += 1
+                    counts['total'] += 1
+                elif 'LOW' in line_upper:
+                    counts['low'] += 1
+                    counts['total'] += 1
 
         return counts
     except:
@@ -293,11 +344,8 @@ def count_vulnerabilities(scan_file, format_type):
         if format_type == 'json':
             with open(scan_file, 'r') as f:
                 data = json.load(f)
-                count = 0
-                if 'Results' in data:
-                    for result in data.get('Results', []):
-                        count += len(result.get('Vulnerabilities', []))
-                return count
+                # Grype uses 'matches' array
+                return len(data.get('matches', []))
         else:
             # For table format, count CVE lines
             with open(scan_file, 'r') as f:
@@ -307,25 +355,25 @@ def count_vulnerabilities(scan_file, format_type):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Scan images for CVEs using Trivy')
+    parser = argparse.ArgumentParser(description='Scan images for CVEs using Grype')
     parser.add_argument('--image-key', type=str, help='Scan only the image with this key (e.g., multicluster-operators-application)')
     args = parser.parse_args()
 
     extras_dir = os.getenv('EXTRAS_DIR', 'extras')
     reports_dir = os.getenv('REPORTS_DIR', 'reports')
-    severity = os.getenv('TRIVY_SEVERITY', 'HIGH,CRITICAL')
-    timeout = os.getenv('TRIVY_TIMEOUT', '10m')
+    severity = os.getenv('SCAN_SEVERITY', 'HIGH,CRITICAL')
+    timeout = os.getenv('SCAN_TIMEOUT', '10m')
     output_json = os.getenv('OUTPUT_JSON', 'false').lower() == 'true'
     format_type = 'json' if output_json else 'table'
     icsp_config_path = os.getenv('ICSP_CONFIG', 'icsp-config.json')
     acm_version = os.getenv('ACM_VERSION', '')
 
-    if not check_trivy_available():
-        console.print("[red]Error: trivy is not installed[/red]")
-        console.print("Install from: https://github.com/aquasecurity/trivy")
+    if not check_grype_available():
+        console.print("[red]Error: grype is not installed[/red]")
+        console.print("Install from: https://github.com/anchore/grype")
         sys.exit(1)
 
-    # Detect podman socket for Trivy to use
+    # Detect podman socket for Grype to use
     podman_socket = get_podman_socket()
     auth_file = os.path.expanduser('~/.config/containers/auth.json')
     has_auth = os.path.exists(auth_file)
@@ -468,20 +516,20 @@ def main():
                     ext = 'json' if format_type == 'json' else 'txt'
                     if acm_version:
                         subdir = 'json' if format_type == 'json' else 'text'
-                        scan_file = Path(reports_dir) / subdir / f"{base_name}_{image_key}_trivy.{ext}"
+                        scan_file = Path(reports_dir) / subdir / f"{base_name}_{image_key}_grype.{ext}"
                     else:
-                        scan_file = Path(reports_dir) / f"{base_name}_{image_key}_trivy.{ext}"
+                        scan_file = Path(reports_dir) / f"{base_name}_{image_key}_grype.{ext}"
 
                     # Time the scan
                     start_time = time.time()
-                    result = scan_image_trivy(scan_image, scan_file, severity, timeout, format_type, podman_socket)
+                    result = scan_image_grype(scan_image, scan_file, severity, timeout, format_type, podman_socket)
                     elapsed = time.time() - start_time
                     total_scan_time += elapsed
 
                     # Try to get vulnerability details
                     if result:
                         if format_type == 'json':
-                            vuln_data = parse_trivy_json_for_counts(scan_file)
+                            vuln_data = parse_grype_json_for_counts(scan_file)
                         else:
                             # Parse text output for severity breakdown
                             vuln_data = parse_text_severity_counts(scan_file)
