@@ -43,18 +43,18 @@ def load_previous_scan_results(previous_reports_dir, version):
             search_path = previous_path
 
     # Look for JSON reports matching the pattern
-    json_reports = sorted(search_path.glob(f"{version}_*_trivy.json"))
+    json_reports = sorted(search_path.glob(f"{version}_*_grype.json"))
 
     if not json_reports:
         return None
 
     for json_file in json_reports:
-        # Extract image_key from filename: {version}_{image_key}_trivy.json
+        # Extract image_key from filename: {version}_{image_key}_grype.json
         filename = json_file.name
-        if filename.startswith(f"{version}_") and filename.endswith("_trivy.json"):
-            image_key = filename.replace(f"{version}_", "").replace("_trivy.json", "")
+        if filename.startswith(f"{version}_") and filename.endswith("_grype.json"):
+            image_key = filename.replace(f"{version}_", "").replace("_grype.json", "")
 
-            cve_data = parse_trivy_json(json_file)
+            cve_data = parse_grype_json(json_file)
             if cve_data:
                 previous_results[image_key] = cve_data
 
@@ -179,8 +179,8 @@ def parse_cve_summary(summary_file):
     return results, total_scanned, total_failed
 
 
-def parse_trivy_json(json_file):
-    """Parse Trivy JSON output to count CVEs by severity"""
+def parse_grype_json(json_file):
+    """Parse Grype JSON output to count CVEs by severity"""
     try:
         with open(json_file, 'r') as f:
             data = json.load(f)
@@ -198,42 +198,52 @@ def parse_trivy_json(json_file):
         has_fix = 0
         no_fix = 0
 
-        for result in data.get('Results', []):
-            for vuln in result.get('Vulnerabilities', []):
-                severity = vuln.get('Severity', '').upper()
-                cve_id = vuln.get('VulnerabilityID', '')
-                title = vuln.get('Title', '')
-                fixed_version = vuln.get('FixedVersion', '')
-                pkg_name = vuln.get('PkgName', '')
+        # Grype uses 'matches' instead of 'Results'
+        for match in data.get('matches', []):
+            vuln = match.get('vulnerability', {})
+            artifact = match.get('artifact', {})
 
-                # Track fixability
-                if fixed_version:
-                    has_fix += 1
-                else:
-                    no_fix += 1
+            severity = vuln.get('severity', '').upper()
+            cve_id = vuln.get('id', '')
 
-                if severity == 'CRITICAL':
-                    critical += 1
-                    critical_cves.append({
-                        'id': cve_id,
-                        'severity': severity,
-                        'title': title[:80],  # Truncate long titles
-                        'fixed_version': fixed_version,
-                        'pkg_name': pkg_name
-                    })
-                elif severity == 'HIGH':
-                    high += 1
-                    high_cves.append({
-                        'id': cve_id,
-                        'severity': severity,
-                        'title': title[:80],
-                        'fixed_version': fixed_version,
-                        'pkg_name': pkg_name
-                    })
-                elif severity == 'MEDIUM':
-                    medium += 1
-                elif severity == 'LOW':
-                    low += 1
+            # Grype doesn't have a 'Title' field, use description or id
+            title = vuln.get('description', cve_id)
+
+            # Check for fix in the 'fix' object
+            fix_info = vuln.get('fix', {})
+            fixed_versions = fix_info.get('versions', [])
+            fixed_version = fixed_versions[0] if fixed_versions else ''
+
+            pkg_name = artifact.get('name', '')
+
+            # Track fixability
+            if fixed_version:
+                has_fix += 1
+            else:
+                no_fix += 1
+
+            if severity == 'CRITICAL':
+                critical += 1
+                critical_cves.append({
+                    'id': cve_id,
+                    'severity': severity,
+                    'title': title[:80] if title else cve_id,  # Truncate long titles
+                    'fixed_version': fixed_version,
+                    'pkg_name': pkg_name
+                })
+            elif severity == 'HIGH':
+                high += 1
+                high_cves.append({
+                    'id': cve_id,
+                    'severity': severity,
+                    'title': title[:80] if title else cve_id,
+                    'fixed_version': fixed_version,
+                    'pkg_name': pkg_name
+                })
+            elif severity == 'MEDIUM':
+                medium += 1
+            elif severity == 'LOW':
+                low += 1
 
         # Prioritize CRITICAL, then HIGH
         details = critical_cves + high_cves[:10]  # All critical + top 10 high
@@ -774,16 +784,16 @@ def main():
             image_details[image_key] = full_ref
 
         # Look for JSON scan report in organized structure or flat structure
-        json_report = reports_path / 'json' / f"{version}_{image_key}_trivy.json"
+        json_report = reports_path / 'json' / f"{version}_{image_key}_grype.json"
         if not json_report.exists():
-            json_report = reports_path / f"{version}_{image_key}_trivy.json"
+            json_report = reports_path / f"{version}_{image_key}_grype.json"
 
-        txt_report = reports_path / 'text' / f"{version}_{image_key}_trivy.txt"
+        txt_report = reports_path / 'text' / f"{version}_{image_key}_grype.txt"
         if not txt_report.exists():
-            txt_report = reports_path / f"{version}_{image_key}_trivy.txt"
+            txt_report = reports_path / f"{version}_{image_key}_grype.txt"
         
         if json_report.exists():
-            cve_count = parse_trivy_json(json_report)
+            cve_count = parse_grype_json(json_report)
             if cve_count:
                 results.append({
                     'image': image_key,

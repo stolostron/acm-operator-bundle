@@ -13,7 +13,7 @@ make check-tools
 Required tools:
 - `python3` - Required for all scripts (Note: The Makefile specifically uses `python3` command, not `python`)
 - `skopeo` or `podman` - Required for image verification
-- `trivy` - Required for CVE scanning
+- `grype` - Required for CVE scanning
 - `jq` - Useful for manual JSON inspection (optional)
 
 Install Python dependencies:
@@ -37,9 +37,9 @@ The following environment variables can be set to customize behavior:
 |----------|---------|-------------|
 | `EXTRAS_DIR` | `extras` | Directory containing image manifest JSON files |
 | `REPORTS_DIR` | `reports` | Output directory for generated reports |
-| `TRIVY_SEVERITY` | `HIGH,CRITICAL` | CVE severity levels to report |
-| `TRIVY_FORMAT` | `table` | Trivy output format (table, json, etc.) |
-| `TRIVY_TIMEOUT` | `10m` | Timeout for Trivy scans |
+| `SCAN_SEVERITY` | `HIGH,CRITICAL` | CVE severity levels to report |
+| `SCAN_FORMAT` | `table` | Scan output format (table, json, etc.) |
+| `SCAN_TIMEOUT` | `10m` | Timeout for CVE scans |
 | `IMAGE_KEY` | - | Specific image component to scan (optional) |
 | `RELEASE` | - | Release branch to check out (optional) |
 
@@ -181,7 +181,7 @@ make verify-images-s390x
 
 ### CVE Scanning
 
-All CVE scanning targets use Trivy to scan container images for vulnerabilities.
+All CVE scanning targets use Grype to scan container images for vulnerabilities.
 
 #### `scan-cves`
 Scan all images for CVEs with text output to console.
@@ -192,7 +192,7 @@ Scan all images for CVEs with text output to console.
 make scan-cves
 
 # Scan with custom severity levels
-make scan-cves TRIVY_SEVERITY=CRITICAL,HIGH,MEDIUM
+make scan-cves SCAN_SEVERITY=CRITICAL,HIGH,MEDIUM
 
 # Scan single component
 make scan-cves IMAGE_KEY=multiclusterhub_operator
@@ -401,10 +401,10 @@ make verify-images-s390x
 
 ```bash
 # Scan for all severity levels
-make scan-cves TRIVY_SEVERITY=CRITICAL,HIGH,MEDIUM,LOW
+make scan-cves SCAN_SEVERITY=CRITICAL,HIGH,MEDIUM,LOW
 
 # Only critical vulnerabilities
-make scan-cves TRIVY_SEVERITY=CRITICAL
+make scan-cves SCAN_SEVERITY=CRITICAL
 ```
 
 ### CI/CD Integration
@@ -427,11 +427,11 @@ make slack-cve-report
 # Custom directories
 EXTRAS_DIR=my-extras REPORTS_DIR=my-reports make verify-images
 
-# Custom Trivy settings
-TRIVY_TIMEOUT=30m TRIVY_SEVERITY=CRITICAL make scan-cves
+# Custom scan settings
+SCAN_TIMEOUT=30m SCAN_SEVERITY=CRITICAL make scan-cves
 
 # Combining multiple variables
-RELEASE=release-2.17 IMAGE_KEY=multiclusterhub_operator TRIVY_SEVERITY=HIGH,CRITICAL make scan-cves
+RELEASE=release-2.17 IMAGE_KEY=multiclusterhub_operator SCAN_SEVERITY=HIGH,CRITICAL make scan-cves
 ```
 
 ## Script Files

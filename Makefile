@@ -3,9 +3,9 @@
 # Configuration
 export EXTRAS_DIR ?= extras
 export REPORTS_DIR ?= reports
-export TRIVY_SEVERITY ?= HIGH,CRITICAL
-export TRIVY_FORMAT ?= table
-export TRIVY_TIMEOUT ?= 10m
+export SCAN_SEVERITY ?= HIGH,CRITICAL
+export SCAN_FORMAT ?= table
+export SCAN_TIMEOUT ?= 10m
 IMAGE_KEY ?=
 RELEASE ?=
 
@@ -28,12 +28,12 @@ help: ## Show this help message
 	@echo "  make verify-release RELEASE=release-2.17    # Setup + verify a release"
 	@echo "  make scan-release RELEASE=release-2.17      # Setup + scan a release"
 	@echo ""
-	@echo "CVE scanning options:"
+	@echo "CVE scanning options (Grype):"
 	@echo "  make scan-cves                                        # Scan current extras/"
 	@echo "  make scan-cves RELEASE=release-2.17                   # Setup + scan release"
 	@echo "  make scan-cves IMAGE_KEY=multiclusterhub_operator     # Scan single component"
 	@echo "  make scan-cves RELEASE=release-2.17 IMAGE_KEY=...     # Release + component"
-	@echo "  make scan-cves TRIVY_SEVERITY=CRITICAL,HIGH,MEDIUM    # Custom severity"
+	@echo "  make scan-cves SCAN_SEVERITY=CRITICAL,HIGH,MEDIUM     # Custom severity"
 
 list-images: ## List all images from extras/*.json files
 	@python3 $(SCRIPTS_DIR)/list_images.py
@@ -74,7 +74,7 @@ verify-release: setup-release verify-images ## Verify images for a release (Usag
 
 scan-release: setup-release scan-cves-json-icsp ## Scan a release for CVEs (Usage: make scan-release RELEASE=release-2.17)
 
-scan-cves: ## Scan all images for CVEs using Trivy (text output)
+scan-cves: ## Scan all images for CVEs using Grype (text output)
 	$(setup-if-release)
 	@python3 $(SCRIPTS_DIR)/scan_cves.py $(SCAN_ARGS)
 
@@ -124,7 +124,7 @@ check-tools: ## Check if required tools are installed
 	@python3 -c "import rich" 2>/dev/null && echo "✓ rich library found" || echo "⚠ rich not found - run: pip install -r requirements.txt"
 	@command -v skopeo >/dev/null 2>&1 && echo "✓ skopeo found" || echo "⚠ skopeo not found (optional for verify-images)"
 	@command -v podman >/dev/null 2>&1 && echo "✓ podman found" || echo "⚠ podman not found (optional for verify-images-podman)"
-	@command -v trivy >/dev/null 2>&1 && echo "✓ trivy found" || echo "⚠ trivy not found (required for scan-cves)"
+	@command -v grype >/dev/null 2>&1 && echo "✓ grype found" || echo "⚠ grype not found (required for scan-cves)"
 	@echo "Tool check complete"
 
 install-deps: ## Install Python dependencies

@@ -21,7 +21,7 @@ These can be configured at the repository level and changed without modifying th
 - Description: ACM version to scan (should match your extras/*.json filename)
 - Example: `2.17.0`
 
-**`TRIVY_SEVERITY`** (optional)
+**`SCAN_SEVERITY`** (optional)
 - Default: `HIGH,CRITICAL`
 - Description: CVE severity levels to scan for
 - Example: `CRITICAL`, `HIGH,CRITICAL`, `HIGH,CRITICAL,MEDIUM`
@@ -132,7 +132,7 @@ Manual runs allow you to override the repository variables for one-time scans.
 
 1. ✅ Checks out scripts from main branch and image data from release branch
 2. ✅ Installs Python dependencies (rich library)
-3. ✅ Installs Trivy (CVE scanner)
+3. ✅ Installs Grype (CVE scanner)
 4. ✅ Installs Skopeo (image verification)
 5. ✅ Sets up authentication for quay.io using podman
 6. ✅ Verifies images are accessible with ICSP mirrors
@@ -201,7 +201,7 @@ reports/
 ├── 2.17.0/
 │   ├── 2.17.0_cve_summary.txt          # Summary of all scans
 │   └── json/                            # Machine-readable reports
-│       ├── 2.17.0_component_trivy.json
+│       ├── 2.17.0_component_grype.json
 │       └── ...
 ├── 2.16.0/
 │   ├── 2.16.0_cve_summary.txt
@@ -220,7 +220,7 @@ reports/
 Edit `.github/workflows/weekly-cve-scan.yml` to customize:
 
 - **Schedule:** Change the `cron` expression
-- **Severity filter:** Modify `TRIVY_SEVERITY` (default: `HIGH,CRITICAL`)
+- **Severity filter:** Modify `SCAN_SEVERITY` (default: `HIGH,CRITICAL`)
 - **Critical threshold:** Adjust the check in the last step
 - **Artifact retention:** Change `retention-days` (default: 90)
 - **Slack format:** Use `slack-cve-report-detailed` for more details
