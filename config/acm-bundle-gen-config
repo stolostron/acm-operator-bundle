@@ -43,11 +43,16 @@ cfg_eus_release_cadence=3
 
 # Special configuration for version resync scenarios:
 # Use this to override the automatic skipRange calculation when doing version jumps.
-# Example: If jumping from 2.18 to 5.0, set: cfg_min_upgrade_version="2.17.0"
+# Example: If jumping from 2.18 to 5.0, set: cfg_min_upgrade_version="2.17.0-0"
 #
 # NOTE: For normal sequential releases, leave this commented out to use automatic
 # skipRange calculation. Only uncomment and set this for version jumps.
-cfg_min_upgrade_version="2.17.0"
+#
+# IMPORTANT: When using build suffixes (add_iteration_suffix=1), always append "-0"
+# to the minimum version to match pre-release builds. In semver, "2.17.0-132" is a
+# pre-release version that sorts BEFORE "2.17.0". Using "2.17.0-0" as the minimum
+# ensures the skipRange matches all 2.17.0-* builds AND the GA 2.17.0 release.
+cfg_min_upgrade_version="2.17.0-0"
 
 #-----------------------------------------------------------------
 # Config properties that are unique for each product (ACM vs. MCE)
