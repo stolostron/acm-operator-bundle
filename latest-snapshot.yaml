@@ -2,138 +2,48 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/multiclusterhub-operator?rev=39d5fa500e6acf6769bc1550d19903982bbfc2e6
-    build.appstudio.redhat.com/commit_sha: 39d5fa500e6acf6769bc1550d19903982bbfc2e6
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/multiclusterhub-operator?rev=edb5c10d5abc71a25ded23700adda75c584de727
+    build.appstudio.redhat.com/commit_sha: edb5c10d5abc71a25ded23700adda75c584de727
     build.appstudio.redhat.com/target_branch: release-5.0
     pac.test.appstudio.openshift.io/branch: release-5.0
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "69769838179"
+    pac.test.appstudio.openshift.io/check-run-id: "70105638025"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-hmgdlh
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-eiiefe
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/multiclusterhub-operator-acm-50-on-push-7tj8w
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/multiclusterhub-operator-acm-50-on-push-5k7lg
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-5.0"
     pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-50-on-push
-    pac.test.appstudio.openshift.io/pull-request: "3798"
+    pac.test.appstudio.openshift.io/pull-request: "3829"
     pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/multiclusterhub-operator
     pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/sender: acm-cicd-prow-bot
-    pac.test.appstudio.openshift.io/sha: 39d5fa500e6acf6769bc1550d19903982bbfc2e6
+    pac.test.appstudio.openshift.io/sha: edb5c10d5abc71a25ded23700adda75c584de727
     pac.test.appstudio.openshift.io/sha-title: |-
-      [ACM-30449] Add annotation-based resource adoption policy (#3798)
+      Remove CCX_SERVER env variable from insights-client deployment (#3829)
 
-      * Add annotation-based resource adoption policy
-
-      Introduce a configurable resource adoption policy controlled via the
-      installer.open-cluster-management.io/resource-adoption-policy annotation
-      on the MultiClusterHub resource.
-
-      This allows operators to control how MCH handles existing resources that
-      lack installer labels:
-      - "Strict" (default): Only manage resources with installer.name and
-        installer.namespace labels
-      - "Adopt": Automatically adopt unlabeled resources by adding installer
-        labels during reconciliation
-
-      Key features:
-      - Validates adoption policy and logs warnings for invalid values
-      - Prevents adoption of resources with partial/corrupted installer labels
-      - Adds labels to template (desired state) rather than existing resource
-      - Comprehensive unit test coverage for all scenarios
-
-      This enables seamless migration from manually created resources and
-      provides flexibility for different deployment scenarios while maintaining
-      safe defaults.
-
-      Signed-off-by: dislbenn <dbennett@redhat.com>
-
-      * Fix orphaned pruning conditions after component cleanup
-
-      Reintroduce condition-clearing logic that was accidentally removed in
-      PR #3688 when ensureRemovalsGone() and ensureAppsubsGone() were deleted.
-
-      When all components are successful but a pruning condition exists
-      (OldComponentRemovedReason or OldComponentNotRemovedReason), the hub
-      is stuck in Pending status even though all resources were successfully
-      deleted. This fix detects this state and sets AllOldComponentsRemovedReason,
-      allowing the next reconcile to clear the condition and transition to Running.
-
-      The AllOldComponentsRemovedReason constant (line 52) has been orphaned
-      since March 2026 but is now reactivated.
-
-      Fixes issue where MCH remains Pending with 'Not all components successfully
-      pruned' message after disabling components like cluster-backup.
-
-      Signed-off-by: dislbenn <dbennett@redhat.com>
-
-      * Enable reconcile triggers for resource-adoption-policy annotation
-
-      Fix AnnotationsMatch() to trigger reconciles when resource-adoption-policy
-      annotation is added or changed. Previously, only a whitelist of specific
-      annotations would trigger reconciles, and resource-adoption-policy was not
-      included.
-
-      This change uses a combined approach:
-      1. Explicitly tracks important annotations including resource-adoption-policy
-      2. Detects when ANY annotation is added or removed (enables manual triggering)
-      3. Ignores value changes to non-important annotations (reduces noise)
-
-      Now when users add/change the resource-adoption-policy annotation on MCH,
-      the controller will immediately start a new reconcile loop. Also allows
-      forcing reconciles by adding any temporary annotation.
-
-      Signed-off-by: dislbenn <dbennett@redhat.com>
-
-      * Fix AnnotationsMatch to handle deprecated annotation keys correctly
-
-      The key-set comparison was incorrectly treating deprecated annotation keys
-      as different from their current equivalents, causing test failures when old
-      maps used deprecated keys (e.g. "mch-pause") and new maps used current keys
-      (e.g. "installer.open-cluster-management.io/pause").
-
-      Now we filter out already-checked annotation keys (including deprecated ones)
-      before comparing the remaining key sets. This allows the semantic checks to
-      handle deprecated fallbacks while still detecting additions/removals of
-      unchecked annotations for manual triggering.
-
-      Fixes test: Test_AnnotationMatch/Annotations_should_match
-
-      Signed-off-by: dislbenn <dbennett@redhat.com>
-
-      * Add generic setDefaultAnnotations helper function
-
-      Create a reusable function for setting default annotations on MCH instances.
-      This makes it easy to add new default annotations in the future by simply
-      adding them to the defaultAnnotations map.
-
-      Currently sets resource-adoption-policy to "Strict" by default, making the
-      default behavior explicit and allowing users to easily discover and modify
-      the policy.
-
-      Uses package-level configLog for consistent logging from config.go functions.
-
-      Signed-off-by: dislbenn <dbennett@redhat.com>
-
-      ---------
-
-      Signed-off-by: dislbenn <dbennett@redhat.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/multiclusterhub-operator/commit/39d5fa500e6acf6769bc1550d19903982bbfc2e6
+      Signed-off-by: zlayne <zlayne@redhat.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/multiclusterhub-operator/commit/edb5c10d5abc71a25ded23700adda75c584de727
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-5.0
     pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
     pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-04-02T21:13:05Z"}'
-    test.appstudio.openshift.io/create-snapshot-status: Component(s) 'metrics-collector-acm-50,
-      multicloud-integrations-acm-50, search-v2-api-acm-50, insights-metrics-acm-50,
-      kube-state-metrics-acm-50, cert-policy-controller-acm-50, cluster-backup-operator-acm-50,
-      klusterlet-addon-controller-acm-50, multicluster-observability-operator-acm-50,
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-04-06T16:05:09Z"}'
+    test.appstudio.openshift.io/create-snapshot-status: Component(s) 'search-v2-operator-acm-50,
+      submariner-addon-acm-50, console-acm-50, governance-policy-framework-addon-acm-50,
+      must-gather-acm-50, prometheus-alertmanager-acm-50, search-indexer-acm-50, thanos-acm-50,
+      config-policy-controller-acm-50, insights-client-acm-50, multicluster-role-assignment-acm-50,
+      observatorium-acm-50, volsync-addon-controller-acm-50, acm-cli-acm-50, kube-rbac-proxy-acm-50,
+      memcached-exporter-acm-50, metrics-collector-acm-50, multicloud-integrations-acm-50,
+      search-v2-api-acm-50, insights-metrics-acm-50, kube-state-metrics-acm-50, cert-policy-controller-acm-50,
+      cluster-backup-operator-acm-50, klusterlet-addon-controller-acm-50, multicluster-observability-operator-acm-50,
       rbac-query-proxy-acm-50, search-collector-acm-50, thanos-receive-controller-acm-50,
       governance-policy-addon-controller-acm-50, multicluster-observability-addon-acm-50,
       observatorium-operator-acm-50, prometheus-operator-acm-50, siteconfig-acm-50,
@@ -141,39 +51,34 @@ metadata:
       grafana-acm-50, mtv-integrations-acm-50, multicluster-operators-channel-acm-50,
       multicluster-operators-subscription-acm-50, node-exporter-acm-50, grafana-dashboard-loader-acm-50,
       multicluster-operators-application-acm-50, obo-prometheus-operator-acm-50, prometheus-acm-50,
-      prometheus-config-reloader-acm-50, search-v2-operator-acm-50, submariner-addon-acm-50,
-      console-acm-50, governance-policy-framework-addon-acm-50, must-gather-acm-50,
-      prometheus-alertmanager-acm-50, search-indexer-acm-50, thanos-acm-50, config-policy-controller-acm-50,
-      insights-client-acm-50, multicluster-role-assignment-acm-50, observatorium-acm-50,
-      volsync-addon-controller-acm-50, acm-cli-acm-50, kube-rbac-proxy-acm-50, memcached-exporter-acm-50'
-      is(are) not included in snapshot due to missing valid containerImage or git
-      source
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-50-release-acm-50-20260402-210244-000":{"lastUpdateTime":"2026-04-02T21:13:46.840404776Z"}}}'
+      prometheus-config-reloader-acm-50' is(are) not included in snapshot due to missing
+      valid containerImage or git source
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-50-release-acm-50-20260406-155545-000":{"lastUpdateTime":"2026-04-06T16:05:51.356895008Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1775163764000"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1775490945000"
     test.appstudio.openshift.io/pr-status: merged
     test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-50","status":"TestPassed","lastUpdateTime":"2026-04-02T21:13:46.840404776Z","details":"Integration
-      test passed","startTime":"2026-04-02T21:13:05.399183458Z","completionTime":"2026-04-02T21:13:46.840404776Z","testPipelineRunName":"enterprise-contract-acm-50-cq594"}]'
-  creationTimestamp: "2026-04-02T21:13:05Z"
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-50","status":"TestPassed","lastUpdateTime":"2026-04-06T16:05:51.356895008Z","details":"Integration
+      test passed","startTime":"2026-04-06T16:05:09.20595307Z","completionTime":"2026-04-06T16:05:51.356895008Z","testPipelineRunName":"enterprise-contract-acm-50-f56rm"}]'
+  creationTimestamp: "2026-04-06T16:05:09Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-50
-    appstudio.openshift.io/build-pipelinerun: multiclusterhub-operator-acm-50-on-push-7tj8w
+    appstudio.openshift.io/build-pipelinerun: multiclusterhub-operator-acm-50-on-push-5k7lg
     appstudio.openshift.io/component: multiclusterhub-operator-acm-50
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "69769838179"
+    pac.test.appstudio.openshift.io/check-run-id: "70105638025"
     pac.test.appstudio.openshift.io/event-type: push
     pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-50-on-push
-    pac.test.appstudio.openshift.io/pull-request: "3798"
+    pac.test.appstudio.openshift.io/pull-request: "3829"
     pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
-    pac.test.appstudio.openshift.io/sha: 39d5fa500e6acf6769bc1550d19903982bbfc2e6
+    pac.test.appstudio.openshift.io/sha: edb5c10d5abc71a25ded23700adda75c584de727
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
     pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1775164380"
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1775491503"
     test.appstudio.openshift.io/type: component
-  name: release-acm-50-20260402-210244-000
+  name: release-acm-50-20260406-155545-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -182,32 +87,32 @@ metadata:
     kind: Application
     name: release-acm-50
     uid: 95420e61-ff03-40c3-a8b9-47011873be13
-  resourceVersion: "8066475182"
-  uid: 88ab37a1-82af-4972-ba94-ac61f3bc16b4
+  resourceVersion: "8111430461"
+  uid: 3a3e11d3-c2e9-4b1b-9925-425452cac145
 spec:
   application: release-acm-50
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-50@sha256:5a3b55a8cbeca2938ceeec08f744da524e4f68d8c3b6ee4aff2c603b82f74f74
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-50@sha256:81a9802cfa37ef154fbb3b807e2053c42c5c022375d077e219b0283bf05c049d
     name: multiclusterhub-operator-acm-50
     source:
       git:
-        revision: 39d5fa500e6acf6769bc1550d19903982bbfc2e6
+        revision: edb5c10d5abc71a25ded23700adda75c584de727
         url: https://github.com/stolostron/multiclusterhub-operator
 status:
   conditions:
-  - lastTransitionTime: "2026-04-02T21:13:46Z"
+  - lastTransitionTime: "2026-04-06T16:05:51Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-04-02T21:13:46Z"
+  - lastTransitionTime: "2026-04-06T16:05:51Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-04-02T21:13:47Z"
+  - lastTransitionTime: "2026-04-06T16:05:51Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
