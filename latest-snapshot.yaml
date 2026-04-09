@@ -2,73 +2,147 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/siteconfig?rev=81653f34266c774e76888ababd4d583da9c13d17
-    build.appstudio.redhat.com/commit_sha: 81653f34266c774e76888ababd4d583da9c13d17
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/multiclusterhub-operator?rev=e1d53d07fc3a5a13ab02af279504448fa3af3b6e
+    build.appstudio.redhat.com/commit_sha: e1d53d07fc3a5a13ab02af279504448fa3af3b6e
     build.appstudio.redhat.com/target_branch: release-2.14
     pac.test.appstudio.openshift.io/branch: release-2.14
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "70436422156"
+    pac.test.appstudio.openshift.io/check-run-id: "70495388608"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-qqmsiq
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-wdvgjw
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/siteconfig-acm-214-on-push-8xpg5
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/multiclusterhub-operator-acm-214-on-push-dmzrb
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-2.14"
-    pac.test.appstudio.openshift.io/original-prname: siteconfig-acm-214-on-push
-    pac.test.appstudio.openshift.io/pull-request: "1006"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/siteconfig
-    pac.test.appstudio.openshift.io/repository: siteconfig-main
+    pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-214-on-push
+    pac.test.appstudio.openshift.io/pull-request: "3839"
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/multiclusterhub-operator
+    pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
-    pac.test.appstudio.openshift.io/sha: 81653f34266c774e76888ababd4d583da9c13d17
+    pac.test.appstudio.openshift.io/sha: e1d53d07fc3a5a13ab02af279504448fa3af3b6e
     pac.test.appstudio.openshift.io/sha-title: |-
-      fix: trust Spec.Installed as source of truth for provisioned status (#1006)
+      [release-2.14] Improve bundle-automation dependency handling (#3839)
 
-      When ClusterDeployment.Spec.Installed=true, set ClusterInstance Provisioned condition to True regardless of
-      ClusterInstall condition state. This handles restored and imported clusters where conditions may be missing
-      or stale since Hive does not reconcile conditions for installed clusters.
+      * Improve bundle-automation dependency handling
 
-      Removes the StaleConditions reason which is no longer needed.
+      This change simplifies how bundle-generation scripts and their
+      dependencies are copied from installer-dev-tools, eliminating the need
+      to manually track each dependency file.
 
-      Signed-off-by: Sharat Akhoury <sakhoury@redhat.com>
-      Co-authored-by: Sharat Akhoury <sakhoury@redhat.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/siteconfig/commit/81653f34266c774e76888ababd4d583da9c13d17
+      Changes:
+      - Copy all .py files from bundle-generation/ using glob pattern
+      - Automatically includes helper.py and any other shared modules
+      - Removed manual dependency tracking list
+      - Removed unused copy_scripts() and cleanup_scripts() functions
+      - Added PYTHONPATH to ensure imports work correctly
+
+      Benefits:
+      - No manual dependency tracking - any new .py file automatically included
+      - Future-proof - new shared modules work without code changes
+      - Simpler code - replaced manual list with glob pattern
+      - Fixes import issues with helper.py for OWNERS file syncing
+
+      This change is required for the OWNERS file automation feature being
+      added in installer-dev-tools, which introduces helper.py as a shared
+      dependency.
+
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+
+      * Refactor to use helper functions with rglob
+
+      Improves code organization by extracting file copy/cleanup logic into
+      dedicated helper functions and using rglob() to recursively find all
+      Python files while preserving directory structure.
+
+      Changes:
+      - Add copy_bundle_generation_files() helper function
+      - Add cleanup_bundle_generation_files() helper function
+      - Use rglob("*.py") to recursively find all Python files
+      - Preserve directory structure when copying files
+      - Simplify prepare_and_execute() function
+
+      Signed-off-by: Dislene Bennett <dislbenn@redhat.com>
+
+      Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+
+      * Fix script dependencies to support both bundle-generation and release directories
+
+      The previous implementation only copied files from bundle-generation/,
+      but operations like onboard-new-components and refresh-image-aliases
+      reference scripts in release/ directory. This caused "Script not found"
+      errors when running those operations.
+
+      Changes:
+      - Rename functions to copy_script_dependencies() and cleanup_script_dependencies()
+      - Extract parent directory dynamically from script path
+      - Support any subdirectory (bundle-generation/, release/, etc.)
+      - More generic and maintainable than hardcoded directory checks
+
+      Fixes issue where release/ scripts would fail to execute.
+
+      Signed-off-by: Dislene Bennett <dislbenn@redhat.com>
+
+      Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+
+      * Fix cleanup by tracking copied files before script execution
+
+      The previous cleanup logic tried to rglob files from the source directory
+      after script execution, but the executed scripts delete the tmp/ directory,
+      so cleanup never ran. This left copied Python files in the directory.
+
+      Changes:
+      - copy_script_dependencies() now returns list of copied file paths
+      - cleanup_script_dependencies() takes list of files to clean up
+      - Files are tracked during copy phase, before tmp/ is deleted
+      - Cleanup now runs successfully and removes all copied files
+
+      Signed-off-by: Dislene Bennett <dislbenn@redhat.com>
+
+      Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+
+      ---------
+
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+      Co-authored-by: dislbenn <dbennett@redhat.com>
+      Co-authored-by: Claude Sonnet 4.5 <noreply@anthropic.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/multiclusterhub-operator/commit/e1d53d07fc3a5a13ab02af279504448fa3af3b6e
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-2.14
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/siteconfig
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: siteconfig
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-04-08T14:09:29Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-214-release-acm-214-20260408-140035-000":{"lastUpdateTime":"2026-04-08T14:10:17.082486951Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-04-08T20:19:04Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-214-release-acm-214-20260408-200731-000":{"lastUpdateTime":"2026-04-08T20:19:52.936387879Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1775656835000"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1775678851000"
     test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/siteconfig
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-214","status":"TestPassed","lastUpdateTime":"2026-04-08T14:10:17.082486951Z","details":"Integration
-      test passed","startTime":"2026-04-08T14:09:29.566635937Z","completionTime":"2026-04-08T14:10:17.082486951Z","testPipelineRunName":"enterprise-contract-acm-214-g8cg9"}]'
-  creationTimestamp: "2026-04-08T14:09:29Z"
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-214","status":"TestPassed","lastUpdateTime":"2026-04-08T20:19:52.936387879Z","details":"Integration
+      test passed","startTime":"2026-04-08T20:19:04.987345458Z","completionTime":"2026-04-08T20:19:52.936387879Z","testPipelineRunName":"enterprise-contract-acm-214-289z7"}]'
+  creationTimestamp: "2026-04-08T20:19:04Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-214
-    appstudio.openshift.io/build-pipelinerun: siteconfig-acm-214-on-push-8xpg5
-    appstudio.openshift.io/component: siteconfig-acm-214
+    appstudio.openshift.io/build-pipelinerun: multiclusterhub-operator-acm-214-on-push-dmzrb
+    appstudio.openshift.io/component: multiclusterhub-operator-acm-214
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "70436422156"
+    pac.test.appstudio.openshift.io/check-run-id: "70495388608"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: siteconfig-acm-214-on-push
-    pac.test.appstudio.openshift.io/pull-request: "1006"
-    pac.test.appstudio.openshift.io/repository: siteconfig-main
-    pac.test.appstudio.openshift.io/sha: 81653f34266c774e76888ababd4d583da9c13d17
+    pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-214-on-push
+    pac.test.appstudio.openshift.io/pull-request: "3839"
+    pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
+    pac.test.appstudio.openshift.io/sha: e1d53d07fc3a5a13ab02af279504448fa3af3b6e
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: siteconfig
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1775657363"
+    pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1775679539"
     test.appstudio.openshift.io/type: component
-  name: release-acm-214-20260408-140035-000
+  name: release-acm-214-20260408-200731-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -77,36 +151,12 @@ metadata:
     kind: Application
     name: release-acm-214
     uid: 04c282c2-01dd-419b-9cbb-81e1906b94c1
-  resourceVersion: "8152251192"
-  uid: 5d442731-61b6-4a5b-8195-4223a8bf73de
+  resourceVersion: "8160431494"
+  uid: 7cb5696a-a8e4-487a-b204-6b9fa26ad79c
 spec:
   application: release-acm-214
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-operator-acm-214@sha256:0e85630fc9f7be08a361ecf6117533af78a0141e61220fc414a5457ceb1bf914
-    name: multicluster-observability-operator-acm-214
-    source:
-      git:
-        context: ./
-        dockerfileUrl: operators/multiclusterobservability/Containerfile.operator
-        revision: 1f13685e257ae19f8b1ff7c5010357242697bdb5
-        url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-acm-214@sha256:e75227417adb7900516bcbd19dfb1aeb3c93ea9baee56fabb0ade29065628e86
-    name: prometheus-acm-214
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 9575766d3f63355e0191fee9061bf15ceb20b402
-        url: https://github.com/stolostron/prometheus
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-214@sha256:b646de1705e64f23b8b9b4cea9c4a5f52438e99f42c92f84c03d529dc38d09dd
-    name: submariner-addon-acm-214
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.konflux
-        revision: aae4b1dbc12f717017591590f495e56944e5020c
-        url: https://github.com/stolostron/submariner-addon
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-cli-acm-214@sha256:e0b82f63408841b4443e3b439d7741f4f1af8557fff3e3722c8daef4e2d55ee9
     name: acm-cli-acm-214
     source:
@@ -287,6 +337,8 @@ spec:
     name: siteconfig-acm-214
     source:
       git:
+        context: ./
+        dockerfileUrl: Dockerfile
         revision: 81653f34266c774e76888ababd4d583da9c13d17
         url: https://github.com/stolostron/siteconfig
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/insights-metrics-acm-214@sha256:535f5e245494fce4947b0adb357fe85ece11c4dbe34cdfc68772b6cc2b853c88
@@ -305,13 +357,11 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: 0009c93efbee67cfabe2a6c4446ce9df9f8ba610
         url: https://github.com/stolostron/klusterlet-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-214@sha256:959dccb95edb7260b819e2ab13d95bce35db9a3617ab39b718478e737e6d0ac7
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-214@sha256:4bc26fa32598ad442c2d43b0a49544a8bdac9c2f4cfd27db0e0d26803064672a
     name: multiclusterhub-operator-acm-214
     source:
       git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: f78f41e5749137dcac03b1bb9902d54b1cfec616
+        revision: e1d53d07fc3a5a13ab02af279504448fa3af3b6e
         url: https://github.com/stolostron/multiclusterhub-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/observatorium-operator-acm-214@sha256:9e32c72dfb9ced3c2d24dd082d866ddaae4ecec1b251f539c1a3d8248a3c6124
     name: observatorium-operator-acm-214
@@ -433,20 +483,44 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: 34a45000e3dad924bb3f834a8d0796dee2fb26c8
         url: https://github.com/stolostron/insights-client
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-operator-acm-214@sha256:0e85630fc9f7be08a361ecf6117533af78a0141e61220fc414a5457ceb1bf914
+    name: multicluster-observability-operator-acm-214
+    source:
+      git:
+        context: ./
+        dockerfileUrl: operators/multiclusterobservability/Containerfile.operator
+        revision: 1f13685e257ae19f8b1ff7c5010357242697bdb5
+        url: https://github.com/stolostron/multicluster-observability-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-acm-214@sha256:4495b00250422a1fa58607bcb63912b2fbf3331ef0a563208ac477c56e168ebb
+    name: prometheus-acm-214
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 16bc9a2acadcaaad31796acb2fc6380d84f89022
+        url: https://github.com/stolostron/prometheus
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-214@sha256:b646de1705e64f23b8b9b4cea9c4a5f52438e99f42c92f84c03d529dc38d09dd
+    name: submariner-addon-acm-214
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.konflux
+        revision: aae4b1dbc12f717017591590f495e56944e5020c
+        url: https://github.com/stolostron/submariner-addon
 status:
   conditions:
-  - lastTransitionTime: "2026-04-08T14:10:18Z"
+  - lastTransitionTime: "2026-04-08T20:19:52Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-04-08T14:10:18Z"
+  - lastTransitionTime: "2026-04-08T20:19:52Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-04-08T14:10:18Z"
+  - lastTransitionTime: "2026-04-08T20:19:53Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
