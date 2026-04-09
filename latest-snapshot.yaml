@@ -2,147 +2,66 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/multiclusterhub-operator?rev=1882ff95f6b51df431ba2a5432c79aeba5435811
-    build.appstudio.redhat.com/commit_sha: 1882ff95f6b51df431ba2a5432c79aeba5435811
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/thanos-receive-controller?rev=0cc4efdc4e77e236accbca637b0f4b061d0d289c
+    build.appstudio.redhat.com/commit_sha: 0cc4efdc4e77e236accbca637b0f4b061d0d289c
     build.appstudio.redhat.com/target_branch: release-2.15
     pac.test.appstudio.openshift.io/branch: release-2.15
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "70496648261"
+    pac.test.appstudio.openshift.io/check-run-id: "70592657371"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-orjgqi
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-ensefb
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/multiclusterhub-operator-acm-215-on-push-f4552
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/thanos-receive-controller-acm-215-on-push-fmhhk
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-2.15"
-    pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-215-on-push
-    pac.test.appstudio.openshift.io/pull-request: "3840"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/multiclusterhub-operator
-    pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
+    pac.test.appstudio.openshift.io/original-prname: thanos-receive-controller-acm-215-on-push
+    pac.test.appstudio.openshift.io/pull-request: "199"
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/thanos-receive-controller
+    pac.test.appstudio.openshift.io/repository: thanos-receive-controller-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
-    pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
-    pac.test.appstudio.openshift.io/sha: 1882ff95f6b51df431ba2a5432c79aeba5435811
+    pac.test.appstudio.openshift.io/sender: coleenquadros
+    pac.test.appstudio.openshift.io/sha: 0cc4efdc4e77e236accbca637b0f4b061d0d289c
     pac.test.appstudio.openshift.io/sha-title: |-
-      [release-2.15] Improve bundle-automation dependency handling (#3840)
+      Merge pull request #199 from stolostron/fix/cve-2026-33186-grpc-go-release-2.15
 
-      * Improve bundle-automation dependency handling
-
-      This change simplifies how bundle-generation scripts and their
-      dependencies are copied from installer-dev-tools, eliminating the need
-      to manually track each dependency file.
-
-      Changes:
-      - Copy all .py files from bundle-generation/ using glob pattern
-      - Automatically includes helper.py and any other shared modules
-      - Removed manual dependency tracking list
-      - Removed unused copy_scripts() and cleanup_scripts() functions
-      - Added PYTHONPATH to ensure imports work correctly
-
-      Benefits:
-      - No manual dependency tracking - any new .py file automatically included
-      - Future-proof - new shared modules work without code changes
-      - Simpler code - replaced manual list with glob pattern
-      - Fixes import issues with helper.py for OWNERS file syncing
-
-      This change is required for the OWNERS file automation feature being
-      added in installer-dev-tools, which introduces helper.py as a shared
-      dependency.
-
-      Signed-off-by: dislbenn <dbennett@redhat.com>
-
-      * Refactor to use helper functions with rglob
-
-      Improves code organization by extracting file copy/cleanup logic into
-      dedicated helper functions and using rglob() to recursively find all
-      Python files while preserving directory structure.
-
-      Changes:
-      - Add copy_bundle_generation_files() helper function
-      - Add cleanup_bundle_generation_files() helper function
-      - Use rglob("*.py") to recursively find all Python files
-      - Preserve directory structure when copying files
-      - Simplify prepare_and_execute() function
-
-      Signed-off-by: Dislene Bennett <dislbenn@redhat.com>
-
-      Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-      * Fix script dependencies to support both bundle-generation and release directories
-
-      The previous implementation only copied files from bundle-generation/,
-      but operations like onboard-new-components and refresh-image-aliases
-      reference scripts in release/ directory. This caused "Script not found"
-      errors when running those operations.
-
-      Changes:
-      - Rename functions to copy_script_dependencies() and cleanup_script_dependencies()
-      - Extract parent directory dynamically from script path
-      - Support any subdirectory (bundle-generation/, release/, etc.)
-      - More generic and maintainable than hardcoded directory checks
-
-      Fixes issue where release/ scripts would fail to execute.
-
-      Signed-off-by: Dislene Bennett <dislbenn@redhat.com>
-
-      Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-      * Fix cleanup by tracking copied files before script execution
-
-      The previous cleanup logic tried to rglob files from the source directory
-      after script execution, but the executed scripts delete the tmp/ directory,
-      so cleanup never ran. This left copied Python files in the directory.
-
-      Changes:
-      - copy_script_dependencies() now returns list of copied file paths
-      - cleanup_script_dependencies() takes list of files to clean up
-      - Files are tracked during copy phase, before tmp/ is deleted
-      - Cleanup now runs successfully and removes all copied files
-
-      Signed-off-by: Dislene Bennett <dislbenn@redhat.com>
-
-      Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-      ---------
-
-      Signed-off-by: dislbenn <dbennett@redhat.com>
-      Co-authored-by: dislbenn <dbennett@redhat.com>
-      Co-authored-by: Claude Sonnet 4.5 <noreply@anthropic.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/multiclusterhub-operator/commit/1882ff95f6b51df431ba2a5432c79aeba5435811
+      Security: Fix CVE-2026-33186 (grpc-go) - release-2.15
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/thanos-receive-controller/commit/0cc4efdc4e77e236accbca637b0f4b061d0d289c
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-2.15
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/thanos-receive-controller
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-04-08T20:25:12Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-215-release-acm-215-20260408-201547-000":{"lastUpdateTime":"2026-04-08T20:26:00.315375485Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: thanos-receive-controller
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-04-09T11:08:20Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-215-release-acm-215-20260409-105742-000":{"lastUpdateTime":"2026-04-09T11:09:05.501290911Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1775679347000"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1775732262000"
     test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-215","status":"TestPassed","lastUpdateTime":"2026-04-08T20:26:00.315375485Z","details":"Integration
-      test passed","startTime":"2026-04-08T20:25:13.094852841Z","completionTime":"2026-04-08T20:26:00.315375485Z","testPipelineRunName":"enterprise-contract-acm-215-x4l5l"}]'
-  creationTimestamp: "2026-04-08T20:25:12Z"
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/thanos-receive-controller
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-215","status":"TestPassed","lastUpdateTime":"2026-04-09T11:09:05.501290911Z","details":"Integration
+      test passed","startTime":"2026-04-09T11:08:21.068583359Z","completionTime":"2026-04-09T11:09:05.501290911Z","testPipelineRunName":"enterprise-contract-acm-215-mfx5x"}]'
+  creationTimestamp: "2026-04-09T11:08:20Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-215
-    appstudio.openshift.io/build-pipelinerun: multiclusterhub-operator-acm-215-on-push-f4552
-    appstudio.openshift.io/component: multiclusterhub-operator-acm-215
+    appstudio.openshift.io/build-pipelinerun: thanos-receive-controller-acm-215-on-push-fmhhk
+    appstudio.openshift.io/component: thanos-receive-controller-acm-215
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "70496648261"
+    pac.test.appstudio.openshift.io/check-run-id: "70592657371"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-215-on-push
-    pac.test.appstudio.openshift.io/pull-request: "3840"
-    pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
-    pac.test.appstudio.openshift.io/sha: 1882ff95f6b51df431ba2a5432c79aeba5435811
+    pac.test.appstudio.openshift.io/original-prname: thanos-receive-controller-acm-215-on-push
+    pac.test.appstudio.openshift.io/pull-request: "199"
+    pac.test.appstudio.openshift.io/repository: thanos-receive-controller-acm-210
+    pac.test.appstudio.openshift.io/sha: 0cc4efdc4e77e236accbca637b0f4b061d0d289c
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1775679907"
+    pac.test.appstudio.openshift.io/url-repository: thanos-receive-controller
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1775732895"
     test.appstudio.openshift.io/type: component
-  name: release-acm-215-20260408-201547-000
+  name: release-acm-215-20260409-105742-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -151,12 +70,44 @@ metadata:
     kind: Application
     name: release-acm-215
     uid: 100ebaae-96cc-48d3-9c2d-540e1b991216
-  resourceVersion: "8160559692"
-  uid: 0f9c298f-cb7c-4ed4-aa4d-5031804e8091
+  resourceVersion: "8173088565"
+  uid: f791bc9e-191d-480e-be7a-625f3a6742a4
 spec:
   application: release-acm-215
   artifacts: {}
   components:
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/config-policy-controller-acm-215@sha256:3d0a0d5c07fa148df5be7e2647449b1aac457deb3d463c086041091efa01887d
+    name: config-policy-controller-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 103c1e2e9f15c722001f9fce1a779a5d672fc27c
+        url: https://github.com/stolostron/config-policy-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-acm-215@sha256:9a671a0608c8e5992471b2f40b162216ec1a6d69f7c0fd8e6eaf59df0a0c24f1
+    name: grafana-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 7729cc87c3eaead7cb08e200ef84a02dd96e4f32
+        url: https://github.com/stolostron/grafana
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-operator-acm-215@sha256:01772c451da77efdc138ad45f2fe534725009d4db6ccdae27cf246c7f87b5622
+    name: prometheus-operator-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 7155aa0d26fa88fd1dd03df64d8535775407f721
+        url: https://github.com/stolostron/prometheus-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-215@sha256:6002f8ac61b9f75e8e41b53baaf7a327d6a1435a6d81c61269418d80dd95c215
+    name: search-indexer-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 252eff685efca25368e82914616531d1172b3cae
+        url: https://github.com/stolostron/search-indexer
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-permission-acm-215@sha256:a0b32153b1442ac7ede5767c0bd9254d98c48823fef4c2ed215bbe72a7a1ad96
     name: cluster-permission-acm-215
     source:
@@ -297,6 +248,8 @@ spec:
     name: multiclusterhub-operator-acm-215
     source:
       git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
         revision: 1882ff95f6b51df431ba2a5432c79aeba5435811
         url: https://github.com/stolostron/multiclusterhub-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/rbac-query-proxy-acm-215@sha256:1094501ff6f0d09ef38a8ee43b80587fc7cd4701cb617e833cd6073bb5b5fc45
@@ -339,13 +292,13 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: 9504d645349618bb663741f8eb33066f4d8b54bf
         url: https://github.com/stolostron/insights-metrics
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-state-metrics-acm-215@sha256:9a704b6ae397d5664d7eb596d529927c677ec2a86f02859fa4f94bd9fe6ac8be
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-state-metrics-acm-215@sha256:7865b304eceb44634facc222389132c0abed8777607532c5905fd7b5243f22ff
     name: kube-state-metrics-acm-215
     source:
       git:
         context: ./
         dockerfileUrl: Containerfile.operator
-        revision: 0af4fd2f1191ee856060c9a91a2eb8377b465557
+        revision: e599311b26b40bd847982853c83b916568137cbd
         url: https://github.com/stolostron/kube-state-metrics
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-215@sha256:d082ede32c304794a211ba92ab5365189ad05c8ba363f9bcec87444eb2454912
     name: multicluster-operators-application-acm-215
@@ -395,13 +348,11 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: 61fe1c784b7e73bf3819ec0f653094e577649804
         url: https://github.com/stolostron/thanos
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/thanos-receive-controller-acm-215@sha256:daf3d247c8ad14ee2501fcc4807449e54821b41bddd0492c15f5e1c28d6773d9
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/thanos-receive-controller-acm-215@sha256:d30b94290c139941e2aee264260ebd8f02a2797110ca352f6b8e13420d7071a4
     name: thanos-receive-controller-acm-215
     source:
       git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 5a1e1ed204ed31648733bd36302b8f084782cca3
+        revision: 0cc4efdc4e77e236accbca637b0f4b061d0d289c
         url: https://github.com/stolostron/thanos-receive-controller
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-backup-operator-acm-215@sha256:dbe948c1f3ebcc9795315a106828097d540d7c47ac42b2dc62db8fd7ece04600
     name: cluster-backup-operator-acm-215
@@ -491,52 +442,20 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: b70baabc71a30bb81870fd121c262e90b5208ef2
         url: https://github.com/stolostron/observatorium
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/config-policy-controller-acm-215@sha256:3d0a0d5c07fa148df5be7e2647449b1aac457deb3d463c086041091efa01887d
-    name: config-policy-controller-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 103c1e2e9f15c722001f9fce1a779a5d672fc27c
-        url: https://github.com/stolostron/config-policy-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-acm-215@sha256:9a671a0608c8e5992471b2f40b162216ec1a6d69f7c0fd8e6eaf59df0a0c24f1
-    name: grafana-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 7729cc87c3eaead7cb08e200ef84a02dd96e4f32
-        url: https://github.com/stolostron/grafana
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-operator-acm-215@sha256:01772c451da77efdc138ad45f2fe534725009d4db6ccdae27cf246c7f87b5622
-    name: prometheus-operator-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 7155aa0d26fa88fd1dd03df64d8535775407f721
-        url: https://github.com/stolostron/prometheus-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-215@sha256:6002f8ac61b9f75e8e41b53baaf7a327d6a1435a6d81c61269418d80dd95c215
-    name: search-indexer-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 252eff685efca25368e82914616531d1172b3cae
-        url: https://github.com/stolostron/search-indexer
 status:
   conditions:
-  - lastTransitionTime: "2026-04-08T20:26:00Z"
+  - lastTransitionTime: "2026-04-09T11:09:05Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-04-08T20:26:00Z"
+  - lastTransitionTime: "2026-04-09T11:09:05Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-04-08T20:26:01Z"
+  - lastTransitionTime: "2026-04-09T11:09:05Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
