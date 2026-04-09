@@ -7,142 +7,56 @@ metadata:
     build.appstudio.redhat.com/target_branch: release-2.12
     pac.test.appstudio.openshift.io/branch: release-2.12
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "70507419295"
+    pac.test.appstudio.openshift.io/check-run-id: "70654942303"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
-    pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-xkooox
+    pac.test.appstudio.openshift.io/event-type: incoming
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-xthhmx
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/multiclusterhub-operator-acm-212-on-push-zgbcm
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/multiclusterhub-operator-acm-212-on-push-j72vr
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-2.12"
     pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-212-on-push
-    pac.test.appstudio.openshift.io/pull-request: "3837"
     pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/multiclusterhub-operator
     pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
-    pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
+    pac.test.appstudio.openshift.io/sender: incoming
     pac.test.appstudio.openshift.io/sha: be5841f68f0631ec260a125c8c1a24f9531a0fa3
-    pac.test.appstudio.openshift.io/sha-title: |-
-      [release-2.12] Improve bundle-automation dependency handling (#3837)
-
-      * Improve bundle-automation dependency handling
-
-      This change simplifies how bundle-generation scripts and their
-      dependencies are copied from installer-dev-tools, eliminating the need
-      to manually track each dependency file.
-
-      Changes:
-      - Copy all .py files from bundle-generation/ using glob pattern
-      - Automatically includes helper.py and any other shared modules
-      - Removed manual dependency tracking list
-      - Removed unused copy_scripts() and cleanup_scripts() functions
-      - Added PYTHONPATH to ensure imports work correctly
-
-      Benefits:
-      - No manual dependency tracking - any new .py file automatically included
-      - Future-proof - new shared modules work without code changes
-      - Simpler code - replaced manual list with glob pattern
-      - Fixes import issues with helper.py for OWNERS file syncing
-
-      This change is required for the OWNERS file automation feature being
-      added in installer-dev-tools, which introduces helper.py as a shared
-      dependency.
-
-      Signed-off-by: dislbenn <dbennett@redhat.com>
-
-      * Refactor to use helper functions with rglob
-
-      Improves code organization by extracting file copy/cleanup logic into
-      dedicated helper functions and using rglob() to recursively find all
-      Python files while preserving directory structure.
-
-      Changes:
-      - Add copy_bundle_generation_files() helper function
-      - Add cleanup_bundle_generation_files() helper function
-      - Use rglob("*.py") to recursively find all Python files
-      - Preserve directory structure when copying files
-      - Simplify prepare_and_execute() function
-
-      Signed-off-by: Dislene Bennett <dislbenn@redhat.com>
-
-      Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-      * Fix script dependencies to support both bundle-generation and release directories
-
-      The previous implementation only copied files from bundle-generation/,
-      but operations like onboard-new-components and refresh-image-aliases
-      reference scripts in release/ directory. This caused "Script not found"
-      errors when running those operations.
-
-      Changes:
-      - Rename functions to copy_script_dependencies() and cleanup_script_dependencies()
-      - Extract parent directory dynamically from script path
-      - Support any subdirectory (bundle-generation/, release/, etc.)
-      - More generic and maintainable than hardcoded directory checks
-
-      Fixes issue where release/ scripts would fail to execute.
-
-      Signed-off-by: Dislene Bennett <dislbenn@redhat.com>
-
-      Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-      * Fix cleanup by tracking copied files before script execution
-
-      The previous cleanup logic tried to rglob files from the source directory
-      after script execution, but the executed scripts delete the tmp/ directory,
-      so cleanup never ran. This left copied Python files in the directory.
-
-      Changes:
-      - copy_script_dependencies() now returns list of copied file paths
-      - cleanup_script_dependencies() takes list of files to clean up
-      - Files are tracked during copy phase, before tmp/ is deleted
-      - Cleanup now runs successfully and removes all copied files
-
-      Signed-off-by: Dislene Bennett <dislbenn@redhat.com>
-
-      Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-      ---------
-
-      Signed-off-by: dislbenn <dbennett@redhat.com>
-      Co-authored-by: dislbenn <dbennett@redhat.com>
-      Co-authored-by: Claude Sonnet 4.5 <noreply@anthropic.com>
+    pac.test.appstudio.openshift.io/sha-title: '[release-2.12] Improve bundle-automation
+      dependency handling (#3837)'
     pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/multiclusterhub-operator/commit/be5841f68f0631ec260a125c8c1a24f9531a0fa3
-    pac.test.appstudio.openshift.io/source-branch: refs/heads/release-2.12
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
+    pac.test.appstudio.openshift.io/source-branch: release-2.12
+    pac.test.appstudio.openshift.io/source-repo-url: ""
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
     pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-04-08T21:36:39Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-212-release-acm-212-20260408-212737-000":{"lastUpdateTime":"2026-04-08T21:37:20.628937345Z"}}}'
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-04-09T17:37:14Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-212-release-acm-212-20260409-172751-000":{"lastUpdateTime":"2026-04-09T17:37:56.29426962Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1775683657000"
-    test.appstudio.openshift.io/pr-status: merged
+    test.appstudio.openshift.io/pipelinerunstarttime: "1775755671000"
     test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-212","status":"TestPassed","lastUpdateTime":"2026-04-08T21:37:20.628937345Z","details":"Integration
-      test passed","startTime":"2026-04-08T21:36:39.615824004Z","completionTime":"2026-04-08T21:37:20.628937345Z","testPipelineRunName":"enterprise-contract-acm-212-mg784"}]'
-  creationTimestamp: "2026-04-08T21:36:39Z"
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-212","status":"TestPassed","lastUpdateTime":"2026-04-09T17:37:56.29426962Z","details":"Integration
+      test passed","startTime":"2026-04-09T17:37:14.664790916Z","completionTime":"2026-04-09T17:37:56.29426962Z","testPipelineRunName":"enterprise-contract-acm-212-s62wq"}]'
+  creationTimestamp: "2026-04-09T17:37:14Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-212
-    appstudio.openshift.io/build-pipelinerun: multiclusterhub-operator-acm-212-on-push-zgbcm
+    appstudio.openshift.io/build-pipelinerun: multiclusterhub-operator-acm-212-on-push-j72vr
     appstudio.openshift.io/component: multiclusterhub-operator-acm-212
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "70507419295"
-    pac.test.appstudio.openshift.io/event-type: push
+    pac.test.appstudio.openshift.io/check-run-id: "70654942303"
+    pac.test.appstudio.openshift.io/event-type: incoming
     pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-212-on-push
-    pac.test.appstudio.openshift.io/pull-request: "3837"
     pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
     pac.test.appstudio.openshift.io/sha: be5841f68f0631ec260a125c8c1a24f9531a0fa3
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
     pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1775684194"
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1775756229"
     test.appstudio.openshift.io/type: component
-  name: release-acm-212-20260408-212737-000
+  name: release-acm-212-20260409-172751-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -151,12 +65,52 @@ metadata:
     kind: Application
     name: release-acm-212
     uid: 7db15465-421e-4351-8cb5-a86758aad006
-  resourceVersion: "8161622426"
-  uid: 622f9804-5488-4b80-aa6d-254ac19c1116
+  resourceVersion: "8180744595"
+  uid: d8fd7770-2699-4e6e-b5e9-eefc9b931cc7
 spec:
   application: release-acm-212
   artifacts: {}
   components:
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/cluster-backup-operator-acm-212@sha256:966e8a25446335ae55b4bf48d51d763d18c6ecfcae07f7ee58751804fbf8e709
+    name: cluster-backup-operator-acm-212
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 7f8d31341aaf7b53cecab487c69ced703efa64ea
+        url: https://github.com/stolostron/cluster-backup-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/cluster-permission-acm-212@sha256:d175917f487d199837a4098fbbd88cb3cfd6c8eb547e4ed84290f7e127117c14
+    name: cluster-permission-acm-212
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 0d2d838a629efc6a7604637fef6d33f4f45e2f26
+        url: https://github.com/stolostron/cluster-permission
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/must-gather-acm-212@sha256:48a0fb291dae278d4b985ddb4eceb47464589d596bc61d8f7c24c2dedc8f8d97
+    name: must-gather-acm-212
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: b388dfd6fc6fb1680d41693de0db4b27891f5c62
+        url: https://github.com/stolostron/must-gather
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/prometheus-alertmanager-acm-212@sha256:958f859e36f64a687d49d470fe4ed1550bd205397255a2bb2faacf16bfbb895e
+    name: prometheus-alertmanager-acm-212
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 06e8abf921def77d3171b6199494f42e2816fa86
+        url: https://github.com/stolostron/prometheus-alertmanager
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-212@sha256:45862253cf3993c23b4b8b56bc739ce5c60ab73a20add61340a5005ed03df43f
+    name: submariner-addon-acm-212
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.konflux
+        revision: 35ede4a6fb8a346db26c2a47144e798a6f741de2
+        url: https://github.com/stolostron/submariner-addon
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/thanos-receive-controller-acm-212@sha256:ae735f0665d5815572008e3b30e8aba7fc2d703b5653034a6b70db36accbe85a
     name: thanos-receive-controller-acm-212
     source:
@@ -173,21 +127,21 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: e39eb415180fe8f8da6e55f4d4b136939a8be943
         url: https://github.com/stolostron/volsync-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/governance-policy-framework-addon-acm-212@sha256:b497361ddaa7171acb30790ed3fa4bb8df11bc5690d69f13e064dc8a9a684d50
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/governance-policy-framework-addon-acm-212@sha256:cce1bab8b4d077657d5a8d3e73c5dc319d0b1c5cda72d838870753496078e586
     name: governance-policy-framework-addon-acm-212
     source:
       git:
         context: ./
         dockerfileUrl: build/Dockerfile.rhtap
-        revision: bcff1c4d3ea2372e82c0e6002e0aafc15414af17
+        revision: 5d1bdfef1f52444e374dde24b3a44c0776932c93
         url: https://github.com/stolostron/governance-policy-framework-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/governance-policy-propagator-acm-212@sha256:c78fa1830a5403d81926e4a18427c4845a6623751fb81c946f21688623689892
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/governance-policy-propagator-acm-212@sha256:15d89163de9e316f050bb3cba83300f2c74e5e35e46a02a8a6b72683967c3e3a
     name: governance-policy-propagator-acm-212
     source:
       git:
         context: ./
         dockerfileUrl: build/Dockerfile.rhtap
-        revision: 04f34775b9cdf6e96434718ee318cf095d6f867d
+        revision: 5500a01d401f3a0517d3fee70cc1d3d3fac29d09
         url: https://github.com/stolostron/governance-policy-propagator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/node-exporter-acm-212@sha256:2a43be197cdbc81b9636a84b0de1e4d866e488b8b87700089cfdcf623ccbcae5
     name: node-exporter-acm-212
@@ -301,13 +255,13 @@ spec:
         dockerfileUrl: operators/endpointmetrics/Containerfile.operator
         revision: b0d4ec8e859b1b720c8b2eabeabefbc7d2521b57
         url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/governance-policy-addon-controller-acm-212@sha256:58044869ea722b866fe6b27afa487be47584711b4ce935bfc792ab61cde7701f
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/governance-policy-addon-controller-acm-212@sha256:45ad1f05aa30a4c7a222d5f6f4c4f42b21e1b659f463b3efab3c7f9cb522e44c
     name: governance-policy-addon-controller-acm-212
     source:
       git:
         context: ./
         dockerfileUrl: build/Dockerfile.rhtap
-        revision: 77c3f53b33454a9f343228f5ed0301b0a436d03b
+        revision: 2095f3a2ff6bb41b58c1d805f1dc414d62b619bd
         url: https://github.com/stolostron/governance-policy-addon-controller
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/multicluster-operators-subscription-acm-212@sha256:3875625374bd7ec19b6be3da8df21d169bf4f788f66e256e16a65ff08083e460
     name: multicluster-operators-subscription-acm-212
@@ -325,13 +279,13 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: b37d59503f90e58c5fbbc9ea536ffffffdb6ef62
         url: https://github.com/stolostron/prometheus
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/config-policy-controller-acm-212@sha256:457790ade9e790e826abedbae499b48fd6de89ed9effa3755272cb2db7100ab6
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/config-policy-controller-acm-212@sha256:620aec6dee9cb139f88dd3a45a364bfa4794c8220a262614fec17fa39e4551b8
     name: config-policy-controller-acm-212
     source:
       git:
         context: ./
         dockerfileUrl: build/Dockerfile.rhtap
-        revision: 6c0e10783083201f157cfa77e7f4bb48b9d05474
+        revision: 908c80deca9526d8b723540b3039d098aec92e84
         url: https://github.com/stolostron/config-policy-controller
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/multicluster-operators-channel-acm-212@sha256:41b7b657b45ad3bf84b92e5d7b9d3b9d92c520bdf1a758751afa47a58205fede
     name: multicluster-operators-channel-acm-212
@@ -397,7 +351,7 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: a18b95907242e0ac3f5f25fa103c379eb742dcf7
         url: https://github.com/stolostron/memcached_exporter
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/multiclusterhub-operator-acm-212@sha256:89fbfbdf481ce63afc433af1911961b57546fb10c8f28bccf86dfc8d6917c52e
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/multiclusterhub-operator-acm-212@sha256:68399f33a8ed859ed6e77cf7bf8a15d4e296ebb43146ec69c1b5ac9cfbdfa900
     name: multiclusterhub-operator-acm-212
     source:
       git:
@@ -467,60 +421,20 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: ba74fabcf1c9638c10cf9ced7d681e8d6fd62740
         url: https://github.com/stolostron/search-indexer
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/cluster-backup-operator-acm-212@sha256:966e8a25446335ae55b4bf48d51d763d18c6ecfcae07f7ee58751804fbf8e709
-    name: cluster-backup-operator-acm-212
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 7f8d31341aaf7b53cecab487c69ced703efa64ea
-        url: https://github.com/stolostron/cluster-backup-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/cluster-permission-acm-212@sha256:d175917f487d199837a4098fbbd88cb3cfd6c8eb547e4ed84290f7e127117c14
-    name: cluster-permission-acm-212
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 0d2d838a629efc6a7604637fef6d33f4f45e2f26
-        url: https://github.com/stolostron/cluster-permission
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/must-gather-acm-212@sha256:48a0fb291dae278d4b985ddb4eceb47464589d596bc61d8f7c24c2dedc8f8d97
-    name: must-gather-acm-212
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: b388dfd6fc6fb1680d41693de0db4b27891f5c62
-        url: https://github.com/stolostron/must-gather
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/release-acm-212/prometheus-alertmanager-acm-212@sha256:958f859e36f64a687d49d470fe4ed1550bd205397255a2bb2faacf16bfbb895e
-    name: prometheus-alertmanager-acm-212
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 06e8abf921def77d3171b6199494f42e2816fa86
-        url: https://github.com/stolostron/prometheus-alertmanager
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-212@sha256:45862253cf3993c23b4b8b56bc739ce5c60ab73a20add61340a5005ed03df43f
-    name: submariner-addon-acm-212
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.konflux
-        revision: 35ede4a6fb8a346db26c2a47144e798a6f741de2
-        url: https://github.com/stolostron/submariner-addon
 status:
   conditions:
-  - lastTransitionTime: "2026-04-08T21:37:20Z"
+  - lastTransitionTime: "2026-04-09T17:37:56Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-04-08T21:37:20Z"
+  - lastTransitionTime: "2026-04-09T17:37:56Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-04-08T21:37:21Z"
+  - lastTransitionTime: "2026-04-09T17:37:56Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
