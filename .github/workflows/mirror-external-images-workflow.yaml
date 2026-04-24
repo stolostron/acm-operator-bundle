@@ -162,6 +162,7 @@ jobs:
       env:
         EVENT_NAME: ${{ github.event_name }}
         REF_NAME: ${{ github.ref_name }}
+        SLACK_USER_ID: ${{ vars.SLACK_USER_ID }}
       run: |
         # Read results from the JSON file
         if [ ! -f workflow/mirror-results.json ]; then
@@ -169,6 +170,7 @@ jobs:
           STATUS="❌ *FAILED*"
           SUMMARY="Mirror script did not complete successfully"
           DETAILS=""
+          HAS_FAILURE=true
         else
           # Parse the JSON results
           MIRRORED=$(jq -r '.mirrored' workflow/mirror-results.json)
@@ -179,10 +181,13 @@ jobs:
           # Determine status
           if [ "$FAILED" -gt 0 ]; then
             STATUS="⚠️ *COMPLETED WITH FAILURES*"
+            HAS_FAILURE=true
           elif [ "$DRY_RUN" = "true" ]; then
             STATUS="🔍 *DRY RUN COMPLETED*"
+            HAS_FAILURE=false
           else
             STATUS="✅ *SUCCESS*"
+            HAS_FAILURE=false
           fi
 
           # Build summary
@@ -195,6 +200,12 @@ jobs:
             FAILURES=$(jq -r '.failures[] | "• `\(.image_key)` [\(.operator)]\n  Source: `\(.source)`\n  Target: `\(.target)`\n  Error: \(.error)\n"' workflow/mirror-results.json)
             DETAILS="$DETAILS$FAILURES"
           fi
+        fi
+
+        # Add user mention if there's a failure and SLACK_USER_ID is set
+        USER_MENTION=""
+        if [ "$HAS_FAILURE" = "true" ] && [ -n "$SLACK_USER_ID" ]; then
+          USER_MENTION=" <@$SLACK_USER_ID>"
         fi
 
         # Build the Slack message
@@ -213,7 +224,7 @@ jobs:
               "type": "section",
               "text": {
                 "type": "mrkdwn",
-                "text": "$STATUS\n\n$SUMMARY$DETAILS"
+                "text": "$STATUS$USER_MENTION\n\n$SUMMARY$DETAILS"
               }
             },
             {
