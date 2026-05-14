@@ -2,64 +2,78 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/console?rev=4c3e71e9ae53cb91b940f9510f7395e3abaeead6
-    build.appstudio.redhat.com/commit_sha: 4c3e71e9ae53cb91b940f9510f7395e3abaeead6
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/config-policy-controller?rev=ede34ae3bd1f84aa8264ca8bb80774a688135b59
+    build.appstudio.redhat.com/commit_sha: ede34ae3bd1f84aa8264ca8bb80774a688135b59
     build.appstudio.redhat.com/target_branch: release-2.17
     pac.test.appstudio.openshift.io/branch: release-2.17
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "75858556714"
+    pac.test.appstudio.openshift.io/check-run-id: "75902640839"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-uvjmwu
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-izqdwh
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/console-acm-217-on-push-r99wf
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/config-policy-controller-acm-217-on-push-kjz8w
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-2.17"
-    pac.test.appstudio.openshift.io/original-prname: console-acm-217-on-push
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/console
-    pac.test.appstudio.openshift.io/repository: console
+    pac.test.appstudio.openshift.io/original-prname: config-policy-controller-acm-217-on-push
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/config-policy-controller
+    pac.test.appstudio.openshift.io/repository: config-policy-controller-0pyc
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
-    pac.test.appstudio.openshift.io/sha: 4c3e71e9ae53cb91b940f9510f7395e3abaeead6
+    pac.test.appstudio.openshift.io/sha: ede34ae3bd1f84aa8264ca8bb80774a688135b59
     pac.test.appstudio.openshift.io/sha-title: |-
-      fix (#6200)
+      Preserve createdByPolicy through recreates
 
-      Signed-off-by: John Swanke <jswanke@redhat.com>
-      Co-authored-by: John Swanke <jswanke@redhat.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/console/commit/4c3e71e9ae53cb91b940f9510f7395e3abaeead6
+      Previously, when a configurationpolicy would recreate an object in order
+      to enforce the policy, the controller would always mark that object in
+      the status as having been created by the policy. While this is
+      technically true, it meant that a resource created *before* the policy
+      might be deleted if `pruneObjectBehavior: DeleteIfCreated` was set, and
+      that was often surprising to users.
+
+      Now, when an object is recreated by a policy, the previous setting for
+      that object in the status is preserved.
+
+      Refs:
+       - https://issues.redhat.com/browse/ACM-26300
+
+      Assisted-by: Cursor, claude-4.6-opus-high
+      Signed-off-by: Justin Kulikauskas <jkulikau@redhat.com>
+      (cherry picked from commit 7b9661404755b6e4bcc96f9d559e60e9841dd66b)
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/config-policy-controller/commit/ede34ae3bd1f84aa8264ca8bb80774a688135b59
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-2.17
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
-    pac.test.appstudio.openshift.io/state: completed
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/config-policy-controller
+    pac.test.appstudio.openshift.io/state: queued
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: console
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-05-13T19:16:45Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20260513-185817-000":{"lastUpdateTime":"2026-05-13T19:18:06.166300333Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: config-policy-controller
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-05-14T00:03:45Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20260513-235431-000":{"lastUpdateTime":"2026-05-14T00:04:54.958177307Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1778698697000"
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"BuildPLRInProgress","lastUpdateTime":"2026-05-13T19:18:06.166300333Z","details":"Integration
-      test passed with warnings","startTime":"2026-05-13T19:16:45.513257069Z","completionTime":"2026-05-13T19:18:06.166300333Z","testPipelineRunName":"enterprise-contract-acm-217-tv2zp"}]'
-  creationTimestamp: "2026-05-13T19:16:45Z"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1778716471000"
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/config-policy-controller
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"BuildPLRInProgress","lastUpdateTime":"2026-05-14T00:04:54.958177307Z","details":"Integration
+      test passed with warnings","startTime":"2026-05-14T00:03:46.225583804Z","completionTime":"2026-05-14T00:04:54.958177307Z","testPipelineRunName":"enterprise-contract-acm-217-dr4k2"}]'
+  creationTimestamp: "2026-05-14T00:03:45Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-217
-    appstudio.openshift.io/build-pipelinerun: console-acm-217-on-push-r99wf
-    appstudio.openshift.io/component: console-acm-217
+    appstudio.openshift.io/build-pipelinerun: config-policy-controller-acm-217-on-push-kjz8w
+    appstudio.openshift.io/component: config-policy-controller-acm-217
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "75858556714"
+    pac.test.appstudio.openshift.io/check-run-id: "75902640839"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: console-acm-217-on-push
-    pac.test.appstudio.openshift.io/repository: console
-    pac.test.appstudio.openshift.io/sha: 4c3e71e9ae53cb91b940f9510f7395e3abaeead6
-    pac.test.appstudio.openshift.io/state: completed
+    pac.test.appstudio.openshift.io/original-prname: config-policy-controller-acm-217-on-push
+    pac.test.appstudio.openshift.io/repository: config-policy-controller-0pyc
+    pac.test.appstudio.openshift.io/sha: ede34ae3bd1f84aa8264ca8bb80774a688135b59
+    pac.test.appstudio.openshift.io/state: queued
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: console
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1778699790"
+    pac.test.appstudio.openshift.io/url-repository: config-policy-controller
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1778717019"
     test.appstudio.openshift.io/type: component
-  name: release-acm-217-20260513-185817-000
+  name: release-acm-217-20260513-235431-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -68,13 +82,67 @@ metadata:
     kind: Application
     name: release-acm-217
     uid: f6a47cb4-5edb-49df-b280-ca2ad71f1d6c
-  resourceVersion: "8793284918"
-  uid: e1643446-a47e-4028-8227-50934a824785
+  resourceVersion: "8798056306"
+  uid: 8076fe65-1225-46fe-b388-5b2af8af0548
 spec:
   application: release-acm-217
   artifacts: {}
   componentGroup: ""
   components:
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-role-assignment-acm-217@sha256:4dcfffdf37bffffca58a0b3705d3c254d18e7a115c4ef041842b2802dc1452b5
+    name: multicluster-role-assignment-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile
+        revision: f866e80ad863f188d94c5d98452a6b9b5d472e40
+        url: https://github.com/stolostron/multicluster-role-assignment
+    version: ""
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-permission-acm-217@sha256:02180bb0895b60e9401416e7fd9963352467229f95797260c162092d565f86b8
+    name: cluster-permission-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 97deb24448b60b6231933eaba3e714adb64d55cd
+        url: https://github.com/stolostron/cluster-permission
+    version: ""
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-framework-addon-acm-217@sha256:a703c34ea536ff4c24f9b753a6025606091110ee55c91d42b4d069ea89cfcfbf
+    name: governance-policy-framework-addon-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: bfc25de44fe4cc2ecb71a4d360542e54186b8e85
+        url: https://github.com/stolostron/governance-policy-framework-addon
+    version: ""
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-acm-217@sha256:032cea76f5120f1d3e7b061fa95dd687aa33ca11f1d0e8c61bd82dcae1c6482f
+    name: grafana-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 1394fe9119f394637b633c9e379ef0ce6b34edfc
+        url: https://github.com/stolostron/grafana
+    version: ""
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-217@sha256:e75c7f6d3ca53cdd1c2dbc5b0da492cf9314e41160199d58b512a01f91aac959
+    name: klusterlet-addon-controller-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 5d7eb82cbd5f74e30b92034ea059c4d759ba9ebc
+        url: https://github.com/stolostron/klusterlet-addon-controller
+    version: ""
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-state-metrics-acm-217@sha256:6004625626ef1463b109ce0e55eb56bbad2ad18a07fcacf2899344149cb3744e
+    name: kube-state-metrics-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 5d7b508f9ed2e99821814ca290af40193f09ffd6
+        url: https://github.com/stolostron/kube-state-metrics
+    version: ""
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/memcached-exporter-acm-217@sha256:43befa6ac379827cf7533dabc6c199d25c32772db67156e3082dc065a4d3a822
     name: memcached-exporter-acm-217
     source:
@@ -93,13 +161,11 @@ spec:
         revision: 66c02988b77baa41e370d71bfeee905aa9a024bb
         url: https://github.com/stolostron/multicluster-observability-operator
     version: ""
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/config-policy-controller-acm-217@sha256:9f4a85dc7893535046783c81e60e8806dc7b876e120917bded01b667481ba7ef
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/config-policy-controller-acm-217@sha256:a6baa9ebbdf4f5eae76490f1f25ab7afbcacccb69fc4db8f9eccc1c08198e2e9
     name: config-policy-controller-acm-217
     source:
       git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 414ec084dd91136237f2387cba62ee96dcc7fc00
+        revision: ede34ae3bd1f84aa8264ca8bb80774a688135b59
         url: https://github.com/stolostron/config-policy-controller
     version: ""
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/insights-client-acm-217@sha256:38aeba433b40f677c5ec64915b3d43a78169130e0880f3fff29e5b507f9b46d6
@@ -250,6 +316,8 @@ spec:
     name: console-acm-217
     source:
       git:
+        context: ./
+        dockerfileUrl: Containerfile.acm.konflux
         revision: 4c3e71e9ae53cb91b940f9510f7395e3abaeead6
         url: https://github.com/stolostron/console
     version: ""
@@ -442,74 +510,20 @@ spec:
         revision: b75568ed2ec4cc5dd6911059e85f8d4c3e0121f5
         url: https://github.com/stolostron/search-v2-operator
     version: ""
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-role-assignment-acm-217@sha256:4dcfffdf37bffffca58a0b3705d3c254d18e7a115c4ef041842b2802dc1452b5
-    name: multicluster-role-assignment-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile
-        revision: f866e80ad863f188d94c5d98452a6b9b5d472e40
-        url: https://github.com/stolostron/multicluster-role-assignment
-    version: ""
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-permission-acm-217@sha256:02180bb0895b60e9401416e7fd9963352467229f95797260c162092d565f86b8
-    name: cluster-permission-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 97deb24448b60b6231933eaba3e714adb64d55cd
-        url: https://github.com/stolostron/cluster-permission
-    version: ""
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-framework-addon-acm-217@sha256:a703c34ea536ff4c24f9b753a6025606091110ee55c91d42b4d069ea89cfcfbf
-    name: governance-policy-framework-addon-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: bfc25de44fe4cc2ecb71a4d360542e54186b8e85
-        url: https://github.com/stolostron/governance-policy-framework-addon
-    version: ""
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-acm-217@sha256:032cea76f5120f1d3e7b061fa95dd687aa33ca11f1d0e8c61bd82dcae1c6482f
-    name: grafana-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 1394fe9119f394637b633c9e379ef0ce6b34edfc
-        url: https://github.com/stolostron/grafana
-    version: ""
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-217@sha256:f55a55cfa8c591c55170efa0a35f22388a843f7d738c236c60a3682f57163288
-    name: klusterlet-addon-controller-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 12ef3048238b16d2f85c3ef50e4af0770ab9f7ec
-        url: https://github.com/stolostron/klusterlet-addon-controller
-    version: ""
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-state-metrics-acm-217@sha256:6004625626ef1463b109ce0e55eb56bbad2ad18a07fcacf2899344149cb3744e
-    name: kube-state-metrics-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 5d7b508f9ed2e99821814ca290af40193f09ffd6
-        url: https://github.com/stolostron/kube-state-metrics
-    version: ""
 status:
   conditions:
-  - lastTransitionTime: "2026-05-13T19:18:06Z"
+  - lastTransitionTime: "2026-05-14T00:04:54Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-05-13T19:18:06Z"
+  - lastTransitionTime: "2026-05-14T00:04:55Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-05-13T19:18:06Z"
+  - lastTransitionTime: "2026-05-14T00:04:55Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
