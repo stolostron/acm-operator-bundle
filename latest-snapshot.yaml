@@ -2,67 +2,95 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/search-v2-api?rev=41c3145eae812b34c3fd7cb13b1f2d8e049cdc95
-    build.appstudio.redhat.com/commit_sha: 41c3145eae812b34c3fd7cb13b1f2d8e049cdc95
-    build.appstudio.redhat.com/target_branch: release-5.0
-    pac.test.appstudio.openshift.io/branch: release-5.0
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/multicloud-integrations?rev=5d3d1868172c1a54b24a88781d07a2ae2b75946c
+    build.appstudio.redhat.com/commit_sha: 5d3d1868172c1a54b24a88781d07a2ae2b75946c
+    build.appstudio.redhat.com/target_branch: main
+    pac.test.appstudio.openshift.io/branch: main
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "77095384847"
+    pac.test.appstudio.openshift.io/check-run-id: "77173646534"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-huslmh
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-pgcxpw
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/search-v2-api-acm-50-on-push-x4lvq
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/multicloud-integrations-acm-50-on-push-bp5f6
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
-      == "release-5.0"
-    pac.test.appstudio.openshift.io/original-prname: search-v2-api-acm-50-on-push
-    pac.test.appstudio.openshift.io/pull-request: "724"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/search-v2-api
-    pac.test.appstudio.openshift.io/repository: search-v2-api-acm-210
+      == "main"
+    pac.test.appstudio.openshift.io/original-prname: multicloud-integrations-acm-50-on-push
+    pac.test.appstudio.openshift.io/pull-request: "529"
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/multicloud-integrations
+    pac.test.appstudio.openshift.io/repository: multicloud-integrations-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
-    pac.test.appstudio.openshift.io/sender: acm-cicd-prow-bot
-    pac.test.appstudio.openshift.io/sha: 41c3145eae812b34c3fd7cb13b1f2d8e049cdc95
+    pac.test.appstudio.openshift.io/sender: xiangjingli
+    pac.test.appstudio.openshift.io/sha: 5d3d1868172c1a54b24a88781d07a2ae2b75946c
     pac.test.appstudio.openshift.io/sha-title: |-
-      Update actions/stale action to v10 (#724)
+      port resource proxy fallback + e2e setup from release-2.17 (#528) (#529)
 
-      Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
-      Co-authored-by: red-hat-konflux[bot] <126015336+red-hat-konflux[bot]@users.noreply.github.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/search-v2-api/commit/41c3145eae812b34c3fd7cb13b1f2d8e049cdc95
-    pac.test.appstudio.openshift.io/source-branch: refs/heads/release-5.0
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/search-v2-api
+      Cherry-pick functional and test changes from release-2.17 commit
+      bf9477d into main:
+
+      - argocd_agent_clusters.go: replace hardcoded resource-proxy-only URL
+        with conditional fallback logic — prefer the in-cluster resource proxy
+        service (Red Hat operator) but fall back to the external NodePort /
+        LoadBalancer address when the service is absent (upstream argocd-
+        operator / embedded e2e). Fail explicitly when neither is available.
+
+      - argocd_agent_clusters_test.go: rename "override existing traditional
+        cluster secret" test to clarify it exercises the resource-proxy path;
+        add resource proxy Service to its existingObjects; add two new cases:
+        "falls back to NodePort URL when no resource proxy service exists" and
+        "fails when no resource proxy and no server address configured".
+
+      - helpers_test.go: assert the resource proxy service exists before
+        checking the cluster secret URL; add assertion that the URL contains
+        "resource-proxy" (not just agentName=).
+
+      - setup_env.sh: after the principal pod is Ready, create the
+        openshift-gitops-agent-principal-resource-proxy ClusterIP Service on
+        port 9090, mirroring what the Red Hat OpenShift GitOps operator does
+        automatically. Without this service the embedded e2e falls back to
+        NodePort and verifyClusterSecret fails its new assertion.
+
+      - CLAUDE.md: update Cluster Secret key feature description and add
+        "Resource proxy service in embedded e2e" gotcha entry.
+
+      Signed-off-by: Xiangjing Li <xiangli@redhat.com>
+      Co-authored-by: Cursor <cursoragent@cursor.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/multicloud-integrations/commit/5d3d1868172c1a54b24a88781d07a2ae2b75946c
+    pac.test.appstudio.openshift.io/source-branch: refs/heads/main
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multicloud-integrations
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: search-v2-api
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-05-21T03:02:14Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-50-release-acm-50-20260521-025143-000-r1":{"lastUpdateTime":"2026-05-21T03:03:07.491632027Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: multicloud-integrations
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-05-21T12:44:22Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-50-release-acm-50-20260521-123320-000":{"lastUpdateTime":"2026-05-21T12:45:17.671997615Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1779331903000"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1779366800000"
     test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/search-v2-api
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-50","status":"BuildPLRInProgress","lastUpdateTime":"2026-05-21T03:03:07.491632027Z","details":"Integration
-      test passed with warnings","startTime":"2026-05-21T03:02:15.068635136Z","completionTime":"2026-05-21T03:03:07.491632027Z","testPipelineRunName":"enterprise-contract-acm-50-xh8pf"}]'
-  creationTimestamp: "2026-05-21T03:02:14Z"
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multicloud-integrations
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-50","status":"BuildPLRInProgress","lastUpdateTime":"2026-05-21T12:45:17.671997615Z","details":"Integration
+      test passed with warnings","startTime":"2026-05-21T12:44:22.597364404Z","completionTime":"2026-05-21T12:45:17.671997615Z","testPipelineRunName":"enterprise-contract-acm-50-n9rsn"}]'
+  creationTimestamp: "2026-05-21T12:44:22Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-50
-    appstudio.openshift.io/build-pipelinerun: search-v2-api-acm-50-on-push-x4lvq
-    appstudio.openshift.io/component: search-v2-api-acm-50
+    appstudio.openshift.io/build-pipelinerun: multicloud-integrations-acm-50-on-push-bp5f6
+    appstudio.openshift.io/component: multicloud-integrations-acm-50
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "77095384847"
+    pac.test.appstudio.openshift.io/check-run-id: "77173646534"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: search-v2-api-acm-50-on-push
-    pac.test.appstudio.openshift.io/pull-request: "724"
-    pac.test.appstudio.openshift.io/repository: search-v2-api-acm-210
-    pac.test.appstudio.openshift.io/sha: 41c3145eae812b34c3fd7cb13b1f2d8e049cdc95
+    pac.test.appstudio.openshift.io/original-prname: multicloud-integrations-acm-50-on-push
+    pac.test.appstudio.openshift.io/pull-request: "529"
+    pac.test.appstudio.openshift.io/repository: multicloud-integrations-acm-210
+    pac.test.appstudio.openshift.io/sha: 5d3d1868172c1a54b24a88781d07a2ae2b75946c
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: search-v2-api
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1779332527"
+    pac.test.appstudio.openshift.io/url-repository: multicloud-integrations
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1779367457"
     test.appstudio.openshift.io/type: component
-  name: release-acm-50-20260521-025143-000-r1
+  name: release-acm-50-20260521-123320-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -71,49 +99,13 @@ metadata:
     kind: Application
     name: release-acm-50
     uid: 95420e61-ff03-40c3-a8b9-47011873be13
-  resourceVersion: "8931072053"
-  uid: d2fdfb7b-cabd-4122-a133-74d8382c7856
+  resourceVersion: "8938560900"
+  uid: 31fbf0ba-8480-4093-a258-87d1a7a9211e
 spec:
   application: release-acm-50
   artifacts: {}
   componentGroup: ""
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-50@sha256:8cfa2ffad632bff3704bdd4b25948cfb9e7ab6f3306c67bf60bbbbb2576b6b59
-    name: console-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.acm.konflux
-        revision: 2e3aaf23ae749747c0371d7867d39b507b79d5d4
-        url: https://github.com/stolostron/console
-    version: ""
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/observatorium-acm-50@sha256:a5e0739d6b20c8b044986418e7fd21020e3a75c896b3b333f28910fefc7650b8
-    name: observatorium-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 26c7313ea1b3854cb9cf2966b8134567cbcfdf84
-        url: https://github.com/stolostron/observatorium
-    version: ""
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-acm-50@sha256:72cabb19f08537c73d5dad160937cb166d82db192e122a14b23decc0bdb7eee8
-    name: prometheus-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 5367cfa241cb65c250682510d2d2f3ae13176943
-        url: https://github.com/stolostron/prometheus
-    version: ""
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-50@sha256:84654f4325bfd57950b87f5ca893b2ccf856d867365e92fad407361f49be6e43
-    name: search-indexer-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: ed286b9f7bf50f86c52cb49531c3fdac9defbcd1
-        url: https://github.com/stolostron/search-indexer
-    version: ""
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-50@sha256:b80b80e859fc4607d4ff07899af0ba66f2c4cfa5b388a714e05f23b1567943a3
     name: mtv-integrations-acm-50
     source:
@@ -181,6 +173,8 @@ spec:
     name: search-v2-api-acm-50
     source:
       git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
         revision: 41c3145eae812b34c3fd7cb13b1f2d8e049cdc95
         url: https://github.com/stolostron/search-v2-api
     version: ""
@@ -346,13 +340,11 @@ spec:
         revision: a7d784451e932c2ca8c6baa8c7eaf51fec887beb
         url: https://github.com/stolostron/memcached_exporter
     version: ""
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicloud-integrations-acm-50@sha256:d203f4375ddaedc2c1123a8dabed387065649490747c84c06ed48434014ef135
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicloud-integrations-acm-50@sha256:4cb19e3c195892f2d9db4d3481e778d88080924d7dd4489078e38893884e16d5
     name: multicloud-integrations-acm-50
     source:
       git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 84a97966ad4150508417e12dc96f86fa46778122
+        revision: 5d3d1868172c1a54b24a88781d07a2ae2b75946c
         url: https://github.com/stolostron/multicloud-integrations
     version: ""
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/siteconfig-acm-50@sha256:afb1d7d5eab51b2d5038bc33fcc87b4b8f2ca6705696e30921eb7bc5f4f6eb85
@@ -490,20 +482,56 @@ spec:
         revision: ba9b693726490e9b840d1c5cc1bc6c3d584b69b4
         url: https://github.com/stolostron/submariner-addon
     version: ""
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-50@sha256:8cfa2ffad632bff3704bdd4b25948cfb9e7ab6f3306c67bf60bbbbb2576b6b59
+    name: console-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.acm.konflux
+        revision: 2e3aaf23ae749747c0371d7867d39b507b79d5d4
+        url: https://github.com/stolostron/console
+    version: ""
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/observatorium-acm-50@sha256:a5e0739d6b20c8b044986418e7fd21020e3a75c896b3b333f28910fefc7650b8
+    name: observatorium-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 26c7313ea1b3854cb9cf2966b8134567cbcfdf84
+        url: https://github.com/stolostron/observatorium
+    version: ""
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-acm-50@sha256:72cabb19f08537c73d5dad160937cb166d82db192e122a14b23decc0bdb7eee8
+    name: prometheus-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 5367cfa241cb65c250682510d2d2f3ae13176943
+        url: https://github.com/stolostron/prometheus
+    version: ""
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-50@sha256:84654f4325bfd57950b87f5ca893b2ccf856d867365e92fad407361f49be6e43
+    name: search-indexer-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: ed286b9f7bf50f86c52cb49531c3fdac9defbcd1
+        url: https://github.com/stolostron/search-indexer
+    version: ""
 status:
   conditions:
-  - lastTransitionTime: "2026-05-21T03:03:08Z"
+  - lastTransitionTime: "2026-05-21T12:45:21Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-05-21T03:03:08Z"
+  - lastTransitionTime: "2026-05-21T12:45:21Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-05-21T03:03:08Z"
+  - lastTransitionTime: "2026-05-21T12:45:21Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
