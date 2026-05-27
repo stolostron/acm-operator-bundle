@@ -54,7 +54,7 @@ def load_previous_scan_results(previous_reports_dir, version):
         if filename.startswith(f"{version}_") and filename.endswith("_grype.json"):
             image_key = filename.replace(f"{version}_", "").replace("_grype.json", "")
 
-            cve_data = parse_grype_json(json_file)
+            cve_data = parse_grype_json(json_file, filter_unfixable=False)
             if cve_data:
                 previous_results[image_key] = cve_data
 
@@ -179,8 +179,13 @@ def parse_cve_summary(summary_file):
     return results, total_scanned, total_failed
 
 
-def parse_grype_json(json_file):
-    """Parse Grype JSON output to count CVEs by severity"""
+def parse_grype_json(json_file, filter_unfixable=False):
+    """Parse Grype JSON output to count CVEs by severity
+
+    Args:
+        json_file: Path to Grype JSON report
+        filter_unfixable: If True, exclude CVEs with no fix available
+    """
     try:
         with open(json_file, 'r') as f:
             data = json.load(f)
@@ -221,6 +226,9 @@ def parse_grype_json(json_file):
                 has_fix += 1
             else:
                 no_fix += 1
+                # Skip non-fixable CVEs if filter enabled
+                if filter_unfixable:
+                    continue
 
             if severity == 'CRITICAL':
                 critical += 1
@@ -732,6 +740,7 @@ def main():
     format_type = os.getenv('SLACK_FORMAT', 'summary')  # summary or detailed
     use_threading = os.getenv('SLACK_USE_THREADING', 'true').lower() == 'true'
     previous_reports_dir = os.getenv('PREVIOUS_REPORTS_DIR', None)  # Optional: path to previous scan reports
+    filter_unfixable = os.getenv('FILTER_UNFIXABLE', 'false').lower() == 'true'  # Filter out non-fixable CVEs
 
     # Determine mode: threaded (bot token) or webhook
     if bot_token and channel and use_threading:
@@ -793,7 +802,7 @@ def main():
             txt_report = reports_path / f"{version}_{image_key}_grype.txt"
         
         if json_report.exists():
-            cve_count = parse_grype_json(json_report)
+            cve_count = parse_grype_json(json_report, filter_unfixable=filter_unfixable)
             if cve_count:
                 results.append({
                     'image': image_key,
