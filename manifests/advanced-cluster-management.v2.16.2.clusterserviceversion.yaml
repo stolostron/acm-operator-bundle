@@ -8,7 +8,7 @@ metadata:
     categories: Integration & Delivery
     certified: 'true'
     support: Red Hat
-    createdAt: '2026-05-30T05:22:09Z'
+    createdAt: '2026-06-02T05:40:15Z'
     description: Advanced provisioning and management of OpenShift and Kubernetes clusters
     operatorframework.io/suggested-namespace: open-cluster-management
     operatorframework.io/initialization-resource: '{"apiVersion":"operator.open-cluster-management.io/v1",
@@ -30,7 +30,7 @@ metadata:
     features.operators.openshift.io/token-auth-gcp: 'false'
     olm.properties: '[{"type": "olm.maxOpenShiftVersion", "value": "4.22"}]'
     olm.skipRange: '>=2.15.0 <2.16.2'
-    operators.openshift.io/must-gather-image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:eadd753b6cf9d166a0b117da8cda521bdf3185d17ae7bdea82f432362e84f690
+    operators.openshift.io/must-gather-image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:1ab4d5d8ca0026fde9daab17db6a95919e16996907a67667a4bc5cacc11b9bba
   name: advanced-cluster-management.v2.16.2
   namespace: placeholder
   labels:
@@ -1907,7 +1907,7 @@ spec:
                 - name: OPERAND_IMAGE_ACM_CLI
                   value: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:b16f64db2df4a9a9c30bccc98516d6ee54f9407b7d1d1d0123d413ead2707a98
                 - name: OPERAND_IMAGE_ACM_MUST_GATHER
-                  value: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:eadd753b6cf9d166a0b117da8cda521bdf3185d17ae7bdea82f432362e84f690
+                  value: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:1ab4d5d8ca0026fde9daab17db6a95919e16996907a67667a4bc5cacc11b9bba
                 - name: OPERAND_IMAGE_CERT_POLICY_CONTROLLER
                   value: registry.redhat.io/rhacm2/cert-policy-controller-rhel9@sha256:2cc22f637e875597642d9361515d56e1db597298cb94897a3c214df8a2ec2979
                 - name: OPERAND_IMAGE_CLUSTER_BACKUP_CONTROLLER
@@ -2081,12 +2081,14 @@ spec:
                 secret:
                   defaultMode: 420
                   secretName: multiclusterhub-operator-webhook
-  replaces: advanced-cluster-management.v2.16.1
+  replaces: advanced-cluster-management.v2.16.0
+  skips:
+  - advanced-cluster-management.v2.16.1
   relatedImages:
   - name: acm_cli
     image: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:b16f64db2df4a9a9c30bccc98516d6ee54f9407b7d1d1d0123d413ead2707a98
   - name: acm_must_gather
-    image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:eadd753b6cf9d166a0b117da8cda521bdf3185d17ae7bdea82f432362e84f690
+    image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:1ab4d5d8ca0026fde9daab17db6a95919e16996907a67667a4bc5cacc11b9bba
   - name: cert_policy_controller
     image: registry.redhat.io/rhacm2/cert-policy-controller-rhel9@sha256:2cc22f637e875597642d9361515d56e1db597298cb94897a3c214df8a2ec2979
   - name: cluster_backup_controller
