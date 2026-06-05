@@ -1,0 +1,161 @@
+name: Sync Release Version Mapping from Branches
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    # Run every Monday at 10:00 UTC
+    - cron: '0 10 * * 1'
+
+jobs:
+  check-versions:
+    runs-on: ubuntu-latest
+    outputs:
+      needs-update: ${{ steps.check.outputs.needs-update }}
+      updates: ${{ steps.check.outputs.updates }}
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Check all release branches
+        id: check
+        run: |
+          set -e
+
+          # Read current mappings
+          NEEDS_UPDATE=false
+          UPDATES=""
+
+          # Define branches to check (match update-release-versions.yaml)
+          BRANCHES=(
+            "release-2.11"
+            "release-2.12"
+            "release-2.13"
+            "release-2.14"
+            "release-2.15"
+            "release-2.16"
+            "release-2.17"
+            "release-5.0"
+          )
+
+          for BRANCH in "${BRANCHES[@]}"; do
+            echo "Checking $BRANCH..."
+
+            # Get mapped version from main
+            MAPPED_VERSION=$(yq eval ".release_mappings[\"$BRANCH\"]" .github/release-version-mapping.yaml)
+
+            # Fetch and checkout the release branch
+            git fetch origin "$BRANCH:$BRANCH" 2>/dev/null || {
+              echo "Branch $BRANCH not found, skipping"
+              continue
+            }
+            git checkout "$BRANCH"
+
+            # Read Z_RELEASE_VERSION from branch
+            if [[ ! -f "Z_RELEASE_VERSION" ]]; then
+              echo "No Z_RELEASE_VERSION file in $BRANCH, skipping"
+              git checkout main
+              continue
+            fi
+
+            BRANCH_VERSION=$(cat Z_RELEASE_VERSION | tr -d '\n\r')
+
+            echo "  Mapping: $MAPPED_VERSION"
+            echo "  Branch:  $BRANCH_VERSION"
+
+            # Compare versions (simple string comparison since format is X.Y.Z)
+            if [[ "$BRANCH_VERSION" != "$MAPPED_VERSION" ]]; then
+              # Sort versions to check if branch is newer
+              NEWER=$(printf '%s\n%s' "$MAPPED_VERSION" "$BRANCH_VERSION" | sort -V | tail -1)
+
+              if [[ "$NEWER" == "$BRANCH_VERSION" ]]; then
+                echo "  ⚠️  Branch version is newer! Needs update."
+                NEEDS_UPDATE=true
+                UPDATES="${UPDATES}${BRANCH}=${BRANCH_VERSION},"
+              else
+                echo "  ℹ️  Mapped version is newer (branch may be stale)"
+              fi
+            else
+              echo "  ✓ Versions match"
+            fi
+
+            git checkout main
+          done
+
+          # Remove trailing comma
+          UPDATES="${UPDATES%,}"
+
+          echo "needs-update=$NEEDS_UPDATE" >> $GITHUB_OUTPUT
+          echo "updates=$UPDATES" >> $GITHUB_OUTPUT
+
+          if [[ "$NEEDS_UPDATE" == "true" ]]; then
+            echo "Updates needed: $UPDATES"
+          else
+            echo "All versions are in sync"
+          fi
+
+  update-mapping:
+    needs: check-versions
+    if: needs.check-versions.outputs.needs-update == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Apply updates to mapping file
+        run: |
+          set -e
+
+          UPDATES="${{ needs.check-versions.outputs.updates }}"
+          IFS=',' read -ra UPDATE_ARRAY <<< "$UPDATES"
+
+          echo "Applying updates to release-version-mapping.yaml:"
+
+          for UPDATE in "${UPDATE_ARRAY[@]}"; do
+            BRANCH="${UPDATE%=*}"
+            VERSION="${UPDATE#*=}"
+
+            echo "  $BRANCH: $VERSION"
+
+            # Update the YAML file using yq
+            yq eval -i ".release_mappings[\"$BRANCH\"] = \"$VERSION\"" .github/release-version-mapping.yaml
+          done
+
+          echo ""
+          echo "Updated mapping file:"
+          cat .github/release-version-mapping.yaml
+
+      - name: Generate GitHub token for workflow actions
+        id: gen-workflow-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.WORKFLOW_BOT_APP_ID }}
+          private-key: ${{ secrets.WORKFLOW_BOT_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: "sync-release-version-mapping"
+          base: "main"
+          delete-branch: true
+          title: "Sync release-version-mapping.yaml from release branches"
+          body: |
+            This PR syncs the release version mapping file with the actual versions in release branches.
+
+            **Updated versions:**
+            ```
+            ${{ needs.check-versions.outputs.updates }}
+            ```
+
+            This change was automatically detected by the sync-release-version-mapping workflow.
+            The mapping file is updated when a release branch has a newer version than what's currently mapped.
+          author: ${{ vars.WORKFLOW_BOT_GIT_USER || 'github-actions[bot]' }} <${{ vars.WORKFLOW_BOT_GIT_USER || 'github-actions[bot]' }}@users.noreply.github.com>
+          token: ${{ steps.gen-workflow-token.outputs.token }}
