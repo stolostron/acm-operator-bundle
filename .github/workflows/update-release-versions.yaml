@@ -50,19 +50,28 @@ jobs:
           if [[ -f "Z_RELEASE_VERSION" ]]; then
             CURRENT_VERSION=$(cat Z_RELEASE_VERSION | tr -d '\n\r')
           fi
-          
+
           MAPPED_VERSION="${{ steps.parse-mapping.outputs.mapped-version }}"
-          
+
           echo "Current version in ${{ matrix.branch }}: '$CURRENT_VERSION'"
           echo "Mapped version from main: '$MAPPED_VERSION'"
-          
-          if [[ "$CURRENT_VERSION" != "$MAPPED_VERSION" ]]; then
-            echo "Updating Z_RELEASE_VERSION from '$CURRENT_VERSION' to '$MAPPED_VERSION'"
-            echo "$MAPPED_VERSION" > Z_RELEASE_VERSION
-            echo "version-updated=true" >> $GITHUB_ENV
-          else
-            echo "Version is already up to date"
+
+          if [[ "$CURRENT_VERSION" == "$MAPPED_VERSION" ]]; then
+            echo "✓ Version is already up to date"
             echo "version-updated=false" >> $GITHUB_ENV
+          else
+            # Check version ordering - only update if mapping is newer
+            NEWER=$(printf '%s\n%s' "$CURRENT_VERSION" "$MAPPED_VERSION" | sort -V | tail -1)
+
+            if [[ "$NEWER" == "$MAPPED_VERSION" ]]; then
+              echo "✓ Updating Z_RELEASE_VERSION from '$CURRENT_VERSION' to '$MAPPED_VERSION' (forward sync)"
+              echo "$MAPPED_VERSION" > Z_RELEASE_VERSION
+              echo "version-updated=true" >> $GITHUB_ENV
+            else
+              echo "ℹ️  Branch version ($CURRENT_VERSION) is newer than mapping ($MAPPED_VERSION)"
+              echo "ℹ️  Skipping update - sync-release-version-mapping workflow will update main instead"
+              echo "version-updated=false" >> $GITHUB_ENV
+            fi
           fi
 
       - name: Generate GitHub token for workflow actions
