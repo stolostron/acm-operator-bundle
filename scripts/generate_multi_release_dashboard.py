@@ -1090,7 +1090,7 @@ def generate_release_tab_content(release, history, extras_metadata=None):
                 {''.join(external_rows)}
             </tbody>
         </table>
-        {'<button class="show-all-btn" onclick="toggleShowAll(\'' + tab_id + '\', \'external\')">Show All External (' + str(len(external_components)) + ' total)</button>' if len(external_components) > 15 else ''}
+        {f'<button class="show-all-btn" onclick="toggleShowAll({chr(39)}{tab_id}{chr(39)}, {chr(39)}external{chr(39)})">Show All External ({len(external_components)} total)</button>' if len(external_components) > 15 else ''}
 
         {generate_fixed_cves_section(latest_scan, tab_id)}
     </div>"""
