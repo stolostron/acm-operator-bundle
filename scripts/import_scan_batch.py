@@ -36,8 +36,13 @@ def aggregate_scan_results(json_dir):
     all_cve_details = []
 
     for grype_file in grype_files:
-        # Extract component name from filename
-        component_name = grype_file.stem.replace('_grype', '').split('_', 1)[1] if '_' in grype_file.stem else grype_file.stem
+        # Extract component name from filename (safe split)
+        stem = grype_file.stem.replace('_grype', '')
+        if '_' in stem:
+            parts = stem.split('_', 1)
+            component_name = parts[1] if len(parts) > 1 else stem
+        else:
+            component_name = stem
 
         try:
             with open(grype_file, 'r') as f:
