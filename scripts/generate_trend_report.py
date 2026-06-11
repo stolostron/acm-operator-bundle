@@ -443,7 +443,6 @@ def generate_component_rows(latest_scan, extras_metadata=None):
         if extras_metadata and component in extras_metadata:
             meta = extras_metadata[component]
             if meta.get('commit_url'):
-                git_repo = meta['git_url'].split('/')[-1] if meta.get('git_url') else 'repo'
                 commit_short = meta['git_revision'][:7] if meta.get('git_revision') else ''
                 component_display = f'<a href="{meta["commit_url"]}" target="_blank" style="text-decoration: none; color: #0366d6;">{component}</a> <span style="color: #666; font-size: 0.85em;">({commit_short})</span>'
 

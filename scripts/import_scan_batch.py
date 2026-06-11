@@ -61,7 +61,6 @@ def aggregate_scan_results(json_dir):
 
         for match in matches:
             vuln = match.get('vulnerability', {})
-            artifact = match.get('artifact', {})
 
             cve_id = vuln.get('id', 'UNKNOWN')
             severity = vuln.get('severity', 'UNKNOWN').upper()
