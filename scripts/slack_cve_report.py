@@ -356,12 +356,24 @@ def create_slack_message(version, results, format_type='summary', image_details=
         github_repository = os.getenv('GITHUB_REPOSITORY')
         if github_run_id and github_repository:
             artifacts_url = f"https://github.com/{github_repository}/actions/runs/{github_run_id}"
+
+            # Check if trend dashboard exists (filename is {release}-dashboard.html)
+            reports_dir = os.getenv('REPORTS_DIR', 'reports')
+            trends_dir = Path(reports_dir) / 'trends'
+            # Extract release from version (e.g., "2.17.0" -> "release-2.17")
+            release = f"release-{'.'.join(version.split('.')[:2])}"
+            trend_dashboard = trends_dir / f"{release}-dashboard.html"
+
+            link_text = f"📊 <{artifacts_url}|View detailed reports in workflow artifacts>"
+            if trend_dashboard.exists():
+                link_text += " | 📈 Trend dashboard included"
+
             blocks.append({"type": "divider"})
             blocks.append({
                 "type": "context",
                 "elements": [{
                     "type": "mrkdwn",
-                    "text": f"📊 <{artifacts_url}|View detailed reports in workflow artifacts>"
+                    "text": link_text
                 }]
             })
 
