@@ -5,7 +5,7 @@ import argparse
 import json
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from rich.console import Console
@@ -20,7 +20,7 @@ def load_history(history_file):
             "release": None,
             "scans": [],
             "metadata": {
-                "created": datetime.utcnow().isoformat() + "Z",
+                "created": datetime.now(timezone.utc).isoformat() + "Z",
                 "last_updated": None,
                 "scan_frequency": "weekly",
                 "retention_weeks": 26,
@@ -31,7 +31,7 @@ def load_history(history_file):
     try:
         with open(history_file, 'r') as f:
             return json.load(f)
-    except Exception as e:
+    except (OSError, json.JSONDecodeError) as e:
         console.print(f"[red]Error loading history file: {e}[/red]")
         sys.exit(1)
 
@@ -164,7 +164,7 @@ def prune_old_scans(history, retention_weeks=None, max_scans=None):
 
     # Then apply time-based retention (if specified)
     if retention_weeks:
-        cutoff = datetime.utcnow().timestamp() - (retention_weeks * 7 * 24 * 60 * 60)
+        cutoff = datetime.now(timezone.utc).timestamp() - (retention_weeks * 7 * 24 * 60 * 60)
         history['scans'] = [
             scan for scan in history['scans']
             if datetime.fromisoformat(scan['timestamp'].replace('Z', '')).timestamp() > cutoff
@@ -218,7 +218,7 @@ def main():
     try:
         with open(scan_report_path, 'r') as f:
             scan_report = json.load(f)
-    except Exception as e:
+    except (OSError, json.JSONDecodeError) as e:
         console.print(f"[red]Error loading scan report: {e}[/red]")
         sys.exit(1)
 
@@ -244,7 +244,7 @@ def main():
 
     # Create scan record
     scan_record = {
-        'timestamp': datetime.utcnow().isoformat() + 'Z',
+        'timestamp': datetime.now(timezone.utc).isoformat() + 'Z',
         'scan_report_path': str(scan_report_path),
         'github_run_id': args.github_run_id or os.environ.get('GITHUB_RUN_ID'),
         'summary': {
@@ -259,7 +259,7 @@ def main():
 
     # Append to history
     history['scans'].append(scan_record)
-    history['metadata']['last_updated'] = datetime.utcnow().isoformat() + 'Z'
+    history['metadata']['last_updated'] = datetime.now(timezone.utc).isoformat() + 'Z'
 
     # Prune old scans
     retention_weeks = history['metadata'].get('retention_weeks', 26)
@@ -271,7 +271,7 @@ def main():
         with open(history_file, 'w') as f:
             json.dump(history, f, indent=2)
         console.print(f"[green]✓ Scan results stored: {history_file}[/green]")
-    except Exception as e:
+    except (OSError, json.JSONDecodeError) as e:
         console.print(f"[red]Error saving history: {e}[/red]")
         sys.exit(1)
 

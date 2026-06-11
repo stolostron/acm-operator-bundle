@@ -24,7 +24,7 @@ def load_history(history_file):
     try:
         with open(history_file, 'r') as f:
             return json.load(f)
-    except Exception as e:
+    except (OSError, json.JSONDecodeError) as e:
         console.print(f"[red]Error loading history: {e}[/red]")
         sys.exit(1)
 
@@ -48,7 +48,7 @@ def format_timestamp(timestamp_str):
     try:
         dt = datetime.fromisoformat(timestamp_str.replace('Z', ''))
         return dt.strftime('%Y-%m-%d')
-    except:
+    except (ValueError, AttributeError):
         return timestamp_str
 
 

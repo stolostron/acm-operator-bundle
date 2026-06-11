@@ -4,7 +4,7 @@
 import argparse
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from rich.console import Console
@@ -136,7 +136,7 @@ def main():
             "release": args.release,
             "scans": [],
             "metadata": {
-                "created": datetime.utcnow().isoformat() + "Z",
+                "created": datetime.now(timezone.utc).isoformat() + "Z",
                 "last_updated": None,
                 "scan_frequency": "weekly",
                 "retention_weeks": 26
@@ -177,7 +177,7 @@ def main():
 
     # Create scan record
     scan_record = {
-        'timestamp': args.timestamp or (datetime.utcnow().isoformat() + 'Z'),
+        'timestamp': args.timestamp or (datetime.now(timezone.utc).isoformat() + 'Z'),
         'json_dir': args.json_dir,
         'github_run_id': args.github_run_id,
         'summary': {
@@ -193,7 +193,7 @@ def main():
 
     # Append to history
     history['scans'].append(scan_record)
-    history['metadata']['last_updated'] = datetime.utcnow().isoformat() + 'Z'
+    history['metadata']['last_updated'] = datetime.now(timezone.utc).isoformat() + 'Z'
 
     # Save history
     with open(history_file, 'w') as f:

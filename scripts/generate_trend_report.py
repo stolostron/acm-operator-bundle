@@ -374,7 +374,7 @@ def format_timestamp(timestamp_str):
     try:
         dt = datetime.fromisoformat(timestamp_str.replace('Z', ''))
         return dt.strftime('%Y-%m-%d %H:%M UTC')
-    except:
+    except (ValueError, AttributeError):
         return timestamp_str
 
 
@@ -383,7 +383,7 @@ def format_date_short(timestamp_str):
     try:
         dt = datetime.fromisoformat(timestamp_str.replace('Z', ''))
         return dt.strftime('%m/%d')
-    except:
+    except (ValueError, AttributeError):
         return timestamp_str
 
 
@@ -654,7 +654,7 @@ def main():
     try:
         with open(history_file, 'r') as f:
             history = json.load(f)
-    except Exception as e:
+    except (OSError, json.JSONDecodeError) as e:
         console.print(f"[red]Error loading history: {e}[/red]")
         sys.exit(1)
 
@@ -706,7 +706,7 @@ def main():
         with open(output_path, 'w') as f:
             f.write(html)
         console.print(f"[green]✓ Dashboard generated: {output_path}[/green]")
-    except Exception as e:
+    except (OSError, PermissionError) as e:
         console.print(f"[red]Error writing HTML: {e}[/red]")
         sys.exit(1)
 

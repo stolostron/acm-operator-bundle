@@ -4,7 +4,7 @@
 import argparse
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from rich.console import Console
@@ -802,7 +802,7 @@ def format_timestamp(timestamp_str):
     try:
         dt = datetime.fromisoformat(timestamp_str.replace('Z', ''))
         return dt.strftime('%Y-%m-%d %H:%M UTC')
-    except:
+    except (ValueError, AttributeError):
         return timestamp_str
 
 
@@ -811,7 +811,7 @@ def format_date_short(timestamp_str):
     try:
         dt = datetime.fromisoformat(timestamp_str.replace('Z', ''))
         return dt.strftime('%m/%d')
-    except:
+    except (ValueError, AttributeError):
         return timestamp_str
 
 
@@ -825,7 +825,7 @@ def load_release_history(trends_dir, release):
     try:
         with open(history_file, 'r') as f:
             return json.load(f)
-    except:
+    except (ValueError, AttributeError):
         return None
 
 
@@ -1442,7 +1442,7 @@ def main():
 
     # Generate final HTML
     html = HTML_TEMPLATE.format(
-        timestamp=datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC'),
+        timestamp=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC'),
         tab_buttons=tab_buttons,
         tab_contents=tab_contents,
         comparison_cards=comparison_cards,
@@ -1463,7 +1463,7 @@ def main():
         with open(output_path, 'w') as f:
             f.write(html)
         console.print(f"[green]✓ Multi-release dashboard generated: {output_path}[/green]")
-    except Exception as e:
+    except (OSError, PermissionError) as e:
         console.print(f"[red]Error writing HTML: {e}[/red]")
         sys.exit(1)
 
