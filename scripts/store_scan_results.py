@@ -201,7 +201,7 @@ def main():
     if not scan_report_path:
         # Look for latest Grype JSON in reports dir (search recursively)
         reports_path = Path(args.reports_dir)
-        json_files = list(reports_path.rglob('*-grype.json'))
+        json_files = list(reports_path.rglob('*_grype.json'))
         if not json_files:
             console.print(f"[red]No Grype JSON reports found in {args.reports_dir}[/red]")
             sys.exit(1)
