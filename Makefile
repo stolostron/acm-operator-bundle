@@ -1,4 +1,4 @@
-.PHONY: help list-images list-images-full check-dummy-shas verify-images verify-images-icsp verify-images-podman verify-images-arm64 verify-images-amd64 verify-images-ppc64le verify-images-s390x verify-images-latest verify-release scan-release scan-cves scan-cves-icsp scan-cves-json scan-cves-json-icsp image-report clean-reports check-tools install-deps all-checks all-checks-latest full-scan make-scripts-executable setup-release
+.PHONY: help list-images list-images-full check-dummy-shas verify-images verify-images-icsp verify-images-podman verify-images-arm64 verify-images-amd64 verify-images-ppc64le verify-images-s390x verify-images-latest verify-release scan-release scan-cves scan-cves-icsp scan-cves-json scan-cves-json-icsp image-report clean-reports check-tools install-deps all-checks all-checks-latest full-scan make-scripts-executable setup-release store-scan-result cve-trends cve-trends-html cve-trends-multi
 
 # Configuration
 export EXTRAS_DIR ?= extras
@@ -34,6 +34,11 @@ help: ## Show this help message
 	@echo "  make scan-cves IMAGE_KEY=multiclusterhub_operator     # Scan single component"
 	@echo "  make scan-cves RELEASE=release-2.17 IMAGE_KEY=...     # Release + component"
 	@echo "  make scan-cves SCAN_SEVERITY=CRITICAL,HIGH,MEDIUM     # Custom severity"
+	@echo ""
+	@echo "CVE trend tracking:"
+	@echo "  make cve-trends RELEASE=release-2.17       # Show trend analysis"
+	@echo "  make cve-trends-html RELEASE=release-2.17  # Generate HTML dashboard"
+	@echo "  make cve-trends-multi                      # Multi-release comparison dashboard"
 
 list-images: ## List all images from extras/*.json files
 	@python3 $(SCRIPTS_DIR)/list_images.py
@@ -85,10 +90,12 @@ scan-cves-icsp: ## Scan images using ICSP registry redirects (text output)
 scan-cves-json: ## Scan images and output results in JSON format
 	$(setup-if-release)
 	@OUTPUT_JSON=true python3 $(SCRIPTS_DIR)/scan_cves.py $(SCAN_ARGS)
+	@$(MAKE) store-scan-result
 
 scan-cves-json-icsp: ## Scan images with ICSP and output JSON (for Slack reports)
 	$(setup-if-release)
 	@ICSP_CONFIG=icsp-config.json OUTPUT_JSON=true python3 $(SCRIPTS_DIR)/scan_cves.py $(SCAN_ARGS)
+	@$(MAKE) store-scan-result
 
 image-report: ## Generate comprehensive image report
 	@python3 $(SCRIPTS_DIR)/image_report.py
@@ -98,6 +105,18 @@ slack-cve-report: ## Send CVE scan summary to Slack (requires SLACK_WEBHOOK_URL)
 
 slack-cve-report-detailed: ## Send detailed CVE report to Slack
 	@SLACK_FORMAT=detailed python3 $(SCRIPTS_DIR)/slack_cve_report.py
+
+store-scan-result: ## Store latest scan results for trend tracking
+	@python3 $(SCRIPTS_DIR)/store_scan_results.py --reports-dir $(REPORTS_DIR) --extras-dir $(EXTRAS_DIR) $(if $(RELEASE),--release $(RELEASE),)
+
+cve-trends: ## Generate CVE trend report (Usage: make cve-trends RELEASE=release-2.17)
+	@python3 $(SCRIPTS_DIR)/cve_trends.py --reports-dir $(REPORTS_DIR) --release $(or $(RELEASE),$(error RELEASE not specified. Use: make cve-trends RELEASE=release-2.17))
+
+cve-trends-html: ## Generate HTML trend dashboard (Usage: make cve-trends-html RELEASE=release-2.17)
+	@python3 $(SCRIPTS_DIR)/generate_trend_report.py --reports-dir $(REPORTS_DIR) --release $(or $(RELEASE),$(error RELEASE not specified. Use: make cve-trends-html RELEASE=release-2.17))
+
+cve-trends-multi: ## Generate multi-release comparison dashboard with tabs
+	@python3 $(SCRIPTS_DIR)/generate_multi_release_dashboard.py --reports-dir $(REPORTS_DIR)
 
 setup-release: ## Set up extras/ from a release branch (Usage: make setup-release RELEASE=release-2.17)
 	@bash $(SCRIPTS_DIR)/setup_release.sh $(RELEASE)
