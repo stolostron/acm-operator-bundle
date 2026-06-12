@@ -261,11 +261,11 @@ def main():
     history_file = trends_dir / f"{release}-history.json"
     history = load_history(history_file)
 
-    # Set release name and version if new history
+    # Set release name and version
     if not history.get('release'):
         history['release'] = release
-    if full_version and not history.get('version'):
-        history['version'] = full_version
+    if full_version:
+        history['version'] = full_version  # Update every scan to track patch versions
 
     # Get previous scan for comparison
     previous_scan = history['scans'][-1]['summary'] if history.get('scans') else None
@@ -281,7 +281,8 @@ def main():
             'total_cves': summary['total_cves'],
             'total_matches': summary['total_matches'],
             'by_severity': summary['by_severity'],
-            'component_breakdown': summary['component_breakdown']
+            'component_breakdown': summary['component_breakdown'],
+            'cve_details': summary['cve_details']
         },
         'new_cves': new_cves,
         'fixed_cves': fixed_cves
