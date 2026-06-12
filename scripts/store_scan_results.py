@@ -281,7 +281,8 @@ def main():
             'total_cves': summary['total_cves'],
             'total_matches': summary['total_matches'],
             'by_severity': summary['by_severity'],
-            'component_breakdown': summary['component_breakdown']
+            'component_breakdown': summary['component_breakdown'],
+            'cve_details': summary['cve_details']
         },
         'new_cves': new_cves,
         'fixed_cves': fixed_cves
