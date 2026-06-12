@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACM CVE Trends - release-2.13</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #d73a49;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .meta {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+        }
+
+        .meta strong {
+            color: #333;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid #e1e4e8;
+        }
+
+        .chart-container h2 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #24292e;
+        }
+
+        canvas {
+            max-height: 300px;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .summary-card.critical {
+            background: linear-gradient(135deg, #d73a49 0%, #cb2431 100%);
+        }
+
+        .summary-card.high {
+            background: linear-gradient(135deg, #f66a0a 0%, #e36209 100%);
+        }
+
+        .summary-card.trend {
+            background: linear-gradient(135deg, #28a745 0%, #22863a 100%);
+        }
+
+        .summary-card h3 {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .summary-card p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .component-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+
+        .component-table th,
+        .component-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e1e4e8;
+        }
+
+        .component-table th {
+            background: #f6f8fa;
+            font-weight: 600;
+            color: #24292e;
+        }
+
+        .component-table tr:hover {
+            background: #f6f8fa;
+        }
+
+        .status-red {
+            background: #ffeef0;
+        }
+
+        .status-yellow {
+            background: #fffdef;
+        }
+
+        .status-green {
+            background: #dcffe4;
+        }
+
+        .severity-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .severity-critical {
+            background: #d73a49;
+            color: white;
+        }
+
+        .severity-high {
+            background: #f66a0a;
+            color: white;
+        }
+
+        .timeline {
+            margin-top: 40px;
+        }
+
+        .timeline h2 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #24292e;
+        }
+
+        .timeline ul {
+            list-style: none;
+            border-left: 2px solid #e1e4e8;
+            padding-left: 20px;
+        }
+
+        .timeline li {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .timeline li::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 6px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #0366d6;
+        }
+
+        .timeline .date {
+            font-weight: 600;
+            color: #0366d6;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 ACM CVE Trend Dashboard</h1>
+        <p class="meta">Release: <strong>release-2.13</strong> | Updated: 2026-06-12 18:44 UTC | Scans: 1</p>
+
+        <div class="summary-cards">
+            <div class="summary-card critical">
+                <h3>669</h3>
+                <p>CRITICAL (instances)</p>
+            </div>
+            <div class="summary-card high">
+                <h3>3285</h3>
+                <p>HIGH (instances)</p>
+            </div>
+            <div class="summary-card">
+                <h3>211</h3>
+                <p>Unique CVEs</p>
+                <p style="font-size: 0.8em; margin-top: 5px; opacity: 0.9;">(3954 instances)</p>
+            </div>
+            <div class="summary-card trend">
+                <h3>—</h3>
+                <p>Week-over-Week</p>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h2>📈 CVE Trend Over Time</h2>
+                <canvas id="trendChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>🔄 New vs Fixed CVEs</h2>
+                <canvas id="deltaChart"></canvas>
+            </div>
+        </div>
+
+        <h2 style="margin-bottom: 15px;">📊 Component Breakdown</h2>
+        <table class="component-table">
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th style="text-align: center;">CRITICAL</th>
+                    <th style="text-align: center;">HIGH</th>
+                    <th style="text-align: center;">Total CVEs</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr class="status-red">
+                    <td><code>origin_cli</code></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">240</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1198</span></td>
+                    <td style="text-align: center;">1438</td>
+                </tr>
+
+                <tr class="status-red">
+                    <td><code>volsync</code></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">79</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">327</span></td>
+                    <td style="text-align: center;">406</td>
+                </tr>
+
+                <tr class="status-red">
+                    <td><code><a href="https://github.com/stolostron/multicloud-operators-subscription/commit/ce0cafc65a0e005c8da0b856b74414c375731082" target="_blank" style="text-decoration: none; color: #0366d6;">multicluster_operators_subscription</a> <span style="color: #666; font-size: 0.85em;">(ce0cafc)</span></code></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">46</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">124</span></td>
+                    <td style="text-align: center;">170</td>
+                </tr>
+
+                <tr class="status-red">
+                    <td><code><a href="https://github.com/stolostron/grafana/commit/0c53718a3caddd58177c86066f78b6e729009f42" target="_blank" style="text-decoration: none; color: #0366d6;">grafana</a> <span style="color: #666; font-size: 0.85em;">(0c53718)</span></code></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">13</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">88</span></td>
+                    <td style="text-align: center;">101</td>
+                </tr>
+
+                <tr class="status-red">
+                    <td><code>ose_kube_rbac_proxy</code></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">13</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">84</span></td>
+                    <td style="text-align: center;">97</td>
+                </tr>
+
+                <tr class="status-red">
+                    <td><code><a href="https://github.com/stolostron/multicloud-integrations/commit/6a9539dca84f41f971c1dd5afa0bae48a3273f31" target="_blank" style="text-decoration: none; color: #0366d6;">multicloud_integrations</a> <span style="color: #666; font-size: 0.85em;">(6a9539d)</span></code></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">12</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">74</span></td>
+                    <td style="text-align: center;">86</td>
+                </tr>
+
+                <tr class="status-yellow">
+                    <td><code>configmap_reloader</code></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">5</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">77</span></td>
+                    <td style="text-align: center;">82</td>
+                </tr>
+
+                <tr class="status-red">
+                    <td><code><a href="https://github.com/stolostron/must-gather/commit/bf601cfe3fe6c7e7d54473847988aac9d4a834eb" target="_blank" style="text-decoration: none; color: #0366d6;">acm_must_gather</a> <span style="color: #666; font-size: 0.85em;">(bf601cf)</span></code></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">11</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">70</span></td>
+                    <td style="text-align: center;">81</td>
+                </tr>
+
+                <tr class="status-yellow">
+                    <td><code>flightctl_ui</code></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">4</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">77</span></td>
+                    <td style="text-align: center;">81</td>
+                </tr>
+
+                <tr class="status-yellow">
+                    <td><code>flightctl_ocp_ui</code></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">4</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">77</span></td>
+                    <td style="text-align: center;">81</td>
+                </tr>
+
+                <tr class="status-red">
+                    <td><code><a href="https://github.com/stolostron/prometheus/commit/6833d804a255b658819dd5e9ce0e826d5b66a2d5" target="_blank" style="text-decoration: none; color: #0366d6;">prometheus</a> <span style="color: #666; font-size: 0.85em;">(6833d80)</span></code></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">20</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">56</span></td>
+                    <td style="text-align: center;">76</td>
+                </tr>
+
+                <tr class="status-red">
+                    <td><code>flightctl_worker</code></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">8</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">57</span></td>
+                    <td style="text-align: center;">65</td>
+                </tr>
+
+                <tr class="status-red">
+                    <td><code>flightctl_periodic</code></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">8</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">57</span></td>
+                    <td style="text-align: center;">65</td>
+                </tr>
+
+                <tr class="status-red">
+                    <td><code>flightctl_api</code></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">9</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">55</span></td>
+                    <td style="text-align: center;">64</td>
+                </tr>
+
+                <tr class="status-red">
+                    <td><code><a href="https://github.com/stolostron/multicluster-observability-operator/commit/f5ef3cca1af0a414e72d6df3dfecc5185a03a324" target="_blank" style="text-decoration: none; color: #0366d6;">endpoint_monitoring_operator</a> <span style="color: #666; font-size: 0.85em;">(f5ef3cc)</span></code></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">16</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">47</span></td>
+                    <td style="text-align: center;">63</td>
+                </tr>
+
+                <tr class="status-red">
+                    <td><code><a href="https://github.com/stolostron/prometheus-alertmanager/commit/6a5fe1df836a0b0f2b01e0157aa33d277544fd30" target="_blank" style="text-decoration: none; color: #0366d6;">prometheus_alertmanager</a> <span style="color: #666; font-size: 0.85em;">(6a5fe1d)</span></code></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">16</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">44</span></td>
+                    <td style="text-align: center;">60</td>
+                </tr>
+
+                <tr class="status-red">
+                    <td><code><a href="https://github.com/stolostron/submariner-addon/commit/ed10a2a9a9b6f9edf74fa838a9e165a7851f6f9b" target="_blank" style="text-decoration: none; color: #0366d6;">submariner_addon</a> <span style="color: #666; font-size: 0.85em;">(ed10a2a)</span></code></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">13</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">44</span></td>
+                    <td style="text-align: center;">57</td>
+                </tr>
+
+                <tr class="status-red">
+                    <td><code><a href="https://github.com/stolostron/thanos/commit/f6549062ed4686d18d5388fb2ef4cc702fd02235" target="_blank" style="text-decoration: none; color: #0366d6;">thanos</a> <span style="color: #666; font-size: 0.85em;">(f654906)</span></code></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">10</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">27</span></td>
+                    <td style="text-align: center;">37</td>
+                </tr>
+
+                <tr class="status-red">
+                    <td><code><a href="https://github.com/stolostron/multicluster-observability-addon/commit/b74af72010f15e9bef346b2a306d6f120272f681" target="_blank" style="text-decoration: none; color: #0366d6;">multicluster_observability_addon</a> <span style="color: #666; font-size: 0.85em;">(b74af72)</span></code></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">10</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">26</span></td>
+                    <td style="text-align: center;">36</td>
+                </tr>
+
+                <tr class="status-red">
+                    <td><code><a href="https://github.com/stolostron/thanos-receive-controller/commit/e74c4cabcb32d158c9a18b289cddac16ff6804c0" target="_blank" style="text-decoration: none; color: #0366d6;">thanos_receive_controller</a> <span style="color: #666; font-size: 0.85em;">(e74c4ca)</span></code></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">10</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">25</span></td>
+                    <td style="text-align: center;">35</td>
+                </tr>
+            </tbody>
+        </table>
+
+        
+        <h2 style="margin: 40px 0 15px 0;">💥 Highest Blast Radius (CVEs affecting most components)</h2>
+        <table class="component-table">
+            <thead>
+                <tr>
+                    <th>CVE ID</th>
+                    <th>Severity</th>
+                    <th style="text-align: center;">Components</th>
+                    <th>Affected Components (preview)</th>
+                    <th style="text-align: center;">Fix Available</th>
+                    <th style="text-align: center;">Fixable</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr>
+                    <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-45447" target="_blank" style="text-decoration: none; color: #0366d6;"><code>CVE-2026-45447</code></a></td>
+                    <td><span class="severity-badge severity-high">HIGH</span></td>
+                    <td style="text-align: center;"><strong style="color: #d73a49;">56</strong></td>
+                    <td style="font-size: 0.9em; color: #666;">ose_kube_rbac_proxy, prometheus, multicluster_operators_channel +53 more</td>
+                    <td style="text-align: center; color: #28a745; font-size: 0.9em;">1:3.5.5-4.el9_8</td>
+                    <td style="text-align: center; color: #28a745; font-weight: bold;">✓</td>
+                </tr>
+                <tr>
+                    <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-39820" target="_blank" style="text-decoration: none; color: #0366d6;"><code>CVE-2026-39820</code></a></td>
+                    <td><span class="severity-badge severity-high">HIGH</span></td>
+                    <td style="text-align: center;"><strong style="color: #d73a49;">52</strong></td>
+                    <td style="font-size: 0.9em; color: #666;">ose_kube_rbac_proxy, prometheus, multicluster_operators_channel +49 more</td>
+                    <td style="text-align: center; color: #28a745; font-size: 0.9em;">1.25.10, 1.26.3</td>
+                    <td style="text-align: center; color: #28a745; font-weight: bold;">✓</td>
+                </tr>
+                <tr>
+                    <td><a href="https://pkg.go.dev/vuln/GO-2026-4986" target="_blank" style="text-decoration: none; color: #0366d6;"><code>GO-2026-4986</code></a></td>
+                    <td><span class="severity-badge severity-high">HIGH</span></td>
+                    <td style="text-align: center;"><strong style="color: #d73a49;">52</strong></td>
+                    <td style="font-size: 0.9em; color: #666;">ose_kube_rbac_proxy, prometheus, multicluster_operators_channel +49 more</td>
+                    <td style="text-align: center; color: #28a745; font-size: 0.9em;">1.25.10, 1.26.3</td>
+                    <td style="text-align: center; color: #28a745; font-weight: bold;">✓</td>
+                </tr>
+                <tr>
+                    <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-42504" target="_blank" style="text-decoration: none; color: #0366d6;"><code>CVE-2026-42504</code></a></td>
+                    <td><span class="severity-badge severity-high">HIGH</span></td>
+                    <td style="text-align: center;"><strong style="color: #d73a49;">52</strong></td>
+                    <td style="font-size: 0.9em; color: #666;">ose_kube_rbac_proxy, prometheus, multicluster_operators_channel +49 more</td>
+                    <td style="text-align: center; color: #28a745; font-size: 0.9em;">1.25.11, 1.26.4</td>
+                    <td style="text-align: center; color: #28a745; font-weight: bold;">✓</td>
+                </tr>
+                <tr>
+                    <td><a href="https://pkg.go.dev/vuln/GO-2026-5038" target="_blank" style="text-decoration: none; color: #0366d6;"><code>GO-2026-5038</code></a></td>
+                    <td><span class="severity-badge severity-high">HIGH</span></td>
+                    <td style="text-align: center;"><strong style="color: #d73a49;">52</strong></td>
+                    <td style="font-size: 0.9em; color: #666;">ose_kube_rbac_proxy, prometheus, multicluster_operators_channel +49 more</td>
+                    <td style="text-align: center; color: #28a745; font-size: 0.9em;">1.25.11, 1.26.4</td>
+                    <td style="text-align: center; color: #28a745; font-weight: bold;">✓</td>
+                </tr>
+                <tr>
+                    <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-42499" target="_blank" style="text-decoration: none; color: #0366d6;"><code>CVE-2026-42499</code></a></td>
+                    <td><span class="severity-badge severity-high">HIGH</span></td>
+                    <td style="text-align: center;"><strong style="color: #d73a49;">52</strong></td>
+                    <td style="font-size: 0.9em; color: #666;">ose_kube_rbac_proxy, prometheus, multicluster_operators_channel +49 more</td>
+                    <td style="text-align: center; color: #28a745; font-size: 0.9em;">1.25.10, 1.26.3</td>
+                    <td style="text-align: center; color: #28a745; font-weight: bold;">✓</td>
+                </tr>
+                <tr>
+                    <td><a href="https://pkg.go.dev/vuln/GO-2026-4977" target="_blank" style="text-decoration: none; color: #0366d6;"><code>GO-2026-4977</code></a></td>
+                    <td><span class="severity-badge severity-high">HIGH</span></td>
+                    <td style="text-align: center;"><strong style="color: #d73a49;">52</strong></td>
+                    <td style="font-size: 0.9em; color: #666;">ose_kube_rbac_proxy, prometheus, multicluster_operators_channel +49 more</td>
+                    <td style="text-align: center; color: #28a745; font-size: 0.9em;">1.25.10, 1.26.3</td>
+                    <td style="text-align: center; color: #28a745; font-weight: bold;">✓</td>
+                </tr>
+                <tr>
+                    <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-39836" target="_blank" style="text-decoration: none; color: #0366d6;"><code>CVE-2026-39836</code></a></td>
+                    <td><span class="severity-badge severity-high">HIGH</span></td>
+                    <td style="text-align: center;"><strong style="color: #d73a49;">52</strong></td>
+                    <td style="font-size: 0.9em; color: #666;">ose_kube_rbac_proxy, prometheus, multicluster_operators_channel +49 more</td>
+                    <td style="text-align: center; color: #28a745; font-size: 0.9em;">1.25.10, 1.26.3</td>
+                    <td style="text-align: center; color: #28a745; font-weight: bold;">✓</td>
+                </tr>
+                <tr>
+                    <td><a href="https://pkg.go.dev/vuln/GO-2026-4971" target="_blank" style="text-decoration: none; color: #0366d6;"><code>GO-2026-4971</code></a></td>
+                    <td><span class="severity-badge severity-high">HIGH</span></td>
+                    <td style="text-align: center;"><strong style="color: #d73a49;">52</strong></td>
+                    <td style="font-size: 0.9em; color: #666;">ose_kube_rbac_proxy, prometheus, multicluster_operators_channel +49 more</td>
+                    <td style="text-align: center; color: #28a745; font-size: 0.9em;">1.25.10, 1.26.3</td>
+                    <td style="text-align: center; color: #28a745; font-weight: bold;">✓</td>
+                </tr>
+                <tr>
+                    <td><a href="https://pkg.go.dev/vuln/GO-2026-4918" target="_blank" style="text-decoration: none; color: #0366d6;"><code>GO-2026-4918</code></a></td>
+                    <td><span class="severity-badge severity-high">HIGH</span></td>
+                    <td style="text-align: center;"><strong style="color: #d73a49;">52</strong></td>
+                    <td style="font-size: 0.9em; color: #666;">ose_kube_rbac_proxy, prometheus, multicluster_operators_channel +49 more</td>
+                    <td style="text-align: center; color: #28a745; font-size: 0.9em;">0.53.0, 1.25.10, 1.26.3</td>
+                    <td style="text-align: center; color: #28a745; font-weight: bold;">✓</td>
+                </tr>
+            </tbody>
+        </table>
+    
+
+        
+
+        
+
+        <div class="timeline">
+            <h2>📅 Recent Activity</h2>
+            <ul>
+                <li>No recent activity</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const chartData = {"labels": ["06/12"], "critical": [669], "high": [3285], "newCves": [0], "fixedCves": [0]};
+
+        // Trend Chart
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: 'CRITICAL',
+                        data: chartData.critical,
+                        borderColor: '#d73a49',
+                        backgroundColor: 'rgba(215, 58, 73, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: 'HIGH',
+                        data: chartData.high,
+                        borderColor: '#f66a0a',
+                        backgroundColor: 'rgba(246, 106, 10, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Delta Chart
+        const deltaCtx = document.getElementById('deltaChart').getContext('2d');
+        new Chart(deltaCtx, {
+            type: 'bar',
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: 'New CVEs',
+                        data: chartData.newCves,
+                        backgroundColor: '#d73a49'
+                    },
+                    {
+                        label: 'Fixed CVEs',
+                        data: chartData.fixedCves,
+                        backgroundColor: '#28a745'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
