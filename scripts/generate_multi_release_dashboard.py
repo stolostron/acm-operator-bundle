@@ -807,10 +807,10 @@ def format_timestamp(timestamp_str):
 
 
 def format_date_short(timestamp_str):
-    """Format ISO timestamp to short date"""
+    """Format ISO timestamp to short date with time"""
     try:
         dt = datetime.fromisoformat(timestamp_str.replace('Z', ''))
-        return dt.strftime('%m/%d')
+        return dt.strftime('%m/%d %H:%M')
     except (ValueError, AttributeError):
         return timestamp_str
 
