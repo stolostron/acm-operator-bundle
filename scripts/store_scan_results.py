@@ -18,6 +18,7 @@ def load_history(history_file):
     if not history_file.exists():
         return {
             "release": None,
+            "version": None,
             "scans": [],
             "metadata": {
                 "created": datetime.now(timezone.utc).isoformat() + "Z",
@@ -136,19 +137,26 @@ def detect_changes(current_scan, previous_scan):
 
 
 def detect_release_from_extras(extras_dir):
-    """Auto-detect release version from extras directory"""
+    """Auto-detect release version from extras directory
+
+    Returns:
+        tuple: (release_name, full_version) e.g., ('release-2.17', '2.17.0')
+    """
     extras_path = Path(extras_dir)
     if not extras_path.exists():
-        return None
+        return None, None
 
     # Look for version pattern in JSON filenames (e.g., 2.17.0.json)
     for json_file in extras_path.glob('*.json'):
         name = json_file.stem
         parts = name.split('.')
-        if len(parts) >= 2 and parts[0].isdigit() and parts[1].isdigit():
-            return f"release-{parts[0]}.{parts[1]}"
+        if len(parts) >= 3 and parts[0].isdigit() and parts[1].isdigit():
+            # Return both release-X.Y and full X.Y.Z
+            release_name = f"release-{parts[0]}.{parts[1]}"
+            full_version = name  # e.g., "2.17.0"
+            return release_name, full_version
 
-    return None
+    return None, None
 
 
 def prune_old_scans(history, retention_weeks=None, max_scans=None):
@@ -188,13 +196,19 @@ def main():
 
     # Detect release if not provided
     release = args.release
+    full_version = None
     if not release:
-        release = detect_release_from_extras(args.extras_dir)
+        release, full_version = detect_release_from_extras(args.extras_dir)
         if not release:
             console.print("[red]Could not auto-detect release. Use --release flag[/red]")
             sys.exit(1)
+    else:
+        # Manual release specified, try to get version from extras
+        _, full_version = detect_release_from_extras(args.extras_dir)
 
     console.print(f"[cyan]Storing scan results for {release}[/cyan]")
+    if full_version:
+        console.print(f"[cyan]Version: {full_version}[/cyan]")
 
     # Find scan report
     scan_report_path = args.scan_report
@@ -232,9 +246,11 @@ def main():
     history_file = trends_dir / f"{release}-history.json"
     history = load_history(history_file)
 
-    # Set release name if new history
+    # Set release name and version if new history
     if not history.get('release'):
         history['release'] = release
+    if full_version and not history.get('version'):
+        history['version'] = full_version
 
     # Get previous scan for comparison
     previous_scan = history['scans'][-1]['summary'] if history.get('scans') else None
