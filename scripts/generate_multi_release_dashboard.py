@@ -778,6 +778,24 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                     showComponentCVEs(component, tabId);
                 }});
             }});
+
+            // Inject unique counts into component tables
+            if (window.componentUniqueCounts) {{
+                Object.keys(window.componentUniqueCounts).forEach(tabId => {{
+                    const counts = window.componentUniqueCounts[tabId];
+                    Object.keys(counts).forEach(component => {{
+                        const uniqueCount = counts[component];
+                        const elemId = 'total-' + tabId + '-' + component.replace(/\\//g, '-');
+                        const elem = document.getElementById(elemId);
+                        if (elem) {{
+                            const totalCount = parseInt(elem.textContent);
+                            if (uniqueCount < totalCount) {{
+                                elem.innerHTML = totalCount + ' <span style="color: #666; font-size: 0.85em;">(' + uniqueCount + ' unique)</span>';
+                            }}
+                        }}
+                    }});
+                }});
+            }}
         }});
 
         function toggleShowAll(tabId, tableType) {{
@@ -938,8 +956,9 @@ def generate_tab_button(release, history=None, is_active=False):
 
 
 def generate_component_cve_data_js(releases, cve_descriptions):
-    """Generate JavaScript data mapping components to their CVEs"""
+    """Generate JavaScript data mapping components to their CVEs and unique counts"""
     component_data = {}
+    component_unique_counts = {}
 
     for release, history in releases.items():
         tab_id = release.replace('.', '').replace('-', '')
@@ -985,13 +1004,17 @@ def generate_component_cve_data_js(releases, cve_descriptions):
                 'fix_display': fix_display
             }
 
+        # Store unique counts for each component
+        unique_counts = {comp: len(cves) for comp, cves in comp_cve_map.items()}
+        component_unique_counts[tab_id] = unique_counts
+
         # Convert dict to list for JSON
         for component in comp_cve_map:
             comp_cve_map[component] = list(comp_cve_map[component].values())
 
         component_data[tab_id] = comp_cve_map
 
-    return f"window.componentCVEData = {json.dumps(component_data)};"
+    return f"window.componentCVEData = {json.dumps(component_data)};\nwindow.componentUniqueCounts = {json.dumps(component_unique_counts)};"
 
 
 def generate_release_tab_content(release, history, extras_metadata=None):
@@ -1057,7 +1080,7 @@ def generate_release_tab_content(release, history, extras_metadata=None):
             meta = extras_metadata[component]
             if meta.get('commit_url'):
                 commit_short = meta['git_revision'][:7] if meta.get('git_revision') else ''
-                component_display = f'<span class="component-link" data-component="{component}" data-tab="{tab_id}">{component}</span> <a href="{meta["commit_url"]}" target="_blank" style="text-decoration: none; color: #666; font-size: 0.85em;">({commit_short})</a>'
+                component_display = f'<span class="component-link" data-component="{component}" data-tab="{tab_id}">{component}</span> <a href="{meta["commit_url"]}" target="_blank" style="color: #0366d6; font-size: 0.85em;">({commit_short})</a>'
             else:
                 component_display = f'<span class="component-link" data-component="{component}" data-tab="{tab_id}">{component}</span>'
         else:
@@ -1071,7 +1094,7 @@ def generate_release_tab_content(release, history, extras_metadata=None):
                     <td>{component_display}</td>
                     <td style="text-align: center;"><span class="severity-badge severity-critical">{critical}</span></td>
                     <td style="text-align: center;"><span class="severity-badge severity-high">{high}</span></td>
-                    <td style="text-align: center;">{total}</td>
+                    <td style="text-align: center;"><span id="total-{tab_id}-{component.replace('/', '-')}">{total}</span></td>
                 </tr>""")
 
     external_rows = []
@@ -1088,7 +1111,7 @@ def generate_release_tab_content(release, history, extras_metadata=None):
                     <td><span class="component-link" data-component="{component}" data-tab="{tab_id}">{component}</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
                     <td style="text-align: center;"><span class="severity-badge severity-critical">{critical}</span></td>
                     <td style="text-align: center;"><span class="severity-badge severity-high">{high}</span></td>
-                    <td style="text-align: center;">{total}</td>
+                    <td style="text-align: center;"><span id="total-{tab_id}-{component.replace('/', '-')}">{total}</span></td>
                 </tr>""")
 
     return f"""
