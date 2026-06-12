@@ -951,12 +951,19 @@ def generate_component_cve_data_js(releases, cve_descriptions):
         latest_scan = scans[-1]
         cve_details = latest_scan.get('summary', {}).get('cve_details', [])
 
-        # Group CVEs by component
+        # Group CVEs by component, dedupe by cve_id
         comp_cve_map = {}
         for detail in cve_details:
             component = detail.get('component')
             cve_id = detail.get('cve_id')
             severity = detail.get('severity', 'UNKNOWN')
+
+            if component not in comp_cve_map:
+                comp_cve_map[component] = {}
+
+            # Skip if already seen this CVE for this component
+            if cve_id in comp_cve_map[component]:
+                continue
 
             desc_data = cve_descriptions.get(cve_id, {})
             cvss_score = desc_data.get('cvss_score')
@@ -970,16 +977,17 @@ def generate_component_cve_data_js(releases, cve_descriptions):
             else:
                 fix_display = f"{fixed_versions[0]} (+{len(fixed_versions)-1} more)"
 
-            if component not in comp_cve_map:
-                comp_cve_map[component] = []
-
-            comp_cve_map[component].append({
+            comp_cve_map[component][cve_id] = {
                 'cve_id': cve_id,
                 'severity': severity,
                 'cvss_score': cvss_score,
                 'description': description,
                 'fix_display': fix_display
-            })
+            }
+
+        # Convert dict to list for JSON
+        for component in comp_cve_map:
+            comp_cve_map[component] = list(comp_cve_map[component].values())
 
         component_data[tab_id] = comp_cve_map
 
