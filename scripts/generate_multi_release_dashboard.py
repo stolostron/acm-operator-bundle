@@ -807,10 +807,10 @@ def format_timestamp(timestamp_str):
 
 
 def format_date_short(timestamp_str):
-    """Format ISO timestamp to short date with time"""
+    """Return ISO timestamp for client-side local timezone conversion"""
     try:
-        dt = datetime.fromisoformat(timestamp_str.replace('Z', ''))
-        return dt.strftime('%m/%d %H:%M')
+        # Return ISO format for JavaScript to convert to local time
+        return timestamp_str
     except (ValueError, AttributeError):
         return timestamp_str
 
@@ -1340,7 +1340,20 @@ def generate_chart_data(release, history):
                     responsive: true,
                     maintainAspectRatio: true,
                     plugins: {{ legend: {{ position: 'bottom' }} }},
-                    scales: {{ y: {{ beginAtZero: true }} }}
+                    scales: {{
+                        x: {{
+                            ticks: {{
+                                callback: function(value, index) {{
+                                    const timestamp = this.getLabelForValue(value);
+                                    const date = new Date(timestamp);
+                                    return (date.getMonth() + 1) + '/' + date.getDate() + ' ' +
+                                           date.getHours().toString().padStart(2, '0') + ':' +
+                                           date.getMinutes().toString().padStart(2, '0');
+                                }}
+                            }}
+                        }},
+                        y: {{ beginAtZero: true }}
+                    }}
                 }}
             }});
         }}
@@ -1368,7 +1381,20 @@ def generate_chart_data(release, history):
                     responsive: true,
                     maintainAspectRatio: true,
                     plugins: {{ legend: {{ position: 'bottom' }} }},
-                    scales: {{ y: {{ beginAtZero: true }} }}
+                    scales: {{
+                        x: {{
+                            ticks: {{
+                                callback: function(value, index) {{
+                                    const timestamp = this.getLabelForValue(value);
+                                    const date = new Date(timestamp);
+                                    return (date.getMonth() + 1) + '/' + date.getDate() + ' ' +
+                                           date.getHours().toString().padStart(2, '0') + ':' +
+                                           date.getMinutes().toString().padStart(2, '0');
+                                }}
+                            }}
+                        }},
+                        y: {{ beginAtZero: true }}
+                    }}
                 }}
             }});
         }}
