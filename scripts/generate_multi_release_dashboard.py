@@ -809,7 +809,9 @@ def format_timestamp(timestamp_str):
 def format_date_short(timestamp_str):
     """Return ISO timestamp for client-side local timezone conversion"""
     try:
-        # Return ISO format for JavaScript to convert to local time
+        # Clean malformed timestamps: remove Z if timezone offset present
+        if '+' in timestamp_str and timestamp_str.endswith('Z'):
+            timestamp_str = timestamp_str[:-1]
         return timestamp_str
     except (ValueError, AttributeError):
         return timestamp_str
