@@ -1074,7 +1074,7 @@ def generate_release_tab_content(release, history, extras_metadata=None):
                 {''.join(internal_rows)}
             </tbody>
         </table>
-        {'<button class="show-all-btn" onclick="toggleShowAll(\'' + tab_id + '\', \'internal\')">Show All Internal (' + str(len(internal_components)) + ' total)</button>' if len(internal_components) > 15 else ''}
+        {f'<button class="show-all-btn" onclick="toggleShowAll({chr(39)}{tab_id}{chr(39)}, {chr(39)}internal{chr(39)})">Show All Internal ({len(internal_components)} total)</button>' if len(internal_components) > 15 else ''}
 
         <h2 style="margin: 40px 0 15px 0;">🌐 External/Upstream Components</h2>
         <table class="component-table" id="externalTable-{tab_id}">
