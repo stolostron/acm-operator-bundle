@@ -1,0 +1,3056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACM CVE Trends - All Releases</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .header .meta {
+            opacity: 0.9;
+            font-size: 0.95em;
+        }
+
+        .tabs {
+            background: white;
+            padding: 0;
+            display: flex;
+            border-bottom: 2px solid #e1e4e8;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1em;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            background: #f6f8fa;
+            color: #333;
+        }
+
+        .tab.active {
+            color: #0366d6;
+            border-bottom-color: #0366d6;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .summary-card.critical {
+            background: linear-gradient(135deg, #d73a49 0%, #cb2431 100%);
+        }
+
+        .summary-card.high {
+            background: linear-gradient(135deg, #f66a0a 0%, #e36209 100%);
+        }
+
+        .summary-card.trend {
+            background: linear-gradient(135deg, #28a745 0%, #22863a 100%);
+        }
+
+        .summary-card.trend.worsening {
+            background: linear-gradient(135deg, #d73a49 0%, #cb2431 100%);
+        }
+
+        .summary-card h3 {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .summary-card p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .chart-container h2 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #24292e;
+        }
+
+        canvas {
+            max-height: 300px;
+        }
+
+        .component-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .component-table th,
+        .component-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e1e4e8;
+        }
+
+        .component-table th {
+            background: #f6f8fa;
+            font-weight: 600;
+            color: #24292e;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 25px;
+        }
+
+        .component-table th:hover {
+            background: #e1e4e8;
+        }
+
+        .component-table th::after {
+            content: '⇅';
+            position: absolute;
+            right: 8px;
+            opacity: 0.3;
+        }
+
+        .component-table th.sort-asc::after {
+            content: '▲';
+            opacity: 1;
+        }
+
+        .component-table th.sort-desc::after {
+            content: '▼';
+            opacity: 1;
+        }
+
+        .component-table tr:hover {
+            background: #f6f8fa;
+        }
+
+        .severity-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .severity-critical {
+            background: #d73a49;
+            color: white;
+        }
+
+        .severity-high {
+            background: #f66a0a;
+            color: white;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .no-data h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .show-all-btn {
+            margin: 15px 0 30px 0;
+            padding: 10px 20px;
+            background: #0366d6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+        }
+
+        .show-all-btn:hover {
+            background: #0256c5;
+        }
+
+        .component-row-hidden {
+            display: none;
+        }
+
+        .cve-tooltip {
+            position: relative;
+            cursor: help;
+        }
+
+        .cve-tooltip .tooltiptext {
+            visibility: hidden;
+            width: 450px;
+            background-color: #24292e;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 15px;
+            position: absolute;
+            z-index: 1000;
+            top: -10px;
+            left: 120%;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.9em;
+            line-height: 1.5;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .cve-tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 20px;
+            right: 100%;
+            margin-top: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent #24292e transparent transparent;
+        }
+
+        .cve-tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #58a6ff;
+        }
+
+        .tooltip-cvss {
+            color: #f85149;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        /* Component drill-down modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 0;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 1000px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .close {
+            color: white;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #ddd;
+        }
+
+        .component-link {
+            cursor: pointer;
+            text-decoration: underline;
+            color: #0366d6;
+        }
+
+        .component-link:hover {
+            color: #0256c5;
+        }
+
+        /* Compare All tab specific styles */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .release-card {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .release-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #24292e;
+        }
+
+        .release-card .stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e1e4e8;
+        }
+
+        .release-card .stat:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔒 ACM CVE Trend Dashboard</h1>
+        <p class="meta">Multi-Release Analysis | Updated: 2026-06-12 03:11 UTC</p>
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" onclick="openTab(event, 'compare-all')">📊 Compare All</button>
+        <button class="tab" onclick="openTab(event, 'release211')">2.11</button>
+<button class="tab" onclick="openTab(event, 'release212')">2.12</button>
+<button class="tab" onclick="openTab(event, 'release213')">2.13</button>
+<button class="tab" onclick="openTab(event, 'release214')">2.14</button>
+<button class="tab" onclick="openTab(event, 'release215')">2.15</button>
+<button class="tab" onclick="openTab(event, 'release216')">2.16</button>
+<button class="tab" onclick="openTab(event, 'release217')">2.17</button>
+<button class="tab" onclick="openTab(event, 'release50')">5.0</button>
+    </div>
+
+    <div id="compare-all" class="tab-content active">
+        <h2 style="margin-bottom: 20px; font-size: 1.8em;">Release Comparison</h2>
+        <div class="comparison-grid">
+            
+        <div class="release-card">
+            <h3>release-2.11</h3>
+            <div class="stat">
+                <span>CRITICAL:</span>
+                <strong style="color: #d73a49;">0</strong>
+            </div>
+            <div class="stat">
+                <span>HIGH:</span>
+                <strong style="color: #f66a0a;">68</strong>
+            </div>
+            <div class="stat">
+                <span>Unique CVEs:</span>
+                <strong>32</strong>
+            </div>
+            <div class="stat">
+                <span>Total instances:</span>
+                <strong style="color: #666;">68</strong>
+            </div>
+            <div class="stat">
+                <span>Scans:</span>
+                <strong>2</strong>
+            </div>
+            <div class="stat">
+                <span>Trend:</span>
+                <span style='color: #666;'>0 →</span>
+            </div>
+        </div>
+
+        <div class="release-card">
+            <h3>release-2.12</h3>
+            <div class="stat">
+                <span>CRITICAL:</span>
+                <strong style="color: #d73a49;">0</strong>
+            </div>
+            <div class="stat">
+                <span>HIGH:</span>
+                <strong style="color: #f66a0a;">47</strong>
+            </div>
+            <div class="stat">
+                <span>Unique CVEs:</span>
+                <strong>24</strong>
+            </div>
+            <div class="stat">
+                <span>Total instances:</span>
+                <strong style="color: #666;">47</strong>
+            </div>
+            <div class="stat">
+                <span>Scans:</span>
+                <strong>2</strong>
+            </div>
+            <div class="stat">
+                <span>Trend:</span>
+                <span style='color: #666;'>0 →</span>
+            </div>
+        </div>
+
+        <div class="release-card">
+            <h3>release-2.13</h3>
+            <div class="stat">
+                <span>CRITICAL:</span>
+                <strong style="color: #d73a49;">79</strong>
+            </div>
+            <div class="stat">
+                <span>HIGH:</span>
+                <strong style="color: #f66a0a;">327</strong>
+            </div>
+            <div class="stat">
+                <span>Unique CVEs:</span>
+                <strong>105</strong>
+            </div>
+            <div class="stat">
+                <span>Total instances:</span>
+                <strong style="color: #666;">406</strong>
+            </div>
+            <div class="stat">
+                <span>Scans:</span>
+                <strong>2</strong>
+            </div>
+            <div class="stat">
+                <span>Trend:</span>
+                <span style='color: #666;'>0 →</span>
+            </div>
+        </div>
+
+        <div class="release-card">
+            <h3>release-2.14</h3>
+            <div class="stat">
+                <span>CRITICAL:</span>
+                <strong style="color: #d73a49;">75</strong>
+            </div>
+            <div class="stat">
+                <span>HIGH:</span>
+                <strong style="color: #f66a0a;">249</strong>
+            </div>
+            <div class="stat">
+                <span>Unique CVEs:</span>
+                <strong>89</strong>
+            </div>
+            <div class="stat">
+                <span>Total instances:</span>
+                <strong style="color: #666;">324</strong>
+            </div>
+            <div class="stat">
+                <span>Scans:</span>
+                <strong>2</strong>
+            </div>
+            <div class="stat">
+                <span>Trend:</span>
+                <span style='color: #666;'>0 →</span>
+            </div>
+        </div>
+
+        <div class="release-card">
+            <h3>release-2.15</h3>
+            <div class="stat">
+                <span>CRITICAL:</span>
+                <strong style="color: #d73a49;">53</strong>
+            </div>
+            <div class="stat">
+                <span>HIGH:</span>
+                <strong style="color: #f66a0a;">135</strong>
+            </div>
+            <div class="stat">
+                <span>Unique CVEs:</span>
+                <strong>59</strong>
+            </div>
+            <div class="stat">
+                <span>Total instances:</span>
+                <strong style="color: #666;">188</strong>
+            </div>
+            <div class="stat">
+                <span>Scans:</span>
+                <strong>2</strong>
+            </div>
+            <div class="stat">
+                <span>Trend:</span>
+                <span style='color: #666;'>0 →</span>
+            </div>
+        </div>
+
+        <div class="release-card">
+            <h3>release-2.16</h3>
+            <div class="stat">
+                <span>CRITICAL:</span>
+                <strong style="color: #d73a49;">53</strong>
+            </div>
+            <div class="stat">
+                <span>HIGH:</span>
+                <strong style="color: #f66a0a;">143</strong>
+            </div>
+            <div class="stat">
+                <span>Unique CVEs:</span>
+                <strong>63</strong>
+            </div>
+            <div class="stat">
+                <span>Total instances:</span>
+                <strong style="color: #666;">196</strong>
+            </div>
+            <div class="stat">
+                <span>Scans:</span>
+                <strong>2</strong>
+            </div>
+            <div class="stat">
+                <span>Trend:</span>
+                <span style='color: #666;'>0 →</span>
+            </div>
+        </div>
+
+        <div class="release-card">
+            <h3>release-2.17</h3>
+            <div class="stat">
+                <span>CRITICAL:</span>
+                <strong style="color: #d73a49;">41</strong>
+            </div>
+            <div class="stat">
+                <span>HIGH:</span>
+                <strong style="color: #f66a0a;">111</strong>
+            </div>
+            <div class="stat">
+                <span>Unique CVEs:</span>
+                <strong>40</strong>
+            </div>
+            <div class="stat">
+                <span>Total instances:</span>
+                <strong style="color: #666;">152</strong>
+            </div>
+            <div class="stat">
+                <span>Scans:</span>
+                <strong>2</strong>
+            </div>
+            <div class="stat">
+                <span>Trend:</span>
+                <span style='color: #666;'>0 →</span>
+            </div>
+        </div>
+
+        <div class="release-card">
+            <h3>release-5.0</h3>
+            <div class="stat">
+                <span>CRITICAL:</span>
+                <strong style="color: #d73a49;">41</strong>
+            </div>
+            <div class="stat">
+                <span>HIGH:</span>
+                <strong style="color: #f66a0a;">111</strong>
+            </div>
+            <div class="stat">
+                <span>Unique CVEs:</span>
+                <strong>40</strong>
+            </div>
+            <div class="stat">
+                <span>Total instances:</span>
+                <strong style="color: #666;">152</strong>
+            </div>
+            <div class="stat">
+                <span>Scans:</span>
+                <strong>2</strong>
+            </div>
+            <div class="stat">
+                <span>Trend:</span>
+                <span style='color: #666;'>0 →</span>
+            </div>
+        </div>
+        </div>
+
+        <div class="chart-container" style="margin-bottom: 30px;">
+            <h2>All Releases - Latest CVE Counts</h2>
+            <canvas id="compareChart"></canvas>
+        </div>
+    </div>
+
+    
+    <div id="release211" class="tab-content">
+        <div class="summary-cards">
+            <div class="summary-card critical">
+                <h3>0</h3>
+                <p>CRITICAL (instances)</p>
+            </div>
+            <div class="summary-card high">
+                <h3>68</h3>
+                <p>HIGH (instances)</p>
+            </div>
+            <div class="summary-card">
+                <h3>32</h3>
+                <p>Unique CVEs</p>
+                <p style="font-size: 0.8em; margin-top: 5px;">(68 instances)</p>
+            </div>
+            <div class="summary-card trend">
+                <h3>0</h3>
+                <p>Week-over-Week</p>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h2>📈 CVE Trend Over Time</h2>
+                <canvas id="trendChart-release211"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>🔄 New vs Fixed CVEs</h2>
+                <canvas id="deltaChart-release211"></canvas>
+            </div>
+        </div>
+
+        
+
+        <h2 style="margin-bottom: 15px;">🏢 Internal Components (stolostron)</h2>
+        <table class="component-table" id="componentTable-release211">
+            <thead>
+                <tr>
+                    <th onclick="sortTable('release211', 0, 'string')">Component</th>
+                    <th style="text-align: center;" onclick="sortTable('release211', 1, 'number')">CRITICAL</th>
+                    <th style="text-align: center;" onclick="sortTable('release211', 2, 'number')">HIGH</th>
+                    <th style="text-align: center;" onclick="sortTable('release211', 3, 'number')">Total CVEs</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+        
+
+        <h2 style="margin: 40px 0 15px 0;">🌐 External/Upstream Components</h2>
+        <table class="component-table" id="externalTable-release211">
+            <thead>
+                <tr>
+                    <th onclick="sortExternalTable('release211', 0, 'string')">Component</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release211', 1, 'number')">CRITICAL</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release211', 2, 'number')">HIGH</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release211', 3, 'number')">Total CVEs</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr data-component="postgresql" data-critical="0" data-high="6" data-total="6">
+                    <td><span class="component-link" data-component="postgresql" data-tab="release211">postgresql</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">6</span></td>
+                    <td style="text-align: center;">6</td>
+                </tr>
+                <tr data-component="postgresql-contrib" data-critical="0" data-high="6" data-total="6">
+                    <td><span class="component-link" data-component="postgresql-contrib" data-tab="release211">postgresql-contrib</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">6</span></td>
+                    <td style="text-align: center;">6</td>
+                </tr>
+                <tr data-component="postgresql-private-libs" data-critical="0" data-high="6" data-total="6">
+                    <td><span class="component-link" data-component="postgresql-private-libs" data-tab="release211">postgresql-private-libs</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">6</span></td>
+                    <td style="text-align: center;">6</td>
+                </tr>
+                <tr data-component="postgresql-server" data-critical="0" data-high="6" data-total="6">
+                    <td><span class="component-link" data-component="postgresql-server" data-tab="release211">postgresql-server</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">6</span></td>
+                    <td style="text-align: center;">6</td>
+                </tr>
+                <tr data-component="postgresql-upgrade" data-critical="0" data-high="6" data-total="6">
+                    <td><span class="component-link" data-component="postgresql-upgrade" data-tab="release211">postgresql-upgrade</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">6</span></td>
+                    <td style="text-align: center;">6</td>
+                </tr>
+                <tr data-component="gnutls" data-critical="0" data-high="4" data-total="4">
+                    <td><span class="component-link" data-component="gnutls" data-tab="release211">gnutls</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">4</span></td>
+                    <td style="text-align: center;">4</td>
+                </tr>
+                <tr data-component="python3" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="python3" data-tab="release211">python3</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="python3-libs" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="python3-libs" data-tab="release211">python3-libs</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="bind9.18-libs" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="bind9.18-libs" data-tab="release211">bind9.18-libs</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="bind9.18-utils" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="bind9.18-utils" data-tab="release211">bind9.18-utils</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="rsync" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="rsync" data-tab="release211">rsync</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="python3-urllib3" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="python3-urllib3" data-tab="release211">python3-urllib3</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="openssl" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="openssl" data-tab="release211">openssl</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr data-component="openssl-libs" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="openssl-libs" data-tab="release211">openssl-libs</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr data-component="bsdtar" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="bsdtar" data-tab="release211">bsdtar</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="libarchive" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="libarchive" data-tab="release211">libarchive</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="vim-filesystem" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="vim-filesystem" data-tab="release211">vim-filesystem</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="vim-minimal" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="vim-minimal" data-tab="release211">vim-minimal</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="libnghttp2" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="libnghttp2" data-tab="release211">libnghttp2</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="gnupg2" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="gnupg2" data-tab="release211">gnupg2</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="libcap" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="libcap" data-tab="release211">libcap</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="expat" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="expat" data-tab="release211">expat</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="show-all-btn" onclick="toggleShowAll('release211', 'external')">Show All External (22 total)</button>
+
+        
+    </div>
+
+    <div id="release212" class="tab-content">
+        <div class="summary-cards">
+            <div class="summary-card critical">
+                <h3>0</h3>
+                <p>CRITICAL (instances)</p>
+            </div>
+            <div class="summary-card high">
+                <h3>47</h3>
+                <p>HIGH (instances)</p>
+            </div>
+            <div class="summary-card">
+                <h3>24</h3>
+                <p>Unique CVEs</p>
+                <p style="font-size: 0.8em; margin-top: 5px;">(47 instances)</p>
+            </div>
+            <div class="summary-card trend">
+                <h3>0</h3>
+                <p>Week-over-Week</p>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h2>📈 CVE Trend Over Time</h2>
+                <canvas id="trendChart-release212"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>🔄 New vs Fixed CVEs</h2>
+                <canvas id="deltaChart-release212"></canvas>
+            </div>
+        </div>
+
+        
+
+        <h2 style="margin-bottom: 15px;">🏢 Internal Components (stolostron)</h2>
+        <table class="component-table" id="componentTable-release212">
+            <thead>
+                <tr>
+                    <th onclick="sortTable('release212', 0, 'string')">Component</th>
+                    <th style="text-align: center;" onclick="sortTable('release212', 1, 'number')">CRITICAL</th>
+                    <th style="text-align: center;" onclick="sortTable('release212', 2, 'number')">HIGH</th>
+                    <th style="text-align: center;" onclick="sortTable('release212', 3, 'number')">Total CVEs</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+        
+
+        <h2 style="margin: 40px 0 15px 0;">🌐 External/Upstream Components</h2>
+        <table class="component-table" id="externalTable-release212">
+            <thead>
+                <tr>
+                    <th onclick="sortExternalTable('release212', 0, 'string')">Component</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release212', 1, 'number')">CRITICAL</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release212', 2, 'number')">HIGH</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release212', 3, 'number')">Total CVEs</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr data-component="gnutls" data-critical="0" data-high="4" data-total="4">
+                    <td><span class="component-link" data-component="gnutls" data-tab="release212">gnutls</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">4</span></td>
+                    <td style="text-align: center;">4</td>
+                </tr>
+                <tr data-component="python3" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="python3" data-tab="release212">python3</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="python3-libs" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="python3-libs" data-tab="release212">python3-libs</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="postgresql" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="postgresql" data-tab="release212">postgresql</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="postgresql-contrib" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="postgresql-contrib" data-tab="release212">postgresql-contrib</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="postgresql-private-libs" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="postgresql-private-libs" data-tab="release212">postgresql-private-libs</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="postgresql-server" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="postgresql-server" data-tab="release212">postgresql-server</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="postgresql-upgrade" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="postgresql-upgrade" data-tab="release212">postgresql-upgrade</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="bind9.18-libs" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="bind9.18-libs" data-tab="release212">bind9.18-libs</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="bind9.18-utils" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="bind9.18-utils" data-tab="release212">bind9.18-utils</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="rsync" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="rsync" data-tab="release212">rsync</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="bsdtar" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="bsdtar" data-tab="release212">bsdtar</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr data-component="libarchive" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="libarchive" data-tab="release212">libarchive</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr data-component="vim-filesystem" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="vim-filesystem" data-tab="release212">vim-filesystem</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr data-component="vim-minimal" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="vim-minimal" data-tab="release212">vim-minimal</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="openssl" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="openssl" data-tab="release212">openssl</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="openssl-libs" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="openssl-libs" data-tab="release212">openssl-libs</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="libnghttp2" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="libnghttp2" data-tab="release212">libnghttp2</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="libcap" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="libcap" data-tab="release212">libcap</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="expat" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="expat" data-tab="release212">expat</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="show-all-btn" onclick="toggleShowAll('release212', 'external')">Show All External (20 total)</button>
+
+        
+    </div>
+
+    <div id="release213" class="tab-content">
+        <div class="summary-cards">
+            <div class="summary-card critical">
+                <h3>79</h3>
+                <p>CRITICAL (instances)</p>
+            </div>
+            <div class="summary-card high">
+                <h3>327</h3>
+                <p>HIGH (instances)</p>
+            </div>
+            <div class="summary-card">
+                <h3>105</h3>
+                <p>Unique CVEs</p>
+                <p style="font-size: 0.8em; margin-top: 5px;">(406 instances)</p>
+            </div>
+            <div class="summary-card trend">
+                <h3>0</h3>
+                <p>Week-over-Week</p>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h2>📈 CVE Trend Over Time</h2>
+                <canvas id="trendChart-release213"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>🔄 New vs Fixed CVEs</h2>
+                <canvas id="deltaChart-release213"></canvas>
+            </div>
+        </div>
+
+        
+
+        <h2 style="margin-bottom: 15px;">🏢 Internal Components (stolostron)</h2>
+        <table class="component-table" id="componentTable-release213">
+            <thead>
+                <tr>
+                    <th onclick="sortTable('release213', 0, 'string')">Component</th>
+                    <th style="text-align: center;" onclick="sortTable('release213', 1, 'number')">CRITICAL</th>
+                    <th style="text-align: center;" onclick="sortTable('release213', 2, 'number')">HIGH</th>
+                    <th style="text-align: center;" onclick="sortTable('release213', 3, 'number')">Total CVEs</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+        
+
+        <h2 style="margin: 40px 0 15px 0;">🌐 External/Upstream Components</h2>
+        <table class="component-table" id="externalTable-release213">
+            <thead>
+                <tr>
+                    <th onclick="sortExternalTable('release213', 0, 'string')">Component</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release213', 1, 'number')">CRITICAL</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release213', 2, 'number')">HIGH</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release213', 3, 'number')">Total CVEs</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr data-component="stdlib" data-critical="18" data-high="240" data-total="258">
+                    <td><span class="component-link" data-component="stdlib" data-tab="release213">stdlib</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">18</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">240</span></td>
+                    <td style="text-align: center;">258</td>
+                </tr>
+                <tr data-component="golang.org/x/crypto" data-critical="48" data-high="29" data-total="77">
+                    <td><span class="component-link" data-component="golang.org/x/crypto" data-tab="release213">golang.org/x/crypto</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">48</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">29</span></td>
+                    <td style="text-align: center;">77</td>
+                </tr>
+                <tr data-component="golang.org/x/net" data-critical="5" data-high="8" data-total="13">
+                    <td><span class="component-link" data-component="golang.org/x/net" data-tab="release213">golang.org/x/net</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">5</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">8</span></td>
+                    <td style="text-align: center;">13</td>
+                </tr>
+                <tr data-component="google.golang.org/grpc" data-critical="4" data-high="1" data-total="5">
+                    <td><span class="component-link" data-component="google.golang.org/grpc" data-tab="release213">google.golang.org/grpc</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">4</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">5</td>
+                </tr>
+                <tr data-component="gnutls" data-critical="0" data-high="4" data-total="4">
+                    <td><span class="component-link" data-component="gnutls" data-tab="release213">gnutls</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">4</span></td>
+                    <td style="text-align: center;">4</td>
+                </tr>
+                <tr data-component="golang.org/x/oauth2" data-critical="0" data-high="4" data-total="4">
+                    <td><span class="component-link" data-component="golang.org/x/oauth2" data-tab="release213">golang.org/x/oauth2</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">4</span></td>
+                    <td style="text-align: center;">4</td>
+                </tr>
+                <tr data-component="github.com/quic-go/quic-go" data-critical="0" data-high="4" data-total="4">
+                    <td><span class="component-link" data-component="github.com/quic-go/quic-go" data-tab="release213">github.com/quic-go/quic-go</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">4</span></td>
+                    <td style="text-align: center;">4</td>
+                </tr>
+                <tr data-component="github.com/rclone/rclone" data-critical="3" data-high="0" data-total="3">
+                    <td><span class="component-link" data-component="github.com/rclone/rclone" data-tab="release213">github.com/rclone/rclone</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">3</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">0</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="python3" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="python3" data-tab="release213">python3</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="python3-libs" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="python3-libs" data-tab="release213">python3-libs</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="rsync" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="rsync" data-tab="release213">rsync</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="openssl" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="openssl" data-tab="release213">openssl</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr data-component="openssl-libs" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="openssl-libs" data-tab="release213">openssl-libs</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr data-component="openssh" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="openssh" data-tab="release213">openssh</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr data-component="openssh-clients" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="openssh-clients" data-tab="release213">openssh-clients</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="openssh-server" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="openssh-server" data-tab="release213">openssh-server</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="expat" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="expat" data-tab="release213">expat</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="libarchive" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="libarchive" data-tab="release213">libarchive</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="github.com/sirupsen/logrus" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="github.com/sirupsen/logrus" data-tab="release213">github.com/sirupsen/logrus</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="go-srpm-macros" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="go-srpm-macros" data-tab="release213">go-srpm-macros</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="vim-minimal" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="vim-minimal" data-tab="release213">vim-minimal</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="github.com/cloudflare/circl" data-critical="1" data-high="1" data-total="2">
+                    <td><span class="component-link" data-component="github.com/cloudflare/circl" data-tab="release213">github.com/cloudflare/circl</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">1</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="sqlite-libs" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="sqlite-libs" data-tab="release213">sqlite-libs</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="google.golang.org/protobuf" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="google.golang.org/protobuf" data-tab="release213">google.golang.org/protobuf</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="perl-IO-Compress" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="perl-IO-Compress" data-tab="release213">perl-IO-Compress</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="perl-Archive-Tar" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="perl-Archive-Tar" data-tab="release213">perl-Archive-Tar</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="libnghttp2" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="libnghttp2" data-tab="release213">libnghttp2</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="gnupg2" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="gnupg2" data-tab="release213">gnupg2</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="libcap" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="libcap" data-tab="release213">libcap</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="show-all-btn" onclick="toggleShowAll('release213', 'external')">Show All External (29 total)</button>
+
+        
+    </div>
+
+    <div id="release214" class="tab-content">
+        <div class="summary-cards">
+            <div class="summary-card critical">
+                <h3>75</h3>
+                <p>CRITICAL (instances)</p>
+            </div>
+            <div class="summary-card high">
+                <h3>249</h3>
+                <p>HIGH (instances)</p>
+            </div>
+            <div class="summary-card">
+                <h3>89</h3>
+                <p>Unique CVEs</p>
+                <p style="font-size: 0.8em; margin-top: 5px;">(324 instances)</p>
+            </div>
+            <div class="summary-card trend">
+                <h3>0</h3>
+                <p>Week-over-Week</p>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h2>📈 CVE Trend Over Time</h2>
+                <canvas id="trendChart-release214"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>🔄 New vs Fixed CVEs</h2>
+                <canvas id="deltaChart-release214"></canvas>
+            </div>
+        </div>
+
+        
+
+        <h2 style="margin-bottom: 15px;">🏢 Internal Components (stolostron)</h2>
+        <table class="component-table" id="componentTable-release214">
+            <thead>
+                <tr>
+                    <th onclick="sortTable('release214', 0, 'string')">Component</th>
+                    <th style="text-align: center;" onclick="sortTable('release214', 1, 'number')">CRITICAL</th>
+                    <th style="text-align: center;" onclick="sortTable('release214', 2, 'number')">HIGH</th>
+                    <th style="text-align: center;" onclick="sortTable('release214', 3, 'number')">Total CVEs</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+        
+
+        <h2 style="margin: 40px 0 15px 0;">🌐 External/Upstream Components</h2>
+        <table class="component-table" id="externalTable-release214">
+            <thead>
+                <tr>
+                    <th onclick="sortExternalTable('release214', 0, 'string')">Component</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release214', 1, 'number')">CRITICAL</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release214', 2, 'number')">HIGH</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release214', 3, 'number')">Total CVEs</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr data-component="stdlib" data-critical="18" data-high="180" data-total="198">
+                    <td><span class="component-link" data-component="stdlib" data-tab="release214">stdlib</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">18</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">180</span></td>
+                    <td style="text-align: center;">198</td>
+                </tr>
+                <tr data-component="golang.org/x/crypto" data-critical="44" data-high="20" data-total="64">
+                    <td><span class="component-link" data-component="golang.org/x/crypto" data-tab="release214">golang.org/x/crypto</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">44</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">20</span></td>
+                    <td style="text-align: center;">64</td>
+                </tr>
+                <tr data-component="golang.org/x/net" data-critical="5" data-high="5" data-total="10">
+                    <td><span class="component-link" data-component="golang.org/x/net" data-tab="release214">golang.org/x/net</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">5</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">5</span></td>
+                    <td style="text-align: center;">10</td>
+                </tr>
+                <tr data-component="google.golang.org/grpc" data-critical="4" data-high="1" data-total="5">
+                    <td><span class="component-link" data-component="google.golang.org/grpc" data-tab="release214">google.golang.org/grpc</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">4</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">5</td>
+                </tr>
+                <tr data-component="gnutls" data-critical="0" data-high="4" data-total="4">
+                    <td><span class="component-link" data-component="gnutls" data-tab="release214">gnutls</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">4</span></td>
+                    <td style="text-align: center;">4</td>
+                </tr>
+                <tr data-component="github.com/quic-go/quic-go" data-critical="0" data-high="4" data-total="4">
+                    <td><span class="component-link" data-component="github.com/quic-go/quic-go" data-tab="release214">github.com/quic-go/quic-go</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">4</span></td>
+                    <td style="text-align: center;">4</td>
+                </tr>
+                <tr data-component="github.com/rclone/rclone" data-critical="3" data-high="0" data-total="3">
+                    <td><span class="component-link" data-component="github.com/rclone/rclone" data-tab="release214">github.com/rclone/rclone</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">3</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">0</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="python3" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="python3" data-tab="release214">python3</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="python3-libs" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="python3-libs" data-tab="release214">python3-libs</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="rsync" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="rsync" data-tab="release214">rsync</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="go.opentelemetry.io/otel/sdk" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="go.opentelemetry.io/otel/sdk" data-tab="release214">go.opentelemetry.io/otel/sdk</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="golang.org/x/oauth2" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="golang.org/x/oauth2" data-tab="release214">golang.org/x/oauth2</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr data-component="openssh" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="openssh" data-tab="release214">openssh</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr data-component="openssh-clients" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="openssh-clients" data-tab="release214">openssh-clients</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr data-component="openssh-server" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="openssh-server" data-tab="release214">openssh-server</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="libarchive" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="libarchive" data-tab="release214">libarchive</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="go-srpm-macros" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="go-srpm-macros" data-tab="release214">go-srpm-macros</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="vim-minimal" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="vim-minimal" data-tab="release214">vim-minimal</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="github.com/cloudflare/circl" data-critical="1" data-high="1" data-total="2">
+                    <td><span class="component-link" data-component="github.com/cloudflare/circl" data-tab="release214">github.com/cloudflare/circl</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">1</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="google.golang.org/protobuf" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="google.golang.org/protobuf" data-tab="release214">google.golang.org/protobuf</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="openssl" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="openssl" data-tab="release214">openssl</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="openssl-libs" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="openssl-libs" data-tab="release214">openssl-libs</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="perl-IO-Compress" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="perl-IO-Compress" data-tab="release214">perl-IO-Compress</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="perl-Archive-Tar" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="perl-Archive-Tar" data-tab="release214">perl-Archive-Tar</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="libnghttp2" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="libnghttp2" data-tab="release214">libnghttp2</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="libcap" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="libcap" data-tab="release214">libcap</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="expat" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="expat" data-tab="release214">expat</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="show-all-btn" onclick="toggleShowAll('release214', 'external')">Show All External (27 total)</button>
+
+        
+    </div>
+
+    <div id="release215" class="tab-content">
+        <div class="summary-cards">
+            <div class="summary-card critical">
+                <h3>53</h3>
+                <p>CRITICAL (instances)</p>
+            </div>
+            <div class="summary-card high">
+                <h3>135</h3>
+                <p>HIGH (instances)</p>
+            </div>
+            <div class="summary-card">
+                <h3>59</h3>
+                <p>Unique CVEs</p>
+                <p style="font-size: 0.8em; margin-top: 5px;">(188 instances)</p>
+            </div>
+            <div class="summary-card trend">
+                <h3>0</h3>
+                <p>Week-over-Week</p>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h2>📈 CVE Trend Over Time</h2>
+                <canvas id="trendChart-release215"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>🔄 New vs Fixed CVEs</h2>
+                <canvas id="deltaChart-release215"></canvas>
+            </div>
+        </div>
+
+        
+
+        <h2 style="margin-bottom: 15px;">🏢 Internal Components (stolostron)</h2>
+        <table class="component-table" id="componentTable-release215">
+            <thead>
+                <tr>
+                    <th onclick="sortTable('release215', 0, 'string')">Component</th>
+                    <th style="text-align: center;" onclick="sortTable('release215', 1, 'number')">CRITICAL</th>
+                    <th style="text-align: center;" onclick="sortTable('release215', 2, 'number')">HIGH</th>
+                    <th style="text-align: center;" onclick="sortTable('release215', 3, 'number')">Total CVEs</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+        
+
+        <h2 style="margin: 40px 0 15px 0;">🌐 External/Upstream Components</h2>
+        <table class="component-table" id="externalTable-release215">
+            <thead>
+                <tr>
+                    <th onclick="sortExternalTable('release215', 0, 'string')">Component</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release215', 1, 'number')">CRITICAL</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release215', 2, 'number')">HIGH</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release215', 3, 'number')">Total CVEs</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr data-component="stdlib" data-critical="0" data-high="78" data-total="78">
+                    <td><span class="component-link" data-component="stdlib" data-tab="release215">stdlib</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">78</span></td>
+                    <td style="text-align: center;">78</td>
+                </tr>
+                <tr data-component="golang.org/x/crypto" data-critical="44" data-high="19" data-total="63">
+                    <td><span class="component-link" data-component="golang.org/x/crypto" data-tab="release215">golang.org/x/crypto</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">44</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">19</span></td>
+                    <td style="text-align: center;">63</td>
+                </tr>
+                <tr data-component="golang.org/x/net" data-critical="5" data-high="5" data-total="10">
+                    <td><span class="component-link" data-component="golang.org/x/net" data-tab="release215">golang.org/x/net</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">5</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">5</span></td>
+                    <td style="text-align: center;">10</td>
+                </tr>
+                <tr data-component="gnutls" data-critical="0" data-high="4" data-total="4">
+                    <td><span class="component-link" data-component="gnutls" data-tab="release215">gnutls</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">4</span></td>
+                    <td style="text-align: center;">4</td>
+                </tr>
+                <tr data-component="github.com/quic-go/quic-go" data-critical="0" data-high="4" data-total="4">
+                    <td><span class="component-link" data-component="github.com/quic-go/quic-go" data-tab="release215">github.com/quic-go/quic-go</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">4</span></td>
+                    <td style="text-align: center;">4</td>
+                </tr>
+                <tr data-component="github.com/rclone/rclone" data-critical="3" data-high="0" data-total="3">
+                    <td><span class="component-link" data-component="github.com/rclone/rclone" data-tab="release215">github.com/rclone/rclone</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">3</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">0</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="python3" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="python3" data-tab="release215">python3</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="python3-libs" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="python3-libs" data-tab="release215">python3-libs</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="rsync" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="rsync" data-tab="release215">rsync</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="go.opentelemetry.io/otel/sdk" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="go.opentelemetry.io/otel/sdk" data-tab="release215">go.opentelemetry.io/otel/sdk</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="go.opentelemetry.io/otel" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="go.opentelemetry.io/otel" data-tab="release215">go.opentelemetry.io/otel</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr data-component="openssl" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="openssl" data-tab="release215">openssl</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr data-component="openssl-libs" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="openssl-libs" data-tab="release215">openssl-libs</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr data-component="perl-IO-Compress" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="perl-IO-Compress" data-tab="release215">perl-IO-Compress</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr data-component="openssh" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="openssh" data-tab="release215">openssh</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="openssh-clients" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="openssh-clients" data-tab="release215">openssh-clients</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="openssh-server" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="openssh-server" data-tab="release215">openssh-server</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="github.com/go-git/go-billy/v5" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="github.com/go-git/go-billy/v5" data-tab="release215">github.com/go-git/go-billy/v5</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="perl-Archive-Tar" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="perl-Archive-Tar" data-tab="release215">perl-Archive-Tar</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="vim-minimal" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="vim-minimal" data-tab="release215">vim-minimal</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="github.com/cloudflare/circl" data-critical="1" data-high="0" data-total="1">
+                    <td><span class="component-link" data-component="github.com/cloudflare/circl" data-tab="release215">github.com/cloudflare/circl</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">1</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">0</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="libcap" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="libcap" data-tab="release215">libcap</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="expat" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="expat" data-tab="release215">expat</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="show-all-btn" onclick="toggleShowAll('release215', 'external')">Show All External (23 total)</button>
+
+        
+    </div>
+
+    <div id="release216" class="tab-content">
+        <div class="summary-cards">
+            <div class="summary-card critical">
+                <h3>53</h3>
+                <p>CRITICAL (instances)</p>
+            </div>
+            <div class="summary-card high">
+                <h3>143</h3>
+                <p>HIGH (instances)</p>
+            </div>
+            <div class="summary-card">
+                <h3>63</h3>
+                <p>Unique CVEs</p>
+                <p style="font-size: 0.8em; margin-top: 5px;">(196 instances)</p>
+            </div>
+            <div class="summary-card trend">
+                <h3>0</h3>
+                <p>Week-over-Week</p>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h2>📈 CVE Trend Over Time</h2>
+                <canvas id="trendChart-release216"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>🔄 New vs Fixed CVEs</h2>
+                <canvas id="deltaChart-release216"></canvas>
+            </div>
+        </div>
+
+        
+
+        <h2 style="margin-bottom: 15px;">🏢 Internal Components (stolostron)</h2>
+        <table class="component-table" id="componentTable-release216">
+            <thead>
+                <tr>
+                    <th onclick="sortTable('release216', 0, 'string')">Component</th>
+                    <th style="text-align: center;" onclick="sortTable('release216', 1, 'number')">CRITICAL</th>
+                    <th style="text-align: center;" onclick="sortTable('release216', 2, 'number')">HIGH</th>
+                    <th style="text-align: center;" onclick="sortTable('release216', 3, 'number')">Total CVEs</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+        
+
+        <h2 style="margin: 40px 0 15px 0;">🌐 External/Upstream Components</h2>
+        <table class="component-table" id="externalTable-release216">
+            <thead>
+                <tr>
+                    <th onclick="sortExternalTable('release216', 0, 'string')">Component</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release216', 1, 'number')">CRITICAL</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release216', 2, 'number')">HIGH</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release216', 3, 'number')">Total CVEs</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr data-component="stdlib" data-critical="0" data-high="78" data-total="78">
+                    <td><span class="component-link" data-component="stdlib" data-tab="release216">stdlib</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">78</span></td>
+                    <td style="text-align: center;">78</td>
+                </tr>
+                <tr data-component="golang.org/x/crypto" data-critical="44" data-high="19" data-total="63">
+                    <td><span class="component-link" data-component="golang.org/x/crypto" data-tab="release216">golang.org/x/crypto</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">44</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">19</span></td>
+                    <td style="text-align: center;">63</td>
+                </tr>
+                <tr data-component="golang.org/x/net" data-critical="5" data-high="5" data-total="10">
+                    <td><span class="component-link" data-component="golang.org/x/net" data-tab="release216">golang.org/x/net</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">5</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">5</span></td>
+                    <td style="text-align: center;">10</td>
+                </tr>
+                <tr data-component="go.opentelemetry.io/otel/sdk" data-critical="0" data-high="6" data-total="6">
+                    <td><span class="component-link" data-component="go.opentelemetry.io/otel/sdk" data-tab="release216">go.opentelemetry.io/otel/sdk</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">6</span></td>
+                    <td style="text-align: center;">6</td>
+                </tr>
+                <tr data-component="gnutls" data-critical="0" data-high="4" data-total="4">
+                    <td><span class="component-link" data-component="gnutls" data-tab="release216">gnutls</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">4</span></td>
+                    <td style="text-align: center;">4</td>
+                </tr>
+                <tr data-component="github.com/quic-go/quic-go" data-critical="0" data-high="4" data-total="4">
+                    <td><span class="component-link" data-component="github.com/quic-go/quic-go" data-tab="release216">github.com/quic-go/quic-go</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">4</span></td>
+                    <td style="text-align: center;">4</td>
+                </tr>
+                <tr data-component="github.com/rclone/rclone" data-critical="3" data-high="0" data-total="3">
+                    <td><span class="component-link" data-component="github.com/rclone/rclone" data-tab="release216">github.com/rclone/rclone</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">3</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">0</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="python3" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="python3" data-tab="release216">python3</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="python3-libs" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="python3-libs" data-tab="release216">python3-libs</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="go.opentelemetry.io/otel" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="go.opentelemetry.io/otel" data-tab="release216">go.opentelemetry.io/otel</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="rsync" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="rsync" data-tab="release216">rsync</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="golang.org/x/image" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="golang.org/x/image" data-tab="release216">golang.org/x/image</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr data-component="github.com/buger/jsonparser" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="github.com/buger/jsonparser" data-tab="release216">github.com/buger/jsonparser</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr data-component="openssl" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="openssl" data-tab="release216">openssl</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr data-component="openssl-libs" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="openssl-libs" data-tab="release216">openssl-libs</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="perl-IO-Compress" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="perl-IO-Compress" data-tab="release216">perl-IO-Compress</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="openssh" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="openssh" data-tab="release216">openssh</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="openssh-clients" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="openssh-clients" data-tab="release216">openssh-clients</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="openssh-server" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="openssh-server" data-tab="release216">openssh-server</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="github.com/go-git/go-billy/v5" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="github.com/go-git/go-billy/v5" data-tab="release216">github.com/go-git/go-billy/v5</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="perl-Archive-Tar" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="perl-Archive-Tar" data-tab="release216">perl-Archive-Tar</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="vim-minimal" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="vim-minimal" data-tab="release216">vim-minimal</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="github.com/cloudflare/circl" data-critical="1" data-high="0" data-total="1">
+                    <td><span class="component-link" data-component="github.com/cloudflare/circl" data-tab="release216">github.com/cloudflare/circl</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">1</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">0</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="libcap" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="libcap" data-tab="release216">libcap</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr class="component-row-hidden" data-component="expat" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="expat" data-tab="release216">expat</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="show-all-btn" onclick="toggleShowAll('release216', 'external')">Show All External (25 total)</button>
+
+        
+    </div>
+
+    <div id="release217" class="tab-content">
+        <div class="summary-cards">
+            <div class="summary-card critical">
+                <h3>41</h3>
+                <p>CRITICAL (instances)</p>
+            </div>
+            <div class="summary-card high">
+                <h3>111</h3>
+                <p>HIGH (instances)</p>
+            </div>
+            <div class="summary-card">
+                <h3>40</h3>
+                <p>Unique CVEs</p>
+                <p style="font-size: 0.8em; margin-top: 5px;">(152 instances)</p>
+            </div>
+            <div class="summary-card trend">
+                <h3>0</h3>
+                <p>Week-over-Week</p>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h2>📈 CVE Trend Over Time</h2>
+                <canvas id="trendChart-release217"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>🔄 New vs Fixed CVEs</h2>
+                <canvas id="deltaChart-release217"></canvas>
+            </div>
+        </div>
+
+        
+
+        <h2 style="margin-bottom: 15px;">🏢 Internal Components (stolostron)</h2>
+        <table class="component-table" id="componentTable-release217">
+            <thead>
+                <tr>
+                    <th onclick="sortTable('release217', 0, 'string')">Component</th>
+                    <th style="text-align: center;" onclick="sortTable('release217', 1, 'number')">CRITICAL</th>
+                    <th style="text-align: center;" onclick="sortTable('release217', 2, 'number')">HIGH</th>
+                    <th style="text-align: center;" onclick="sortTable('release217', 3, 'number')">Total CVEs</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+        
+
+        <h2 style="margin: 40px 0 15px 0;">🌐 External/Upstream Components</h2>
+        <table class="component-table" id="externalTable-release217">
+            <thead>
+                <tr>
+                    <th onclick="sortExternalTable('release217', 0, 'string')">Component</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release217', 1, 'number')">CRITICAL</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release217', 2, 'number')">HIGH</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release217', 3, 'number')">Total CVEs</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr data-component="stdlib" data-critical="0" data-high="78" data-total="78">
+                    <td><span class="component-link" data-component="stdlib" data-tab="release217">stdlib</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">78</span></td>
+                    <td style="text-align: center;">78</td>
+                </tr>
+                <tr data-component="golang.org/x/crypto" data-critical="37" data-high="17" data-total="54">
+                    <td><span class="component-link" data-component="golang.org/x/crypto" data-tab="release217">golang.org/x/crypto</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">37</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">17</span></td>
+                    <td style="text-align: center;">54</td>
+                </tr>
+                <tr data-component="golang.org/x/net" data-critical="4" data-high="4" data-total="8">
+                    <td><span class="component-link" data-component="golang.org/x/net" data-tab="release217">golang.org/x/net</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">4</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">4</span></td>
+                    <td style="text-align: center;">8</td>
+                </tr>
+                <tr data-component="github.com/quic-go/quic-go" data-critical="0" data-high="4" data-total="4">
+                    <td><span class="component-link" data-component="github.com/quic-go/quic-go" data-tab="release217">github.com/quic-go/quic-go</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">4</span></td>
+                    <td style="text-align: center;">4</td>
+                </tr>
+                <tr data-component="go.opentelemetry.io/otel/sdk" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="go.opentelemetry.io/otel/sdk" data-tab="release217">go.opentelemetry.io/otel/sdk</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="rsync" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="rsync" data-tab="release217">rsync</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr data-component="openssl" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="openssl" data-tab="release217">openssl</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr data-component="openssl-libs" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="openssl-libs" data-tab="release217">openssl-libs</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr data-component="go.opentelemetry.io/otel" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="go.opentelemetry.io/otel" data-tab="release217">go.opentelemetry.io/otel</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+            </tbody>
+        </table>
+        
+
+        
+    </div>
+
+    <div id="release50" class="tab-content">
+        <div class="summary-cards">
+            <div class="summary-card critical">
+                <h3>41</h3>
+                <p>CRITICAL (instances)</p>
+            </div>
+            <div class="summary-card high">
+                <h3>111</h3>
+                <p>HIGH (instances)</p>
+            </div>
+            <div class="summary-card">
+                <h3>40</h3>
+                <p>Unique CVEs</p>
+                <p style="font-size: 0.8em; margin-top: 5px;">(152 instances)</p>
+            </div>
+            <div class="summary-card trend">
+                <h3>0</h3>
+                <p>Week-over-Week</p>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h2>📈 CVE Trend Over Time</h2>
+                <canvas id="trendChart-release50"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>🔄 New vs Fixed CVEs</h2>
+                <canvas id="deltaChart-release50"></canvas>
+            </div>
+        </div>
+
+        
+
+        <h2 style="margin-bottom: 15px;">🏢 Internal Components (stolostron)</h2>
+        <table class="component-table" id="componentTable-release50">
+            <thead>
+                <tr>
+                    <th onclick="sortTable('release50', 0, 'string')">Component</th>
+                    <th style="text-align: center;" onclick="sortTable('release50', 1, 'number')">CRITICAL</th>
+                    <th style="text-align: center;" onclick="sortTable('release50', 2, 'number')">HIGH</th>
+                    <th style="text-align: center;" onclick="sortTable('release50', 3, 'number')">Total CVEs</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+        
+
+        <h2 style="margin: 40px 0 15px 0;">🌐 External/Upstream Components</h2>
+        <table class="component-table" id="externalTable-release50">
+            <thead>
+                <tr>
+                    <th onclick="sortExternalTable('release50', 0, 'string')">Component</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release50', 1, 'number')">CRITICAL</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release50', 2, 'number')">HIGH</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('release50', 3, 'number')">Total CVEs</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr data-component="stdlib" data-critical="0" data-high="78" data-total="78">
+                    <td><span class="component-link" data-component="stdlib" data-tab="release50">stdlib</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">78</span></td>
+                    <td style="text-align: center;">78</td>
+                </tr>
+                <tr data-component="golang.org/x/crypto" data-critical="37" data-high="17" data-total="54">
+                    <td><span class="component-link" data-component="golang.org/x/crypto" data-tab="release50">golang.org/x/crypto</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">37</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">17</span></td>
+                    <td style="text-align: center;">54</td>
+                </tr>
+                <tr data-component="golang.org/x/net" data-critical="4" data-high="4" data-total="8">
+                    <td><span class="component-link" data-component="golang.org/x/net" data-tab="release50">golang.org/x/net</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">4</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">4</span></td>
+                    <td style="text-align: center;">8</td>
+                </tr>
+                <tr data-component="github.com/quic-go/quic-go" data-critical="0" data-high="4" data-total="4">
+                    <td><span class="component-link" data-component="github.com/quic-go/quic-go" data-tab="release50">github.com/quic-go/quic-go</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">4</span></td>
+                    <td style="text-align: center;">4</td>
+                </tr>
+                <tr data-component="go.opentelemetry.io/otel/sdk" data-critical="0" data-high="3" data-total="3">
+                    <td><span class="component-link" data-component="go.opentelemetry.io/otel/sdk" data-tab="release50">go.opentelemetry.io/otel/sdk</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">3</span></td>
+                    <td style="text-align: center;">3</td>
+                </tr>
+                <tr data-component="rsync" data-critical="0" data-high="2" data-total="2">
+                    <td><span class="component-link" data-component="rsync" data-tab="release50">rsync</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">2</span></td>
+                    <td style="text-align: center;">2</td>
+                </tr>
+                <tr data-component="openssl" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="openssl" data-tab="release50">openssl</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr data-component="openssl-libs" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="openssl-libs" data-tab="release50">openssl-libs</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+                <tr data-component="go.opentelemetry.io/otel" data-critical="0" data-high="1" data-total="1">
+                    <td><span class="component-link" data-component="go.opentelemetry.io/otel" data-tab="release50">go.opentelemetry.io/otel</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-critical">0</span></td>
+                    <td style="text-align: center;"><span class="severity-badge severity-high">1</span></td>
+                    <td style="text-align: center;">1</td>
+                </tr>
+            </tbody>
+        </table>
+        
+
+        
+    </div>
+
+    <!-- Component CVE Detail Modal -->
+    <div id="cveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2 id="modalTitle">Component CVEs</h2>
+            </div>
+            <div class="modal-body">
+                <div id="modalContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const compareData = {"labels": ["release-2.11", "release-2.12", "release-2.13", "release-2.14", "release-2.15", "release-2.16", "release-2.17", "release-5.0"], "critical": [0, 0, 79, 75, 53, 53, 41, 41], "high": [68, 47, 327, 249, 135, 143, 111, 111]};
+
+        window.componentCVEData = {"release211": {}, "release212": {}, "release213": {}, "release214": {}, "release215": {}, "release216": {}, "release217": {}, "release50": {}};
+
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].className = tabcontent[i].className.replace(" active", "");
+            }
+            tablinks = document.getElementsByClassName("tab");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).className += " active";
+            evt.currentTarget.className += " active";
+        }
+
+        function sortTable(tabId, columnIndex, type) {
+            const table = document.getElementById('componentTable-' + tabId);
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const header = table.querySelectorAll('th')[columnIndex];
+
+            // Determine sort direction
+            const currentSort = header.classList.contains('sort-asc') ? 'asc' :
+                               header.classList.contains('sort-desc') ? 'desc' : 'none';
+            const newSort = currentSort === 'asc' ? 'desc' : 'asc';
+
+            // Remove all sort classes
+            table.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+
+            // Add new sort class
+            header.classList.add('sort-' + newSort);
+
+            // Sort rows
+            rows.sort((a, b) => {
+                let aVal, bVal;
+
+                if (type === 'number') {
+                    // Use data attributes for numeric sorting
+                    const dataAttr = ['component', 'critical', 'high', 'total'][columnIndex];
+                    aVal = parseInt(a.dataset[dataAttr] || 0);
+                    bVal = parseInt(b.dataset[dataAttr] || 0);
+                } else {
+                    // Text sorting
+                    aVal = a.cells[columnIndex].textContent.trim().toLowerCase();
+                    bVal = b.cells[columnIndex].textContent.trim().toLowerCase();
+                }
+
+                if (newSort === 'asc') {
+                    return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+                } else {
+                    return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+                }
+            });
+
+            // Re-append sorted rows
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function sortExternalTable(tabId, columnIndex, type) {
+            const table = document.getElementById('externalTable-' + tabId);
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const header = table.querySelectorAll('th')[columnIndex];
+
+            // Determine sort direction
+            const currentSort = header.classList.contains('sort-asc') ? 'asc' :
+                               header.classList.contains('sort-desc') ? 'desc' : 'none';
+            const newSort = currentSort === 'asc' ? 'desc' : 'asc';
+
+            // Remove all sort classes
+            table.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+
+            // Add new sort class
+            header.classList.add('sort-' + newSort);
+
+            // Sort rows
+            rows.sort((a, b) => {
+                let aVal, bVal;
+
+                if (type === 'number') {
+                    const dataAttr = ['component', 'critical', 'high', 'total'][columnIndex];
+                    aVal = parseInt(a.dataset[dataAttr] || 0);
+                    bVal = parseInt(b.dataset[dataAttr] || 0);
+                } else {
+                    aVal = a.cells[columnIndex].textContent.trim().toLowerCase();
+                    bVal = b.cells[columnIndex].textContent.trim().toLowerCase();
+                }
+
+                if (newSort === 'asc') {
+                    return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+                } else {
+                    return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+                }
+            });
+
+            // Re-append sorted rows
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function sortFixedTable(tabId, columnIndex) {
+            const table = document.getElementById('fixedTable-' + tabId);
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const header = table.querySelectorAll('th')[columnIndex];
+
+            // Determine sort direction
+            const currentSort = header.classList.contains('sort-asc') ? 'asc' :
+                               header.classList.contains('sort-desc') ? 'desc' : 'none';
+            const newSort = currentSort === 'asc' ? 'desc' : 'asc';
+
+            // Remove all sort classes
+            table.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+
+            // Add new sort class
+            header.classList.add('sort-' + newSort);
+
+            // Sort rows
+            rows.sort((a, b) => {
+                const dataAttr = columnIndex === 0 ? 'cve' : 'component';
+                const aVal = a.dataset[dataAttr].toLowerCase();
+                const bVal = b.dataset[dataAttr].toLowerCase();
+
+                if (newSort === 'asc') {
+                    return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+                } else {
+                    return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+                }
+            });
+
+            // Re-append sorted rows
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function sortBlastTable(tabId, columnIndex, type) {
+            const table = document.getElementById('blastTable-' + tabId);
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const header = table.querySelectorAll('th')[columnIndex];
+
+            // Determine sort direction
+            const currentSort = header.classList.contains('sort-asc') ? 'asc' :
+                               header.classList.contains('sort-desc') ? 'desc' : 'none';
+            const newSort = currentSort === 'asc' ? 'desc' : 'asc';
+
+            // Remove all sort classes
+            table.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+
+            // Add new sort class
+            header.classList.add('sort-' + newSort);
+
+            // Sort rows
+            rows.sort((a, b) => {
+                let aVal, bVal;
+
+                if (type === 'number') {
+                    const dataAttr = ['cve', 'severity', 'cvss', 'count', '', '', 'fixable'][columnIndex];
+                    aVal = parseFloat(a.dataset[dataAttr] || 0);
+                    bVal = parseFloat(b.dataset[dataAttr] || 0);
+                } else {
+                    aVal = a.cells[columnIndex].textContent.trim().toLowerCase();
+                    bVal = b.cells[columnIndex].textContent.trim().toLowerCase();
+                }
+
+                if (newSort === 'asc') {
+                    return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+                } else {
+                    return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+                }
+            });
+
+            // Re-append sorted rows
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function closeModal() {
+            document.getElementById('cveModal').style.display = 'none';
+        }
+
+        function showComponentCVEs(component, tabId) {
+            const modal = document.getElementById('cveModal');
+            const title = document.getElementById('modalTitle');
+            const content = document.getElementById('modalContent');
+
+            title.textContent = `CVEs for ${component}`;
+
+            // Get CVE data for this component
+            const componentData = window.componentCVEData[tabId][component];
+
+            if (!componentData || componentData.length === 0) {
+                content.innerHTML = '<p>No CVE data available for this component.</p>';
+                modal.style.display = 'block';
+                return;
+            }
+
+            // Build CVE table
+            let html = `
+                <p><strong>${componentData.length} CVEs found</strong></p>
+                <table class="component-table">
+                    <thead>
+                        <tr>
+                            <th>CVE ID</th>
+                            <th>Severity</th>
+                            <th>CVSS</th>
+                            <th>Description</th>
+                            <th>Fix Available</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            componentData.forEach(cve => {
+                const cvssDisplay = cve.cvss_score ? cve.cvss_score.toFixed(1) : '—';
+                const cvssColor = cve.cvss_score >= 9 ? '#d73a49' : cve.cvss_score >= 7 ? '#f66a0a' : '#666';
+                const severityClass = 'severity-' + cve.severity.toLowerCase();
+                const description = cve.description.substring(0, 150) + (cve.description.length > 150 ? '...' : '');
+
+                let cveLink;
+                if (cve.cve_id.startsWith('CVE-')) {
+                    cveLink = `<a href="https://nvd.nist.gov/vuln/detail/${cve.cve_id}" target="_blank"><code>${cve.cve_id}</code></a>`;
+                } else if (cve.cve_id.startsWith('GO-')) {
+                    cveLink = `<a href="https://pkg.go.dev/vuln/${cve.cve_id}" target="_blank"><code>${cve.cve_id}</code></a>`;
+                } else {
+                    cveLink = `<code>${cve.cve_id}</code>`;
+                }
+
+                html += `
+                    <tr>
+                        <td>${cveLink}</td>
+                        <td><span class="severity-badge ${severityClass}">${cve.severity}</span></td>
+                        <td style="text-align: center; color: ${cvssColor}; font-weight: 700;">${cvssDisplay}</td>
+                        <td style="font-size: 0.9em;">${description}</td>
+                        <td style="text-align: center; font-size: 0.9em;">${cve.fix_display}</td>
+                    </tr>`;
+            });
+
+            html += `
+                    </tbody>
+                </table>`;
+
+            content.innerHTML = html;
+            modal.style.display = 'block';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('cveModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Attach click handlers to component links (prevents XSS from inline onclick)
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.component-link').forEach(link => {
+                link.addEventListener('click', function() {
+                    const component = this.getAttribute('data-component');
+                    const tabId = this.getAttribute('data-tab');
+                    showComponentCVEs(component, tabId);
+                });
+            });
+        });
+
+        function toggleShowAll(tabId, tableType) {
+            const tableId = tableType === 'internal' ? 'componentTable-' + tabId : 'externalTable-' + tabId;
+            const table = document.getElementById(tableId);
+            const hiddenRows = table.querySelectorAll('.component-row-hidden');
+            const btn = event.target;
+
+            if (hiddenRows.length > 0 && hiddenRows[0].style.display === 'none' || !hiddenRows[0].style.display) {
+                // Show all
+                hiddenRows.forEach(row => row.style.display = 'table-row');
+                btn.textContent = btn.textContent.replace('Show All', 'Show Top 15');
+            } else {
+                // Hide extras
+                hiddenRows.forEach(row => row.style.display = 'none');
+                const total = btn.textContent.match(/\d+/)[0];
+                btn.textContent = `Show All ${tableType === 'internal' ? 'Internal' : 'External'} (${total} total)`;
+            }
+        }
+
+        // Comparison chart
+        if (compareData) {
+            const compareCtx = document.getElementById('compareChart').getContext('2d');
+            new Chart(compareCtx, {
+                type: 'bar',
+                data: {
+                    labels: compareData.labels,
+                    datasets: [
+                        {
+                            label: 'CRITICAL',
+                            data: compareData.critical,
+                            backgroundColor: '#d73a49'
+                        },
+                        {
+                            label: 'HIGH',
+                            data: compareData.high,
+                            backgroundColor: '#f66a0a'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Individual release charts
+        
+        // release-2.11 charts
+        const trendCtxrelease211 = document.getElementById('trendChart-release211');
+        if (trendCtxrelease211) {
+            new Chart(trendCtxrelease211.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ["06/12", "06/12"],
+                    datasets: [
+                        {
+                            label: 'CRITICAL',
+                            data: [0, 0],
+                            borderColor: '#d73a49',
+                            backgroundColor: 'rgba(215, 58, 73, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'HIGH',
+                            data: [68, 68],
+                            borderColor: '#f66a0a',
+                            backgroundColor: 'rgba(246, 106, 10, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        const deltaCtxrelease211 = document.getElementById('deltaChart-release211');
+        if (deltaCtxrelease211) {
+            new Chart(deltaCtxrelease211.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ["06/12", "06/12"],
+                    datasets: [
+                        {
+                            label: 'New CVEs',
+                            data: [0, 68],
+                            backgroundColor: '#d73a49'
+                        },
+                        {
+                            label: 'Fixed CVEs',
+                            data: [0, 0],
+                            backgroundColor: '#28a745'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+    
+
+        // release-2.12 charts
+        const trendCtxrelease212 = document.getElementById('trendChart-release212');
+        if (trendCtxrelease212) {
+            new Chart(trendCtxrelease212.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ["06/12", "06/12"],
+                    datasets: [
+                        {
+                            label: 'CRITICAL',
+                            data: [0, 0],
+                            borderColor: '#d73a49',
+                            backgroundColor: 'rgba(215, 58, 73, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'HIGH',
+                            data: [47, 47],
+                            borderColor: '#f66a0a',
+                            backgroundColor: 'rgba(246, 106, 10, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        const deltaCtxrelease212 = document.getElementById('deltaChart-release212');
+        if (deltaCtxrelease212) {
+            new Chart(deltaCtxrelease212.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ["06/12", "06/12"],
+                    datasets: [
+                        {
+                            label: 'New CVEs',
+                            data: [0, 47],
+                            backgroundColor: '#d73a49'
+                        },
+                        {
+                            label: 'Fixed CVEs',
+                            data: [0, 0],
+                            backgroundColor: '#28a745'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+    
+
+        // release-2.13 charts
+        const trendCtxrelease213 = document.getElementById('trendChart-release213');
+        if (trendCtxrelease213) {
+            new Chart(trendCtxrelease213.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ["06/12", "06/12"],
+                    datasets: [
+                        {
+                            label: 'CRITICAL',
+                            data: [79, 79],
+                            borderColor: '#d73a49',
+                            backgroundColor: 'rgba(215, 58, 73, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'HIGH',
+                            data: [327, 327],
+                            borderColor: '#f66a0a',
+                            backgroundColor: 'rgba(246, 106, 10, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        const deltaCtxrelease213 = document.getElementById('deltaChart-release213');
+        if (deltaCtxrelease213) {
+            new Chart(deltaCtxrelease213.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ["06/12", "06/12"],
+                    datasets: [
+                        {
+                            label: 'New CVEs',
+                            data: [0, 406],
+                            backgroundColor: '#d73a49'
+                        },
+                        {
+                            label: 'Fixed CVEs',
+                            data: [0, 0],
+                            backgroundColor: '#28a745'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+    
+
+        // release-2.14 charts
+        const trendCtxrelease214 = document.getElementById('trendChart-release214');
+        if (trendCtxrelease214) {
+            new Chart(trendCtxrelease214.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ["06/12", "06/12"],
+                    datasets: [
+                        {
+                            label: 'CRITICAL',
+                            data: [75, 75],
+                            borderColor: '#d73a49',
+                            backgroundColor: 'rgba(215, 58, 73, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'HIGH',
+                            data: [249, 249],
+                            borderColor: '#f66a0a',
+                            backgroundColor: 'rgba(246, 106, 10, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        const deltaCtxrelease214 = document.getElementById('deltaChart-release214');
+        if (deltaCtxrelease214) {
+            new Chart(deltaCtxrelease214.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ["06/12", "06/12"],
+                    datasets: [
+                        {
+                            label: 'New CVEs',
+                            data: [0, 324],
+                            backgroundColor: '#d73a49'
+                        },
+                        {
+                            label: 'Fixed CVEs',
+                            data: [0, 0],
+                            backgroundColor: '#28a745'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+    
+
+        // release-2.15 charts
+        const trendCtxrelease215 = document.getElementById('trendChart-release215');
+        if (trendCtxrelease215) {
+            new Chart(trendCtxrelease215.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ["06/12", "06/12"],
+                    datasets: [
+                        {
+                            label: 'CRITICAL',
+                            data: [53, 53],
+                            borderColor: '#d73a49',
+                            backgroundColor: 'rgba(215, 58, 73, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'HIGH',
+                            data: [135, 135],
+                            borderColor: '#f66a0a',
+                            backgroundColor: 'rgba(246, 106, 10, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        const deltaCtxrelease215 = document.getElementById('deltaChart-release215');
+        if (deltaCtxrelease215) {
+            new Chart(deltaCtxrelease215.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ["06/12", "06/12"],
+                    datasets: [
+                        {
+                            label: 'New CVEs',
+                            data: [0, 188],
+                            backgroundColor: '#d73a49'
+                        },
+                        {
+                            label: 'Fixed CVEs',
+                            data: [0, 0],
+                            backgroundColor: '#28a745'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+    
+
+        // release-2.16 charts
+        const trendCtxrelease216 = document.getElementById('trendChart-release216');
+        if (trendCtxrelease216) {
+            new Chart(trendCtxrelease216.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ["06/12", "06/12"],
+                    datasets: [
+                        {
+                            label: 'CRITICAL',
+                            data: [53, 53],
+                            borderColor: '#d73a49',
+                            backgroundColor: 'rgba(215, 58, 73, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'HIGH',
+                            data: [143, 143],
+                            borderColor: '#f66a0a',
+                            backgroundColor: 'rgba(246, 106, 10, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        const deltaCtxrelease216 = document.getElementById('deltaChart-release216');
+        if (deltaCtxrelease216) {
+            new Chart(deltaCtxrelease216.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ["06/12", "06/12"],
+                    datasets: [
+                        {
+                            label: 'New CVEs',
+                            data: [0, 196],
+                            backgroundColor: '#d73a49'
+                        },
+                        {
+                            label: 'Fixed CVEs',
+                            data: [0, 0],
+                            backgroundColor: '#28a745'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+    
+
+        // release-2.17 charts
+        const trendCtxrelease217 = document.getElementById('trendChart-release217');
+        if (trendCtxrelease217) {
+            new Chart(trendCtxrelease217.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ["06/12", "06/12"],
+                    datasets: [
+                        {
+                            label: 'CRITICAL',
+                            data: [41, 41],
+                            borderColor: '#d73a49',
+                            backgroundColor: 'rgba(215, 58, 73, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'HIGH',
+                            data: [111, 111],
+                            borderColor: '#f66a0a',
+                            backgroundColor: 'rgba(246, 106, 10, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        const deltaCtxrelease217 = document.getElementById('deltaChart-release217');
+        if (deltaCtxrelease217) {
+            new Chart(deltaCtxrelease217.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ["06/12", "06/12"],
+                    datasets: [
+                        {
+                            label: 'New CVEs',
+                            data: [0, 152],
+                            backgroundColor: '#d73a49'
+                        },
+                        {
+                            label: 'Fixed CVEs',
+                            data: [0, 0],
+                            backgroundColor: '#28a745'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+    
+
+        // release-5.0 charts
+        const trendCtxrelease50 = document.getElementById('trendChart-release50');
+        if (trendCtxrelease50) {
+            new Chart(trendCtxrelease50.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ["06/12", "06/12"],
+                    datasets: [
+                        {
+                            label: 'CRITICAL',
+                            data: [41, 41],
+                            borderColor: '#d73a49',
+                            backgroundColor: 'rgba(215, 58, 73, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'HIGH',
+                            data: [111, 111],
+                            borderColor: '#f66a0a',
+                            backgroundColor: 'rgba(246, 106, 10, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        const deltaCtxrelease50 = document.getElementById('deltaChart-release50');
+        if (deltaCtxrelease50) {
+            new Chart(deltaCtxrelease50.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ["06/12", "06/12"],
+                    datasets: [
+                        {
+                            label: 'New CVEs',
+                            data: [0, 152],
+                            backgroundColor: '#d73a49'
+                        },
+                        {
+                            label: 'Fixed CVEs',
+                            data: [0, 0],
+                            backgroundColor: '#28a745'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+    
+    </script>
+</body>
+</html>
