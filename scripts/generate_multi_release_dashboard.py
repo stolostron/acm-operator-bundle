@@ -871,10 +871,16 @@ def get_version_from_reports(release):
     return matching[-1]
 
 
-def generate_tab_button(release, is_active=False):
+def generate_tab_button(release, history=None, is_active=False):
     """Generate tab button HTML"""
     tab_id = release.replace('.', '').replace('-', '')  # release-2.17 -> release217
-    display_name = get_version_from_reports(release)
+
+    # Try to get version from history first, fallback to reports dir
+    if history and history.get('version'):
+        display_name = history['version']
+    else:
+        display_name = get_version_from_reports(release)
+
     active_class = ' active' if is_active else ''
     return f'<button class="tab{active_class}" onclick="openTab(event, \'{tab_id}\')">{display_name}</button>'
 
@@ -1414,7 +1420,7 @@ def main():
         sys.exit(0)
 
     # Generate HTML components
-    tab_buttons = '\n'.join([generate_tab_button(rel) for rel in sorted(releases.keys())])
+    tab_buttons = '\n'.join([generate_tab_button(rel, hist) for rel, hist in sorted(releases.items())])
     tab_contents = '\n'.join([generate_release_tab_content(rel, hist, extras_metadata) for rel, hist in sorted(releases.items())])
     comparison_cards = '\n'.join([generate_comparison_card(rel, hist) for rel, hist in sorted(releases.items())])
 
