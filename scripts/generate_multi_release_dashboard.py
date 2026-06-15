@@ -22,6 +22,46 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <title>ACM CVE Trends - All Releases</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
+        :root {{
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --border-color: #e1e4e8;
+            --hover-bg: #f6f8fa;
+            --shadow: rgba(0,0,0,0.1);
+        }}
+
+        [data-theme="dark"] {{
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --border-color: #30363d;
+            --hover-bg: #21262d;
+            --shadow: rgba(0,0,0,0.3);
+        }}
+
+        a {{
+            color: #0366d6;
+        }}
+
+        [data-theme="dark"] a {{
+            color: #58a6ff;
+        }}
+
+        a:visited {{
+            color: #0366d6;
+        }}
+
+        [data-theme="dark"] a:visited {{
+            color: #58a6ff;
+        }}
+
+        a code {{
+            color: inherit;
+        }}
+
         * {{
             margin: 0;
             padding: 0;
@@ -30,9 +70,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
         body {{
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #f5f5f5;
-            color: #333;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             line-height: 1.6;
+            transition: background 0.3s, color 0.3s;
         }}
 
         .header {{
@@ -40,6 +81,25 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             color: white;
             padding: 20px;
             text-align: center;
+            position: relative;
+        }}
+
+        .theme-toggle {{
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            color: white;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }}
+
+        .theme-toggle:hover {{
+            background: rgba(255,255,255,0.3);
         }}
 
         .header h1 {{
@@ -53,10 +113,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         }}
 
         .tabs {{
-            background: white;
+            background: var(--bg-secondary);
             padding: 0;
             display: flex;
-            border-bottom: 2px solid #e1e4e8;
+            border-bottom: 2px solid var(--border-color);
             overflow-x: auto;
         }}
 
@@ -66,15 +126,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             border: none;
             background: none;
             font-size: 1em;
-            color: #666;
+            color: var(--text-secondary);
             border-bottom: 3px solid transparent;
             transition: all 0.3s;
             white-space: nowrap;
         }}
 
         .tab:hover {{
-            background: #f6f8fa;
-            color: #333;
+            background: var(--hover-bg);
+            color: var(--text-primary);
         }}
 
         .tab.active {{
@@ -144,16 +204,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         }}
 
         .chart-container {{
-            background: white;
+            background: var(--bg-secondary);
             padding: 20px;
             border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px var(--shadow);
         }}
 
         .chart-container h2 {{
             font-size: 1.2em;
             margin-bottom: 15px;
-            color: #24292e;
+            color: var(--text-primary);
         }}
 
         canvas {{
@@ -163,23 +223,23 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         .component-table {{
             width: 100%;
             border-collapse: collapse;
-            background: white;
+            background: var(--bg-secondary);
             border-radius: 6px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px var(--shadow);
         }}
 
         .component-table th,
         .component-table td {{
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #e1e4e8;
+            border-bottom: 1px solid var(--border-color);
         }}
 
         .component-table th {{
-            background: #f6f8fa;
+            background: var(--hover-bg);
             font-weight: 600;
-            color: #24292e;
+            color: var(--text-primary);
             cursor: pointer;
             user-select: none;
             position: relative;
@@ -187,7 +247,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         }}
 
         .component-table th:hover {{
-            background: #e1e4e8;
+            background: var(--border-color);
         }}
 
         .component-table th::after {{
@@ -208,7 +268,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         }}
 
         .component-table tr:hover {{
-            background: #f6f8fa;
+            background: var(--hover-bg);
         }}
 
         .severity-badge {{
@@ -227,6 +287,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         .severity-high {{
             background: #f66a0a;
             color: white;
+        }}
+
+        .severity-medium {{
+            background: #fb8500;
+            color: white;
+        }}
+
+        .severity-low {{
+            background: #ffd60a;
+            color: #333;
         }}
 
         .no-data {{
@@ -256,6 +326,19 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             background: #0256c5;
         }}
 
+        select {{
+            outline: none;
+        }}
+
+        select:hover {{
+            border-color: #0366d6 !important;
+        }}
+
+        select:focus {{
+            border-color: #0366d6 !important;
+            box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
+        }}
+
         .component-row-hidden {{
             display: none;
         }}
@@ -263,36 +346,31 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         .cve-tooltip {{
             position: relative;
             cursor: help;
+            display: inline-block;
         }}
 
         .cve-tooltip .tooltiptext {{
             visibility: hidden;
-            width: 450px;
+            width: 400px;
             background-color: #24292e;
             color: #fff;
             text-align: left;
             border-radius: 6px;
             padding: 15px;
-            position: absolute;
-            z-index: 1000;
-            top: -10px;
-            left: 120%;
+            position: fixed;
+            z-index: 10000;
             opacity: 0;
             transition: opacity 0.3s;
             font-size: 0.9em;
             line-height: 1.5;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            pointer-events: none;
         }}
 
-        .cve-tooltip .tooltiptext::after {{
-            content: "";
-            position: absolute;
-            top: 20px;
-            right: 100%;
-            margin-top: -5px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: transparent #24292e transparent transparent;
+        [data-theme="dark"] .cve-tooltip .tooltiptext {{
+            background-color: #21262d;
+            color: #c9d1d9;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
         }}
 
         .cve-tooltip:hover .tooltiptext {{
@@ -326,14 +404,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         }}
 
         .modal-content {{
-            background-color: #fefefe;
+            background-color: var(--bg-secondary);
             margin: 5% auto;
             padding: 0;
-            border: 1px solid #888;
+            border: 1px solid var(--border-color);
             width: 90%;
             max-width: 1000px;
             border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 20px var(--shadow);
             max-height: 85vh;
             overflow-y: auto;
         }}
@@ -377,6 +455,82 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             color: #0256c5;
         }}
 
+        [data-theme="dark"] .component-link {{
+            color: #58a6ff;
+        }}
+
+        [data-theme="dark"] .component-link:hover {{
+            color: #79b8ff;
+        }}
+
+        .commit-link {{
+            color: #8b949e;
+            text-decoration: none;
+        }}
+
+        .commit-link:hover {{
+            color: #0366d6;
+            text-decoration: underline;
+        }}
+
+        [data-theme="dark"] .commit-link {{
+            color: #8b949e;
+        }}
+
+        [data-theme="dark"] .commit-link:hover {{
+            color: #58a6ff;
+            text-decoration: underline;
+        }}
+
+        .cve-blast-link {{
+            text-decoration: none;
+            color: #0366d6;
+        }}
+
+        .cve-blast-link:hover {{
+            text-decoration: underline;
+        }}
+
+        [data-theme="dark"] .cve-blast-link {{
+            color: #58a6ff;
+        }}
+
+        [data-theme="dark"] .cve-blast-link:hover {{
+            text-decoration: underline;
+        }}
+
+        .section-header {{
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 40px 0 15px 0;
+        }}
+
+        .section-header:hover {{
+            color: #0366d6;
+        }}
+
+        .section-header::before {{
+            content: '▼';
+            font-size: 0.8em;
+            transition: transform 0.3s;
+        }}
+
+        .section-header.collapsed::before {{
+            transform: rotate(-90deg);
+        }}
+
+        .collapsible-content {{
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }}
+
+        .collapsible-content.collapsed {{
+            max-height: 0 !important;
+        }}
+
         /* Compare All tab specific styles */
         .comparison-grid {{
             display: grid;
@@ -386,23 +540,31 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         }}
 
         .release-card {{
-            background: white;
-            padding: 20px;
+            background: var(--bg-secondary);
+            padding: 16px;
             border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px var(--shadow);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }}
+
+        .release-card:hover {{
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px var(--shadow);
         }}
 
         .release-card h3 {{
             font-size: 1.3em;
             margin-bottom: 15px;
-            color: #24292e;
+            color: var(--text-primary);
         }}
 
         .release-card .stat {{
             display: flex;
             justify-content: space-between;
             padding: 8px 0;
-            border-bottom: 1px solid #e1e4e8;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
         }}
 
         .release-card .stat:last-child {{
@@ -421,6 +583,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 </head>
 <body>
     <div class="header">
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙 Dark Mode</button>
         <h1>🔒 ACM CVE Trend Dashboard</h1>
         <p class="meta">Multi-Release Analysis | Updated: {timestamp}</p>
     </div>
@@ -431,15 +594,28 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </div>
 
     <div id="compare-all" class="tab-content active">
-        <h2 style="margin-bottom: 20px; font-size: 1.8em;">Release Comparison</h2>
-        <div class="comparison-grid">
-            {comparison_cards}
+        <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
+            <button id="filterCritical" class="show-all-btn" onclick="filterComparison('CRITICAL')" style="background: #d73a49; opacity: 0.5;">CRITICAL</button>
+            <button id="filterHigh" class="show-all-btn" onclick="filterComparison('HIGH')" style="background: #f66a0a; opacity: 0.5;">HIGH</button>
+            <button id="filterMedium" class="show-all-btn" onclick="filterComparison('MEDIUM')" style="background: #fb8500; opacity: 0.5;">MEDIUM</button>
+            <button id="filterLow" class="show-all-btn" onclick="filterComparison('LOW')" style="background: #ffd60a; opacity: 0.5;">LOW</button>
+            <button id="filterAll" class="show-all-btn" onclick="filterComparison(null)" style="background: #0366d6; border: 2px solid #0366d6;">All</button>
+            <div style="flex: 1;"></div>
+            <button class="show-all-btn" onclick="toggleView('cards')" id="viewCards" style="background: #0366d6; border: 2px solid #0366d6;">📊 Cards</button>
+            <button class="show-all-btn" onclick="toggleView('chart')" id="viewChart" style="background: #666; opacity: 0.5;">📈 Chart</button>
         </div>
 
-        <div class="chart-container" style="margin-bottom: 30px;">
-            <h2>All Releases - Latest CVE Counts</h2>
-            <canvas id="compareChart"></canvas>
+        <h2 id="comparison-header" class="section-header" onclick="toggleSection('comparison')" style="margin-bottom: 20px; font-size: 1.8em;">📊 Release Overview</h2>
+        <div id="comparison-content" class="collapsible-content" style="max-height: none;">
+            <div id="cardsView" class="comparison-grid">
+                {comparison_cards}
+            </div>
+            <div id="chartView" class="chart-container" style="display: none;">
+                <canvas id="compareChart"></canvas>
+            </div>
         </div>
+
+        {cross_release_table}
     </div>
 
     {tab_contents}
@@ -462,6 +638,35 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
         {component_cve_data_js}
 
+        // Theme toggle
+        function toggleTheme() {{
+            const html = document.documentElement;
+            const btn = document.getElementById('themeToggle');
+            const currentTheme = html.getAttribute('data-theme');
+
+            if (currentTheme === 'dark') {{
+                html.removeAttribute('data-theme');
+                btn.textContent = '🌙 Dark Mode';
+                localStorage.setItem('theme', 'light');
+            }} else {{
+                html.setAttribute('data-theme', 'dark');
+                btn.textContent = '☀️ Light Mode';
+                localStorage.setItem('theme', 'dark');
+            }}
+        }}
+
+        // Load saved theme
+        (function() {{
+            const savedTheme = localStorage.getItem('theme');
+            const html = document.documentElement;
+            const btn = document.getElementById('themeToggle');
+
+            if (savedTheme === 'dark') {{
+                html.setAttribute('data-theme', 'dark');
+                btn.textContent = '☀️ Light Mode';
+            }}
+        }})();
+
         function openTab(evt, tabName) {{
             var i, tabcontent, tablinks;
             tabcontent = document.getElementsByClassName("tab-content");
@@ -474,6 +679,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             }}
             document.getElementById(tabName).className += " active";
             evt.currentTarget.className += " active";
+
+            // Save active tab to localStorage
+            localStorage.setItem('activeTab', tabName);
         }}
 
         function sortTable(tabId, columnIndex, type) {{
@@ -495,13 +703,17 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             // Add new sort class
             header.classList.add('sort-' + newSort);
 
-            // Sort rows
-            rows.sort((a, b) => {{
+            // Separate visible and hidden rows (based on current filter/squad)
+            const visibleRows = rows.filter(row => row.style.display !== 'none');
+            const hiddenRows = rows.filter(row => row.style.display === 'none');
+
+            // Sort only visible rows
+            visibleRows.sort((a, b) => {{
                 let aVal, bVal;
 
                 if (type === 'number') {{
                     // Use data attributes for numeric sorting
-                    const dataAttr = ['component', 'critical', 'high', 'total'][columnIndex];
+                    const dataAttr = ['component', 'critical', 'high', 'medium', 'low', 'total'][columnIndex];
                     aVal = parseInt(a.dataset[dataAttr] || 0);
                     bVal = parseInt(b.dataset[dataAttr] || 0);
                 }} else {{
@@ -517,8 +729,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 }}
             }});
 
-            // Re-append sorted rows
-            rows.forEach(row => tbody.appendChild(row));
+            // Re-append visible rows first, then hidden rows (to maintain filter)
+            visibleRows.forEach(row => tbody.appendChild(row));
+            hiddenRows.forEach(row => tbody.appendChild(row));
+
+            // Reset to page 1 after sort
+            const resetFn = window['currentPageInternal' + tabId];
+            if (typeof resetFn !== 'undefined') window['currentPageInternal' + tabId] = 1;
+            const applyFn = window['applyPageInternal' + tabId];
+            if (applyFn) applyFn();
         }}
 
         function sortExternalTable(tabId, columnIndex, type) {{
@@ -540,12 +759,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             // Add new sort class
             header.classList.add('sort-' + newSort);
 
-            // Sort rows
-            rows.sort((a, b) => {{
+            // Separate visible and hidden rows (based on current filter/squad)
+            const visibleRows = rows.filter(row => row.style.display !== 'none');
+            const hiddenRows = rows.filter(row => row.style.display === 'none');
+
+            // Sort only visible rows
+            visibleRows.sort((a, b) => {{
                 let aVal, bVal;
 
                 if (type === 'number') {{
-                    const dataAttr = ['component', 'critical', 'high', 'total'][columnIndex];
+                    const dataAttr = ['component', 'critical', 'high', 'medium', 'low', 'total'][columnIndex];
                     aVal = parseInt(a.dataset[dataAttr] || 0);
                     bVal = parseInt(b.dataset[dataAttr] || 0);
                 }} else {{
@@ -560,8 +783,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 }}
             }});
 
-            // Re-append sorted rows
-            rows.forEach(row => tbody.appendChild(row));
+            // Re-append visible rows first, then hidden rows
+            visibleRows.forEach(row => tbody.appendChild(row));
+            hiddenRows.forEach(row => tbody.appendChild(row));
+
+            // Reset to page 1 after sort
+            const resetFn = window['currentPageExternal' + tabId];
+            if (typeof resetFn !== 'undefined') window['currentPageExternal' + tabId] = 1;
+            const applyFn = window['applyPageExternal' + tabId];
+            if (applyFn) applyFn();
         }}
 
         function sortFixedTable(tabId, columnIndex) {{
@@ -624,7 +854,209 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 let aVal, bVal;
 
                 if (type === 'number') {{
-                    const dataAttr = ['cve', 'severity', 'cvss', 'count', '', '', 'fixable'][columnIndex];
+                    const dataAttr = ['cve', 'severity', 'cvss', 'count', '', '', 'fixable', 'days'][columnIndex];
+                    aVal = parseFloat(a.dataset[dataAttr] || 0);
+                    bVal = parseFloat(b.dataset[dataAttr] || 0);
+                }} else {{
+                    aVal = a.cells[columnIndex].textContent.trim().toLowerCase();
+                    bVal = b.cells[columnIndex].textContent.trim().toLowerCase();
+                }}
+
+                if (newSort === 'asc') {{
+                    return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+                }} else {{
+                    return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+                }}
+            }});
+
+            // Re-append sorted rows
+            rows.forEach(row => tbody.appendChild(row));
+        }}
+
+        function sortUnfixableTable(tabId, columnIndex, type) {{
+            const table = document.getElementById('unfixableTable-' + tabId);
+            if (!table) return;
+
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const header = table.querySelectorAll('th')[columnIndex];
+
+            // Determine sort direction
+            const currentSort = header.classList.contains('sort-asc') ? 'asc' :
+                               header.classList.contains('sort-desc') ? 'desc' : 'none';
+            const newSort = currentSort === 'asc' ? 'desc' : 'asc';
+
+            // Remove all sort classes
+            table.querySelectorAll('th').forEach(th => {{
+                th.classList.remove('sort-asc', 'sort-desc');
+            }});
+
+            // Add new sort class
+            header.classList.add('sort-' + newSort);
+
+            // Sort rows
+            rows.sort((a, b) => {{
+                let aVal, bVal;
+
+                if (type === 'number') {{
+                    const dataAttr = ['cve', 'severity', 'cvss', 'component', '', 'days'][columnIndex];
+                    aVal = parseFloat(a.dataset[dataAttr] || 0);
+                    bVal = parseFloat(b.dataset[dataAttr] || 0);
+                }} else {{
+                    aVal = a.cells[columnIndex].textContent.trim().toLowerCase();
+                    bVal = b.cells[columnIndex].textContent.trim().toLowerCase();
+                }}
+
+                if (newSort === 'asc') {{
+                    return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+                }} else {{
+                    return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+                }}
+            }});
+
+            // Re-append sorted rows
+            rows.forEach(row => tbody.appendChild(row));
+        }}
+
+        function openTabById(tabId) {{
+            // Find button with matching onclick containing tabId
+            const buttons = document.querySelectorAll('.tab');
+            for (const btn of buttons) {{
+                const onclick = btn.getAttribute('onclick');
+                if (onclick && onclick.includes(tabId)) {{
+                    btn.click();
+                    break;
+                }}
+            }}
+        }}
+
+        function toggleView(view) {{
+            const cardsView = document.getElementById('cardsView');
+            const chartView = document.getElementById('chartView');
+            const cardsBtn = document.getElementById('viewCards');
+            const chartBtn = document.getElementById('viewChart');
+
+            if (view === 'cards') {{
+                cardsView.style.display = 'grid';
+                chartView.style.display = 'none';
+                cardsBtn.style.opacity = '1';
+                cardsBtn.style.border = '2px solid #0366d6';
+                chartBtn.style.opacity = '0.5';
+                chartBtn.style.border = 'none';
+            }} else {{
+                cardsView.style.display = 'none';
+                chartView.style.display = 'block';
+                chartBtn.style.opacity = '1';
+                chartBtn.style.border = '2px solid #0366d6';
+                cardsBtn.style.opacity = '0.5';
+                cardsBtn.style.border = 'none';
+            }}
+        }}
+
+        function filterComparison(severity) {{
+            const cards = document.querySelectorAll('.release-card');
+            const crossTable = document.getElementById('crossReleaseTable');
+
+            // Update button states
+            const critBtn = document.getElementById('filterCritical');
+            const highBtn = document.getElementById('filterHigh');
+            const medBtn = document.getElementById('filterMedium');
+            const lowBtn = document.getElementById('filterLow');
+            const allBtn = document.getElementById('filterAll');
+
+            [critBtn, highBtn, medBtn, lowBtn, allBtn].forEach(btn => {{
+                btn.style.opacity = '0.5';
+                btn.style.border = 'none';
+            }});
+
+            const severityColors = {{
+                'CRITICAL': '#d73a49',
+                'HIGH': '#f66a0a',
+                'MEDIUM': '#fb8500',
+                'LOW': '#ffd60a'
+            }};
+
+            // Remove existing no-data message
+            const existingMsg = document.getElementById('noDataMessage');
+            if (existingMsg) existingMsg.remove();
+
+            if (!severity) {{
+                allBtn.style.opacity = '1';
+                allBtn.style.border = '2px solid #0366d6';
+                cards.forEach(card => card.style.display = '');
+                if (crossTable) {{
+                    crossTable.querySelectorAll('tbody tr').forEach(row => row.style.display = '');
+                }}
+            }} else {{
+                const btnMap = {{
+                    'CRITICAL': critBtn,
+                    'HIGH': highBtn,
+                    'MEDIUM': medBtn,
+                    'LOW': lowBtn
+                }};
+                const activeBtn = btnMap[severity];
+                activeBtn.style.opacity = '1';
+                activeBtn.style.border = '2px solid ' + severityColors[severity];
+
+                let visibleCount = 0;
+                cards.forEach(card => {{
+                    const count = parseInt(card.dataset[severity.toLowerCase()] || 0);
+                    if (count > 0) {{
+                        card.style.display = '';
+                        visibleCount++;
+                    }} else {{
+                        card.style.display = 'none';
+                    }}
+                }});
+
+                // Show "no data" message if no cards visible
+                if (visibleCount === 0) {{
+                    const cardsView = document.getElementById('cardsView');
+                    if (cardsView) {{
+                        const msg = document.createElement('div');
+                        msg.id = 'noDataMessage';
+                        msg.style.cssText = 'text-align: center; padding: 60px 20px; color: var(--text-secondary); font-size: 1.1em;';
+                        msg.innerHTML = '<div style="font-size: 3em; margin-bottom: 10px;">📭</div>No releases with ' + severity + ' CVEs';
+                        cardsView.appendChild(msg);
+                    }}
+                }}
+
+                if (crossTable) {{
+                    crossTable.querySelectorAll('tbody tr').forEach(row => {{
+                        const rowSeverity = row.querySelector('.severity-badge')?.textContent.trim();
+                        row.style.display = rowSeverity === severity ? '' : 'none';
+                    }});
+                }}
+            }}
+        }}
+
+        function sortCrossReleaseTable(columnIndex, type) {{
+            const table = document.getElementById('crossReleaseTable');
+            if (!table) return;
+
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const header = table.querySelectorAll('th')[columnIndex];
+
+            // Determine sort direction
+            const currentSort = header.classList.contains('sort-asc') ? 'asc' :
+                               header.classList.contains('sort-desc') ? 'desc' : 'none';
+            const newSort = currentSort === 'asc' ? 'desc' : 'asc';
+
+            // Remove all sort classes
+            table.querySelectorAll('th').forEach(th => {{
+                th.classList.remove('sort-asc', 'sort-desc');
+            }});
+
+            // Add new sort class
+            header.classList.add('sort-' + newSort);
+
+            // Sort rows
+            rows.sort((a, b) => {{
+                let aVal, bVal;
+
+                if (type === 'number') {{
+                    const dataAttr = ['cve', 'severity', 'releases', '', ''][columnIndex];
                     aVal = parseFloat(a.dataset[dataAttr] || 0);
                     bVal = parseFloat(b.dataset[dataAttr] || 0);
                 }} else {{
@@ -708,10 +1140,19 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 return;
             }}
 
+            // Get active filter for this tab
+            const activeFilter = window['activeSeverityFilter_' + tabId] || null;
+
+            // Filter data if severity filter active
+            const filteredData = activeFilter
+                ? componentData.filter(cve => cve.severity === activeFilter)
+                : componentData;
+
             // Build CVE table with sorting
             const tableId = 'modalTable-' + component.replace(/[^a-zA-Z0-9]/g, '_');
+            const filterNote = activeFilter ? ` (filtered to ${{activeFilter}} only)` : '';
             let html = `
-                <p><strong>${{componentData.length}} CVEs found</strong></p>
+                <p><strong>${{filteredData.length}} CVEs found${{filterNote}}</strong></p>
                 <table class="component-table" id="${{tableId}}">
                     <thead>
                         <tr>
@@ -726,7 +1167,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
             const severityOrder = {{'CRITICAL': 4, 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1, 'UNKNOWN': 0}};
 
-            componentData.forEach(cve => {{
+            filteredData.forEach(cve => {{
                 const cvssDisplay = cve.cvss_score ? cve.cvss_score.toFixed(1) : '—';
                 const cvssValue = cve.cvss_score || 0;
                 const cvssColor = cve.cvss_score >= 9 ? '#d73a49' : cve.cvss_score >= 7 ? '#f66a0a' : '#666';
@@ -736,7 +1177,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
                 let cveLink;
                 if (cve.cve_id.startsWith('CVE-')) {{
-                    cveLink = `<a href="https://nvd.nist.gov/vuln/detail/${{cve.cve_id}}" target="_blank"><code>${{cve.cve_id}}</code></a>`;
+                    cveLink = `<a href="https://access.redhat.com/security/cve/${{cve.cve_id}}" target="_blank"><code>${{cve.cve_id}}</code></a> <a href="https://nvd.nist.gov/vuln/detail/${{cve.cve_id}}" target="_blank" style="font-size: 0.8em; color: var(--text-secondary);">(NVD)</a>`;
                 }} else if (cve.cve_id.startsWith('GO-')) {{
                     cveLink = `<a href="https://pkg.go.dev/vuln/${{cve.cve_id}}" target="_blank"><code>${{cve.cve_id}}</code></a>`;
                 }} else {{
@@ -769,6 +1210,35 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             }}
         }}
 
+        // Position fixed tooltip relative to trigger element
+        document.addEventListener('mouseover', function(e) {{
+            const trigger = e.target.closest('.cve-tooltip');
+            if (trigger) {{
+                const tooltipEl = trigger.querySelector('.tooltiptext');
+                if (tooltipEl) {{
+                    const rect = trigger.getBoundingClientRect();
+                    const tooltipWidth = 400;
+                    const gap = 10;
+
+                    // Default: right side
+                    let left = rect.right + gap;
+                    let top = rect.top;
+
+                    // Flip to left if would overflow viewport
+                    if (left + tooltipWidth > window.innerWidth) {{
+                        left = rect.left - tooltipWidth - gap;
+                    }}
+
+                    // Keep in viewport bounds
+                    if (left < 0) left = gap;
+                    if (top < 0) top = gap;
+
+                    tooltipEl.style.left = left + 'px';
+                    tooltipEl.style.top = top + 'px';
+                }}
+            }}
+        }});
+
         // Attach click handlers to component links (prevents XSS from inline onclick)
         document.addEventListener('DOMContentLoaded', function() {{
             document.querySelectorAll('.component-link').forEach(link => {{
@@ -796,23 +1266,47 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                     }});
                 }});
             }}
+
+            // Apply initial page size to all tables
+            document.querySelectorAll('[id^="cvesTable-"]').forEach(table => {{
+                const tabId = table.id.replace('cvesTable-', '');
+
+                // Apply CVE pagination
+                const applyPageCVE = window['applyPageCVE' + tabId];
+                if (applyPageCVE) applyPageCVE();
+
+                // Apply component pagination
+                const applyPageInternal = window['applyPageInternal' + tabId];
+                if (applyPageInternal) applyPageInternal();
+
+                const applyPageExternal = window['applyPageExternal' + tabId];
+                if (applyPageExternal) applyPageExternal();
+            }});
+
+            // Restore active tab from localStorage
+            const savedTab = localStorage.getItem('activeTab');
+            if (savedTab) {{
+                const tabBtn = document.querySelector(`[onclick*="'${{savedTab}}'"]`);
+                if (tabBtn) {{
+                    tabBtn.click();
+                }}
+            }}
         }});
 
-        function toggleShowAll(tabId, tableType) {{
-            const tableId = tableType === 'internal' ? 'componentTable-' + tabId : 'externalTable-' + tabId;
-            const table = document.getElementById(tableId);
-            const hiddenRows = table.querySelectorAll('.component-row-hidden');
-            const btn = event.target;
+        function toggleSection(sectionId) {{
+            const header = document.getElementById(sectionId + '-header');
+            const content = document.getElementById(sectionId + '-content');
 
-            if (hiddenRows.length > 0 && hiddenRows[0].style.display === 'none' || !hiddenRows[0].style.display) {{
-                // Show all
-                hiddenRows.forEach(row => row.style.display = 'table-row');
-                btn.textContent = btn.textContent.replace('Show All', 'Show Top 15');
+            if (!header || !content) return;
+
+            if (content.classList.contains('collapsed')) {{
+                content.classList.remove('collapsed');
+                header.classList.remove('collapsed');
+                content.style.maxHeight = content.scrollHeight + 'px';
             }} else {{
-                // Hide extras
-                hiddenRows.forEach(row => row.style.display = 'none');
-                const total = btn.textContent.match(/\\d+/)[0];
-                btn.textContent = `Show All ${{tableType === 'internal' ? 'Internal' : 'External'}} (${{total}} total)`;
+                content.classList.add('collapsed');
+                header.classList.add('collapsed');
+                content.style.maxHeight = '0';
             }}
         }}
 
@@ -1073,27 +1567,50 @@ def generate_release_tab_content(release, history, extras_metadata=None):
     for i, (component, counts) in enumerate(internal_components):
         critical = counts.get('CRITICAL', 0)
         high = counts.get('HIGH', 0)
+        medium = counts.get('MEDIUM', 0)
+        low = counts.get('LOW', 0)
         total = counts.get('total', 0)
 
         # Get git metadata and make clickable for CVE drill-down (use data attrs to avoid XSS)
         if extras_metadata and component in extras_metadata:
             meta = extras_metadata[component]
+            display_name = meta.get('image_name', component)
+
+            # Build rich tooltip
+            tooltip_parts = [f'<div class="tooltip-title">{component}</div>']
+            if meta.get('squad'):
+                tooltip_parts.append(f'<div><strong>Squad:</strong> {meta["squad"]}</div>')
+            if meta.get('jira_component'):
+                tooltip_parts.append(f'<div><strong>JIRA:</strong> {meta["jira_component"]}</div>')
+            if meta.get('repository'):
+                repo_short = meta['repository'].replace('https://github.com/', '')
+                tooltip_parts.append(f'<div><strong>Repo:</strong> {repo_short}</div>')
+
+            tooltip_content = ''.join(tooltip_parts)
+            name_html = f'<div class="cve-tooltip"><span class="component-link" data-component="{component}" data-tab="{tab_id}">{display_name}</span><span class="tooltiptext">{tooltip_content}</span></div>'
+
             if meta.get('commit_url'):
                 commit_short = meta['git_revision'][:7] if meta.get('git_revision') else ''
-                component_display = f'<span class="component-link" data-component="{component}" data-tab="{tab_id}">{component}</span> <a href="{meta["commit_url"]}" target="_blank" style="color: #0366d6; font-size: 0.85em;">({commit_short})</a>'
+                component_display = f'{name_html} <a href="{meta["commit_url"]}" target="_blank" class="commit-link" style="font-size: 0.85em;">({commit_short})</a>'
             else:
-                component_display = f'<span class="component-link" data-component="{component}" data-tab="{tab_id}">{component}</span>'
+                component_display = name_html
         else:
             component_display = f'<span class="component-link" data-component="{component}" data-tab="{tab_id}">{component}</span>'
 
         # Hide rows beyond top 15 by default
         hidden_class = ' class="component-row-hidden"' if i >= 15 else ''
 
+        squad = ''
+        if extras_metadata and component in extras_metadata:
+            squad = extras_metadata[component].get('squad', '')
+
         internal_rows.append(f"""
-                <tr{hidden_class} data-component="{component}" data-critical="{critical}" data-high="{high}" data-total="{total}">
+                <tr{hidden_class} data-component="{component}" data-squad="{squad}" data-critical="{critical}" data-high="{high}" data-medium="{medium}" data-low="{low}" data-total="{total}">
                     <td>{component_display}</td>
-                    <td style="text-align: center;"><span class="severity-badge severity-critical">{critical}</span></td>
-                    <td style="text-align: center;"><span class="severity-badge severity-high">{high}</span></td>
+                    <td class="col-critical" style="text-align: center;"><span class="severity-badge severity-critical">{critical}</span></td>
+                    <td class="col-high" style="text-align: center;"><span class="severity-badge severity-high">{high}</span></td>
+                    <td class="col-medium" style="text-align: center;"><span class="severity-badge severity-medium">{medium}</span></td>
+                    <td class="col-low" style="text-align: center;"><span class="severity-badge severity-low">{low}</span></td>
                     <td style="text-align: center;"><span id="total-{tab_id}-{component.replace('/', '-')}">{total}</span></td>
                 </tr>""")
 
@@ -1101,38 +1618,87 @@ def generate_release_tab_content(release, history, extras_metadata=None):
     for i, (component, counts) in enumerate(external_components):
         critical = counts.get('CRITICAL', 0)
         high = counts.get('HIGH', 0)
+        medium = counts.get('MEDIUM', 0)
+        low = counts.get('LOW', 0)
         total = counts.get('total', 0)
+
+        squad = ''
+        if extras_metadata and component in extras_metadata:
+            squad = extras_metadata[component].get('squad', '')
+
+        # Check if component has metadata (image-name)
+        if extras_metadata and component in extras_metadata:
+            meta = extras_metadata[component]
+            display_name = meta.get('image_name', component)
+
+            # Build rich tooltip
+            tooltip_parts = [f'<div class="tooltip-title">{component}</div>']
+            if meta.get('squad'):
+                tooltip_parts.append(f'<div><strong>Squad:</strong> {meta["squad"]}</div>')
+            if meta.get('jira_component'):
+                tooltip_parts.append(f'<div><strong>JIRA:</strong> {meta["jira_component"]}</div>')
+            if meta.get('repository'):
+                repo_short = meta['repository'].replace('https://github.com/', '')
+                tooltip_parts.append(f'<div><strong>Repo:</strong> {repo_short}</div>')
+
+            tooltip_content = ''.join(tooltip_parts)
+            name_html = f'<div class="cve-tooltip"><span class="component-link" data-component="{component}" data-tab="{tab_id}">{display_name}</span><span class="tooltiptext">{tooltip_content}</span></div>'
+
+            component_display = f'{name_html} <span style="color: #666; font-size: 0.85em;">(upstream)</span>'
+        else:
+            component_display = f'<span class="component-link" data-component="{component}" data-tab="{tab_id}">{component}</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span>'
 
         # Hide rows beyond top 15 by default
         hidden_class = ' class="component-row-hidden"' if i >= 15 else ''
 
         external_rows.append(f"""
-                <tr{hidden_class} data-component="{component}" data-critical="{critical}" data-high="{high}" data-total="{total}">
-                    <td><span class="component-link" data-component="{component}" data-tab="{tab_id}">{component}</span> <span style="color: #666; font-size: 0.85em;">(upstream)</span></td>
-                    <td style="text-align: center;"><span class="severity-badge severity-critical">{critical}</span></td>
-                    <td style="text-align: center;"><span class="severity-badge severity-high">{high}</span></td>
+                <tr{hidden_class} data-component="{component}" data-squad="{squad}" data-critical="{critical}" data-high="{high}" data-medium="{medium}" data-low="{low}" data-total="{total}">
+                    <td>{component_display}</td>
+                    <td class="col-critical" style="text-align: center;"><span class="severity-badge severity-critical">{critical}</span></td>
+                    <td class="col-high" style="text-align: center;"><span class="severity-badge severity-high">{high}</span></td>
+                    <td class="col-medium" style="text-align: center;"><span class="severity-badge severity-medium">{medium}</span></td>
+                    <td class="col-low" style="text-align: center;"><span class="severity-badge severity-low">{low}</span></td>
                     <td style="text-align: center;"><span id="total-{tab_id}-{component.replace('/', '-')}">{total}</span></td>
                 </tr>""")
 
+    # Get all squads from registry (not just current release components)
+    all_squads = extras_metadata.get('all_squads', set()) if extras_metadata else set()
+    squad_options = ''.join([f'<option value="{squad}">{squad}</option>' for squad in sorted(all_squads)])
+
+    # Calculate fixable and unfixable counts
+    cve_details = latest_scan.get('summary', {}).get('cve_details', [])
+    fixable_cves = set()
+    unfixable_cves = set()
+    for detail in cve_details:
+        cve_id = detail.get('cve_id')
+        if detail.get('fixed_versions'):
+            fixable_cves.add(cve_id)
+        else:
+            unfixable_cves.add(cve_id)
+    fixable_count = len(fixable_cves)
+    unfixable_count = len(unfixable_cves)
+
+    total_cves = latest_scan.get('summary', {}).get('total_cves', 0)
+    critical_count = latest_severity.get('CRITICAL', 0)
+    high_count = latest_severity.get('HIGH', 0)
+    medium_count = latest_severity.get('MEDIUM', 0)
+    low_count = latest_severity.get('LOW', 0)
+
     return f"""
     <div id="{tab_id}" class="tab-content">
-        <div class="summary-cards">
-            <div class="summary-card critical">
-                <h3>{latest_severity.get('CRITICAL', 0)}</h3>
-                <p>CRITICAL (instances)</p>
+        <div style="background: var(--bg-secondary); padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px var(--shadow); margin-bottom: 30px; display: flex; align-items: center; gap: 40px;">
+            <div style="flex: 0 0 200px;">
+                <canvas id="severityDonut-{tab_id}" width="200" height="200"></canvas>
             </div>
-            <div class="summary-card high">
-                <h3>{latest_severity.get('HIGH', 0)}</h3>
-                <p>HIGH (instances)</p>
-            </div>
-            <div class="summary-card">
-                <h3>{latest_scan.get('summary', {}).get('total_cves', 0)}</h3>
-                <p>Unique CVEs</p>
-                <p style="font-size: 0.8em; margin-top: 5px;">({latest_scan.get('summary', {}).get('total_matches', 0)} instances)</p>
-            </div>
-            <div class="summary-card {trend_class}">
-                <h3>{trend_indicator}</h3>
-                <p>Week-over-Week</p>
+            <div style="flex: 1;">
+                <h2 style="font-size: 1.5em; margin-bottom: 15px; color: var(--text-primary);">Grype has detected <strong>{total_cves}</strong> vulnerabilities.</h2>
+                <p style="font-size: 1.2em; margin-bottom: 20px; color: var(--text-primary);">Patches available for <strong style="color: #28a745;">{fixable_count}</strong> vulnerabilities. <strong style="color: #dc3545;">{unfixable_count}</strong> have no upstream fix.</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 0.95em; color: var(--text-primary);">
+                    <div><span style="color: #d73a49;">⚠</span> <strong>{critical_count}</strong> Critical-level vulnerabilities.</div>
+                    <div><span style="color: #f66a0a;">⚠</span> <strong>{high_count}</strong> High-level vulnerabilities.</div>
+                    <div><span style="color: #e36209;">⚠</span> <strong>{medium_count}</strong> Medium-level vulnerabilities.</div>
+                    <div><span style="color: var(--text-secondary);">⚠</span> <strong>{low_count}</strong> Low-level vulnerabilities.</div>
+                </div>
             </div>
         </div>
 
@@ -1147,45 +1713,264 @@ def generate_release_tab_content(release, history, extras_metadata=None):
             </div>
         </div>
 
-        {generate_blast_radius_section_multi(latest_scan, tab_id, extras_metadata.get('cve_descriptions', {}))}
+        {generate_combined_cve_table(latest_scan, tab_id, extras_metadata.get('cve_descriptions', {}), history)}
 
-        <h2 style="margin-bottom: 15px;">🏢 Internal Components (stolostron)</h2>
+        <hr style="margin: 40px 0 30px 0; border: none; border-top: 2px solid var(--border-color);">
+
+        <div style="margin-bottom: 20px; display: flex; gap: 25px; align-items: center; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 250px;">
+                <label for="componentSearch-{tab_id}" style="font-weight: 600; font-size: 0.95em;">Search:</label>
+                <input type="text" id="componentSearch-{tab_id}" placeholder="Component name..." oninput="searchComponents{tab_id}(this.value)" style="flex: 1; padding: 10px 14px; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.95em; transition: border-color 0.2s;">
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label for="squadFilter-{tab_id}" style="font-weight: 600; font-size: 0.95em;">Squad:</label>
+                <select id="squadFilter-{tab_id}" onchange="filterBySquad{tab_id}(this.value)" style="padding: 10px 14px; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.95em; cursor: pointer; transition: border-color 0.2s; min-width: 180px;">
+                    <option value="">All Squads</option>
+                    {squad_options}
+                </select>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label for="componentFilter-{tab_id}" style="font-weight: 600; font-size: 0.95em;">Component:</label>
+                <select id="componentFilter-{tab_id}" onchange="filterByComponent{tab_id}(this.value)" style="padding: 10px 14px; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.95em; cursor: pointer; transition: border-color 0.2s; min-width: 200px;">
+                    <option value="">All Components</option>
+                </select>
+            </div>
+        </div>
+
+        <h2 id="internal-{tab_id}-header" class="section-header" onclick="toggleSection('internal-{tab_id}')">🏢 Internal Components (stolostron)</h2>
+        <div id="internal-{tab_id}-content" class="collapsible-content" style="max-height: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div id="internalCounter-{tab_id}" style="color: var(--text-secondary); font-size: 0.9em;"></div>
+            <div id="internalPagination-{tab_id}" style="display: flex; gap: 10px; align-items: center;">
+                <button onclick="prevPageInternal{tab_id}()" id="internalPrevBtn-{tab_id}" style="padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; font-size: 0.9em;">← Previous</button>
+                <span id="internalPageInfo-{tab_id}" style="color: var(--text-secondary); font-size: 0.9em; min-width: 80px; text-align: center;"></span>
+                <button onclick="nextPageInternal{tab_id}()" id="internalNextBtn-{tab_id}" style="padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; font-size: 0.9em;">Next →</button>
+            </div>
+        </div>
         <table class="component-table" id="componentTable-{tab_id}">
             <thead>
                 <tr>
-                    <th onclick="sortTable('{tab_id}', 0, 'string')">Component</th>
-                    <th style="text-align: center;" onclick="sortTable('{tab_id}', 1, 'number')">CRITICAL</th>
-                    <th style="text-align: center;" onclick="sortTable('{tab_id}', 2, 'number')">HIGH</th>
-                    <th style="text-align: center;" onclick="sortTable('{tab_id}', 3, 'number')">Total CVEs</th>
+                    <th onclick="sortTable('{tab_id}', 0, 'string')" style="min-width: 300px;">Component</th>
+                    <th class="col-critical" style="text-align: center;" onclick="sortTable('{tab_id}', 1, 'number')">CRITICAL</th>
+                    <th class="col-high" style="text-align: center;" onclick="sortTable('{tab_id}', 2, 'number')">HIGH</th>
+                    <th class="col-medium" style="text-align: center;" onclick="sortTable('{tab_id}', 3, 'number')">MEDIUM</th>
+                    <th class="col-low" style="text-align: center;" onclick="sortTable('{tab_id}', 4, 'number')">LOW</th>
+                    <th style="text-align: center;" onclick="sortTable('{tab_id}', 5, 'number')">Total CVEs</th>
                 </tr>
             </thead>
             <tbody>
                 {''.join(internal_rows)}
             </tbody>
         </table>
-        {f'<button class="show-all-btn" onclick="toggleShowAll({chr(39)}{tab_id}{chr(39)}, {chr(39)}internal{chr(39)})">Show All Internal ({len(internal_components)} total)</button>' if len(internal_components) > 15 else ''}
+        </div>
 
-        <h2 style="margin: 40px 0 15px 0;">🌐 External/Upstream Components</h2>
+        <h2 id="external-{tab_id}-header" class="section-header" onclick="toggleSection('external-{tab_id}')">🌐 External/Upstream Components</h2>
+        <div id="external-{tab_id}-content" class="collapsible-content" style="max-height: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div id="externalCounter-{tab_id}" style="color: var(--text-secondary); font-size: 0.9em;"></div>
+            <div id="externalPagination-{tab_id}" style="display: flex; gap: 10px; align-items: center;">
+                <button onclick="prevPageExternal{tab_id}()" id="externalPrevBtn-{tab_id}" style="padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; font-size: 0.9em;">← Previous</button>
+                <span id="externalPageInfo-{tab_id}" style="color: var(--text-secondary); font-size: 0.9em; min-width: 80px; text-align: center;"></span>
+                <button onclick="nextPageExternal{tab_id}()" id="externalNextBtn-{tab_id}" style="padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; font-size: 0.9em;">Next →</button>
+            </div>
+        </div>
         <table class="component-table" id="externalTable-{tab_id}">
             <thead>
                 <tr>
-                    <th onclick="sortExternalTable('{tab_id}', 0, 'string')">Component</th>
-                    <th style="text-align: center;" onclick="sortExternalTable('{tab_id}', 1, 'number')">CRITICAL</th>
-                    <th style="text-align: center;" onclick="sortExternalTable('{tab_id}', 2, 'number')">HIGH</th>
-                    <th style="text-align: center;" onclick="sortExternalTable('{tab_id}', 3, 'number')">Total CVEs</th>
+                    <th onclick="sortExternalTable('{tab_id}', 0, 'string')" style="min-width: 300px;">Component</th>
+                    <th class="col-critical" style="text-align: center;" onclick="sortExternalTable('{tab_id}', 1, 'number')">CRITICAL</th>
+                    <th class="col-high" style="text-align: center;" onclick="sortExternalTable('{tab_id}', 2, 'number')">HIGH</th>
+                    <th class="col-medium" style="text-align: center;" onclick="sortExternalTable('{tab_id}', 3, 'number')">MEDIUM</th>
+                    <th class="col-low" style="text-align: center;" onclick="sortExternalTable('{tab_id}', 4, 'number')">LOW</th>
+                    <th style="text-align: center;" onclick="sortExternalTable('{tab_id}', 5, 'number')">Total CVEs</th>
                 </tr>
             </thead>
             <tbody>
                 {''.join(external_rows)}
             </tbody>
         </table>
-        {f'<button class="show-all-btn" onclick="toggleShowAll({chr(39)}{tab_id}{chr(39)}, {chr(39)}external{chr(39)})">Show All External ({len(external_components)} total)</button>' if len(external_components) > 15 else ''}
+        </div>
 
         {generate_fixed_cves_section(latest_scan, tab_id)}
     </div>"""
 
 
-def generate_blast_radius_section_multi(latest_scan, tab_id, cve_descriptions=None):
+def generate_combined_cve_table(latest_scan, tab_id, cve_descriptions=None, history=None):
+    """Generate combined CVE table with fixable filter"""
+    blast_radius_data = analyze_blast_radius(latest_scan, top_n=1000)  # Get all CVEs
+
+    if not blast_radius_data:
+        return ''
+
+    if cve_descriptions is None:
+        cve_descriptions = {}
+
+    # Get first_seen tracking
+    cve_first_seen = history.get('cve_first_seen', {}) if history else {}
+
+    rows = []
+    for i, cve in enumerate(blast_radius_data):
+        severity_class = 'severity-' + cve.get('severity', 'unknown').lower()
+        fixable = cve.get('fixable', False)
+        fixable_display = '✓' if fixable else '✗'
+        fixable_color = '#28a745' if fixable else '#d73a49'
+        fixable_class = 'fixable' if fixable else 'unfixable'
+
+        # Hide rows beyond top 10 by default
+        hidden_class = ' cve-row-hidden' if i >= 10 else ''
+
+        # Get affected components
+        components = cve.get('components', [])[:3]
+        component_preview = ', '.join(components)
+        if cve.get('component_count', 0) > 3:
+            component_preview += f" +{cve.get('component_count') - 3} more"
+
+        severity_order = {'CRITICAL': 4, 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1, 'UNKNOWN': 0}
+        severity_value = severity_order.get(cve.get('severity', 'UNKNOWN'), 0)
+
+        cve_id = cve.get('cve_id', 'Unknown')
+
+        # Get description and CVSS
+        desc_data = cve_descriptions.get(cve_id, {})
+        description = desc_data.get('description', 'No description available')
+        cvss_score = desc_data.get('cvss_score')
+
+        if len(description) > 300:
+            description = description[:297] + '...'
+
+        tooltip_content = f'<div class="tooltip-title">{cve_id}</div>'
+        if cvss_score:
+            tooltip_content += f'<div class="tooltip-cvss">CVSS: {cvss_score} ({cve.get("severity", "UNKNOWN")})</div>'
+        tooltip_content += f'<div>{description}</div>'
+
+        if cve_id.startswith('CVE-'):
+            base_link = f'https://access.redhat.com/security/cve/{cve_id}'
+            nvd_link = f'https://nvd.nist.gov/vuln/detail/{cve_id}'
+            cve_link = f'''<div class="cve-tooltip">
+                <a href="{base_link}" target="_blank" class="cve-blast-link"><code>{cve_id}</code></a>
+                <span class="tooltiptext">{tooltip_content}</span>
+            </div> <a href="{nvd_link}" target="_blank" style="font-size: 0.8em; color: var(--text-secondary);">(NVD)</a>'''
+        elif cve_id.startswith('GO-'):
+            base_link = f'https://pkg.go.dev/vuln/{cve_id}'
+            cve_link = f'''<div class="cve-tooltip">
+                <a href="{base_link}" target="_blank" class="cve-blast-link"><code>{cve_id}</code></a>
+                <span class="tooltiptext">{tooltip_content}</span>
+            </div>'''
+        else:
+            cve_link = f'''<div class="cve-tooltip">
+                <code>{cve_id}</code>
+                <span class="tooltiptext">{tooltip_content}</span>
+            </div>'''
+
+        cvss_display = '—'
+        cvss_color = '#666'
+        cvss_value = 0
+        if cvss_score:
+            cvss_display = f'{cvss_score:.1f}'
+            cvss_value = cvss_score
+            if cvss_score >= 9.0:
+                cvss_color = '#d73a49'
+            elif cvss_score >= 7.0:
+                cvss_color = '#f66a0a'
+            elif cvss_score >= 4.0:
+                cvss_color = '#fb8500'
+            else:
+                cvss_color = '#ffd60a'
+
+        # Calculate days open
+        days_open = '—'
+        days_open_value = 0
+        days_open_color = '#666'
+        cve_key = f"{cve_id}:{components[0] if components else 'unknown'}"
+        first_seen_str = cve_first_seen.get(cve_key)
+        if first_seen_str:
+            from datetime import datetime, timezone
+            ts = first_seen_str.rstrip('Z')
+            if not ts.endswith('+00:00'):
+                ts += '+00:00'
+            first_seen = datetime.fromisoformat(ts)
+            now = datetime.now(timezone.utc)
+            days = (now - first_seen).days
+            days_open = str(days)
+            days_open_value = days
+            if days > 90:
+                days_open_color = '#d73a49'
+            elif days > 30:
+                days_open_color = '#f66a0a'
+            elif days > 7:
+                days_open_color = '#fb8500'
+
+        rows.append(f'''
+            <tr class="cve-row {fixable_class}{hidden_class}" data-cve="{cve_id}" data-severity="{severity_value}" data-cvss="{cvss_value}" data-component="{cve.get('component_count', 0)}" data-days="{days_open_value}" data-fixable="{1 if fixable else 0}">
+                <td style="text-align: center; color: var(--text-secondary); font-size: 0.9em;">{i + 1}</td>
+                <td>{cve_link}</td>
+                <td style="text-align: center;"><span class="severity-badge {severity_class}">{cve.get('severity', 'UNKNOWN')}</span></td>
+                <td style="text-align: center; color: {cvss_color}; font-weight: 600;">{cvss_display}</td>
+                <td style="text-align: center;">{cve.get('component_count', 0)}</td>
+                <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{', '.join(cve.get('components', []))}">{component_preview}</td>
+                <td style="text-align: center; color: {days_open_color}; font-weight: 600;">{days_open}</td>
+                <td style="text-align: center; color: {fixable_color}; font-weight: 600; font-size: 1.2em;">{fixable_display}</td>
+            </tr>''')
+
+    return f'''
+        <hr style="margin: 40px 0 30px 0; border: none; border-top: 2px solid var(--border-color);">
+
+        <h2 id="cves-{tab_id}-header" class="section-header" onclick="toggleSection('cves-{tab_id}')">🔍 CVE Analysis</h2>
+        <div id="cves-{tab_id}-content" class="collapsible-content" style="max-height: none;">
+            <div style="margin-bottom: 20px; display: flex; gap: 25px; align-items: center; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 250px;">
+                    <label for="cveSearch-{tab_id}" style="font-weight: 600; font-size: 0.95em;">Search:</label>
+                    <input type="text" id="cveSearch-{tab_id}" placeholder="CVE ID or component name..." oninput="searchCVEs{tab_id}(this.value)" style="flex: 1; padding: 10px 14px; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.95em; transition: border-color 0.2s;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label for="fixableFilter-{tab_id}" style="font-weight: 600; font-size: 0.95em;">Filter:</label>
+                    <select id="fixableFilter-{tab_id}" onchange="filterByFixable{tab_id}(this.value)" style="padding: 10px 14px; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.95em; cursor: pointer; transition: border-color 0.2s; min-width: 160px;">
+                        <option value="">All CVEs</option>
+                        <option value="fixable">Fixable Only</option>
+                        <option value="unfixable">Unfixable Only</option>
+                    </select>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label for="pageSize-{tab_id}" style="font-weight: 600; font-size: 0.95em;">Show:</label>
+                    <select id="pageSize-{tab_id}" onchange="updatePageSize{tab_id}(this.value)" style="padding: 10px 14px; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.95em; cursor: pointer; transition: border-color 0.2s; min-width: 100px;">
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="all">All</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div id="cveCounter-{tab_id}" style="color: var(--text-secondary); font-size: 0.9em;"></div>
+                <div id="cvePagination-{tab_id}" style="display: flex; gap: 10px; align-items: center;">
+                    <button onclick="prevPageCVE{tab_id}()" id="cvePrevBtn-{tab_id}" style="padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; font-size: 0.9em;">← Previous</button>
+                    <span id="cvePageInfo-{tab_id}" style="color: var(--text-secondary); font-size: 0.9em; min-width: 80px; text-align: center;"></span>
+                    <button onclick="nextPageCVE{tab_id}()" id="cveNextBtn-{tab_id}" style="padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; font-size: 0.9em;">Next →</button>
+                </div>
+            </div>
+            <table class="component-table" id="cvesTable-{tab_id}">
+                <thead>
+                    <tr>
+                        <th style="text-align: center; width: 50px;">#</th>
+                        <th onclick="sortCVETable{tab_id}(1, 'string')">CVE ID</th>
+                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(2, 'number')">Severity</th>
+                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(3, 'number')">CVSS</th>
+                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(4, 'number')">Components</th>
+                        <th onclick="sortCVETable{tab_id}(5, 'string')">Affected</th>
+                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(6, 'number')">Days Open</th>
+                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(7, 'number')">Fixable</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {''.join(rows)}
+                </tbody>
+            </table>
+        </div>
+    '''
+
+
+def generate_blast_radius_section_multi(latest_scan, tab_id, cve_descriptions=None, history=None):
     """Generate blast radius analysis table for multi-release"""
     blast_radius_data = analyze_blast_radius(latest_scan, top_n=10)
 
@@ -1194,6 +1979,9 @@ def generate_blast_radius_section_multi(latest_scan, tab_id, cve_descriptions=No
 
     if cve_descriptions is None:
         cve_descriptions = {}
+
+    # Get first_seen tracking
+    cve_first_seen = history.get('cve_first_seen', {}) if history else {}
 
     rows = []
     for cve in blast_radius_data:
@@ -1230,16 +2018,23 @@ def generate_blast_radius_section_multi(latest_scan, tab_id, cve_descriptions=No
 
         # Generate link with tooltip wrapper
         if cve_id.startswith('CVE-'):
-            base_link = f'https://nvd.nist.gov/vuln/detail/{cve_id}'
+            base_link = f'https://access.redhat.com/security/cve/{cve_id}'
+            nvd_link = f'https://nvd.nist.gov/vuln/detail/{cve_id}'
+            cve_link = f'''<div class="cve-tooltip">
+                <a href="{base_link}" target="_blank" class="cve-blast-link"><code>{cve_id}</code></a>
+                <span class="tooltiptext">{tooltip_content}</span>
+            </div> <a href="{nvd_link}" target="_blank" style="font-size: 0.8em; color: var(--text-secondary);">(NVD)</a>'''
         elif cve_id.startswith('GO-'):
             base_link = f'https://pkg.go.dev/vuln/{cve_id}'
+            cve_link = f'''<div class="cve-tooltip">
+                <a href="{base_link}" target="_blank" class="cve-blast-link"><code>{cve_id}</code></a>
+                <span class="tooltiptext">{tooltip_content}</span>
+            </div>'''
         else:
-            base_link = '#'
-
-        cve_link = f'''<div class="cve-tooltip">
-            <a href="{base_link}" target="_blank" style="text-decoration: none; color: #0366d6;"><code>{cve_id}</code></a>
-            <span class="tooltiptext">{tooltip_content}</span>
-        </div>'''
+            cve_link = f'''<div class="cve-tooltip">
+                <code>{cve_id}</code>
+                <span class="tooltiptext">{tooltip_content}</span>
+            </div>'''
 
         fix_available = cve.get('fix_display', 'None')
 
@@ -1259,20 +2054,46 @@ def generate_blast_radius_section_multi(latest_scan, tab_id, cve_descriptions=No
             else:
                 cvss_color = '#666'     # Low
 
+        # Calculate days open (use first component as reference)
+        days_open = '—'
+        days_open_value = 0
+        days_open_color = 'var(--text-secondary)'
+        if cve_first_seen and components:
+            cve_key = f"{cve_id}:{components[0]}"
+            first_seen_str = cve_first_seen.get(cve_key)
+            if first_seen_str:
+                from datetime import datetime, timezone
+                # Handle both 'Z' and '+00:00' formats
+                ts = first_seen_str.rstrip('Z')
+                if not ts.endswith('+00:00'):
+                    ts += '+00:00'
+                first_seen = datetime.fromisoformat(ts)
+                now = datetime.now(timezone.utc)
+                days = (now - first_seen).days
+                days_open = str(days)
+                days_open_value = days
+                if days > 90:
+                    days_open_color = '#d73a49'  # Critical - open >90 days
+                elif days > 30:
+                    days_open_color = '#f66a0a'  # Warning - open >30 days
+
         rows.append(f"""
-                <tr data-cve="{cve_id}" data-severity="{severity_value}" data-count="{cve.get('component_count', 0)}" data-cvss="{cvss_value}" data-fixable="{1 if cve.get('fixable') else 0}">
+                <tr data-cve="{cve_id}" data-severity="{severity_value}" data-count="{cve.get('component_count', 0)}" data-cvss="{cvss_value}" data-fixable="{1 if cve.get('fixable') else 0}" data-days="{days_open_value}">
                     <td>{cve_link}</td>
                     <td><span class="severity-badge {severity_class}">{cve.get('severity', 'UNKNOWN')}</span></td>
                     <td style="text-align: center;"><strong style="color: {cvss_color}; font-weight: 700;">{cvss_display}</strong></td>
                     <td style="text-align: center;"><strong style="color: #d73a49;">{cve.get('component_count', 0)}</strong></td>
-                    <td style="font-size: 0.9em; color: #666;">{component_preview}</td>
+                    <td style="font-size: 0.9em; color: var(--text-secondary);">{component_preview}</td>
                     <td style="text-align: center; color: {fixable_color}; font-size: 0.9em;">{fix_available}</td>
                     <td style="text-align: center; color: {fixable_color}; font-weight: bold;">{fixable}</td>
+                    <td style="text-align: center; color: {days_open_color}; font-weight: 600;">{days_open}</td>
                 </tr>""")
 
     return f"""
-        <h2 style="margin: 40px 0 15px 0;">💥 Highest Blast Radius (CVEs affecting most components)</h2>
-        <table class="component-table" id="blastTable-{tab_id}">
+        <div id="filterIndicator-{tab_id}" style="display: none; background: #0366d6; color: white; padding: 10px; border-radius: 6px; margin: 20px 0 15px 0; text-align: center; font-weight: 600;"></div>
+        <h2 id="blast-{tab_id}-header" class="section-header" onclick="toggleSection('blast-{tab_id}')">💥 Highest Blast Radius (CVEs affecting most components)</h2>
+        <div id="blast-{tab_id}-content" class="collapsible-content" style="max-height: none;">
+            <table class="component-table" id="blastTable-{tab_id}">
             <thead>
                 <tr>
                     <th onclick="sortBlastTable('{tab_id}', 0, 'string')">CVE ID</th>
@@ -1282,12 +2103,14 @@ def generate_blast_radius_section_multi(latest_scan, tab_id, cve_descriptions=No
                     <th>Affected Components (preview)</th>
                     <th style="text-align: center;">Fix Available</th>
                     <th style="text-align: center;" onclick="sortBlastTable('{tab_id}', 6, 'number')">Fixable</th>
+                    <th style="text-align: center;" onclick="sortBlastTable('{tab_id}', 7, 'number')">Days Open</th>
                 </tr>
             </thead>
             <tbody>
                 {''.join(rows)}
             </tbody>
         </table>
+        </div>
     """
 
 
@@ -1309,7 +2132,8 @@ def generate_fixed_cves_section(latest_scan, tab_id):
                 </tr>""")
 
     return f"""
-        <h2 style="margin: 40px 0 15px 0;">✅ Fixed CVEs (Resolved since last scan: {len(fixed_cves)})</h2>
+        <h2 id="fixed-{tab_id}-header" class="section-header" onclick="toggleSection('fixed-{tab_id}')">✅ Fixed CVEs (Resolved since last scan: {len(fixed_cves)})</h2>
+        <div id="fixed-{tab_id}-content" class="collapsible-content" style="max-height: none;">
         <table class="component-table" id="fixedTable-{tab_id}">
             <thead>
                 <tr>
@@ -1321,6 +2145,267 @@ def generate_fixed_cves_section(latest_scan, tab_id):
                 {''.join(rows)}
             </tbody>
         </table>
+        </div>
+    """
+
+
+def generate_unfixable_cves_section(latest_scan, tab_id, cve_descriptions=None, history=None):
+    """Generate unfixable CVEs section - vulnerabilities with no upstream patch"""
+    cve_details = latest_scan.get('summary', {}).get('cve_details', [])
+
+    if cve_descriptions is None:
+        cve_descriptions = {}
+
+    # Get first_seen tracking
+    cve_first_seen = history.get('cve_first_seen', {}) if history else {}
+
+    # Filter to unfixable only
+    unfixable = [cve for cve in cve_details if not cve.get('fixed_versions')]
+
+    if not unfixable:
+        return ''
+
+    # Sort by severity then component
+    severity_order = {'CRITICAL': 4, 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1, 'UNKNOWN': 0}
+    unfixable.sort(key=lambda x: (
+        -severity_order.get(x.get('severity', 'UNKNOWN'), 0),
+        x.get('component', ''),
+        x.get('cve_id', '')
+    ))
+
+    # Limit to top 50
+    unfixable = unfixable[:50]
+
+    rows = []
+    for i, cve in enumerate(unfixable):
+        cve_id = cve.get('cve_id', 'Unknown')
+        severity = cve.get('severity', 'UNKNOWN')
+        severity_class = 'severity-' + severity.lower()
+        severity_value = severity_order.get(severity, 0)
+        component = cve.get('component', 'unknown')
+        package = cve.get('package', 'unknown')
+
+        # Get description and CVSS
+        desc_data = cve_descriptions.get(cve_id, {})
+        description = desc_data.get('description', 'No description available')
+        cvss_score = desc_data.get('cvss_score')
+
+        # Truncate description
+        if len(description) > 300:
+            description = description[:297] + '...'
+
+        # Build tooltip
+        tooltip_content = f'<div class="tooltip-title">{cve_id}</div>'
+        if cvss_score:
+            tooltip_content += f'<div class="tooltip-cvss">CVSS: {cvss_score} ({severity})</div>'
+        tooltip_content += f'<div>{description}</div>'
+
+        # CVE link with tooltip
+        if cve_id.startswith('CVE-'):
+            base_link = f'https://access.redhat.com/security/cve/{cve_id}'
+            nvd_link = f'https://nvd.nist.gov/vuln/detail/{cve_id}'
+            cve_link = f'''<div class="cve-tooltip">
+                <a href="{base_link}" target="_blank" class="cve-blast-link"><code>{cve_id}</code></a>
+                <span class="tooltiptext">{tooltip_content}</span>
+            </div> <a href="{nvd_link}" target="_blank" style="font-size: 0.8em; color: var(--text-secondary);">(NVD)</a>'''
+        elif cve_id.startswith('GO-'):
+            base_link = f'https://pkg.go.dev/vuln/{cve_id}'
+            cve_link = f'''<div class="cve-tooltip">
+                <a href="{base_link}" target="_blank" class="cve-blast-link"><code>{cve_id}</code></a>
+                <span class="tooltiptext">{tooltip_content}</span>
+            </div>'''
+        else:
+            cve_link = f'''<div class="cve-tooltip">
+                <code>{cve_id}</code>
+                <span class="tooltiptext">{tooltip_content}</span>
+            </div>'''
+
+        # CVSS display
+        cvss_display = '—'
+        cvss_color = '#666'
+        cvss_value = 0
+        if cvss_score:
+            cvss_display = f'{cvss_score:.1f}'
+            cvss_value = cvss_score
+            if cvss_score >= 9.0:
+                cvss_color = '#d73a49'
+            elif cvss_score >= 7.0:
+                cvss_color = '#f66a0a'
+            elif cvss_score >= 4.0:
+                cvss_color = '#e36209'
+            else:
+                cvss_color = '#666'
+
+        # Calculate days open
+        days_open = '—'
+        days_open_value = 0
+        days_open_color = 'var(--text-secondary)'
+        cve_key = f"{cve_id}:{component}"
+        first_seen_str = cve_first_seen.get(cve_key)
+        if first_seen_str:
+            from datetime import datetime, timezone
+            # Handle both 'Z' and '+00:00' formats
+            ts = first_seen_str.rstrip('Z')
+            if not ts.endswith('+00:00'):
+                ts += '+00:00'
+            first_seen = datetime.fromisoformat(ts)
+            now = datetime.now(timezone.utc)
+            days = (now - first_seen).days
+            days_open = str(days)
+            days_open_value = days
+            if days > 90:
+                days_open_color = '#d73a49'
+            elif days > 30:
+                days_open_color = '#f66a0a'
+
+        # Hide rows beyond 15 by default
+        hidden_class = ' class="component-row-hidden"' if i >= 15 else ''
+
+        rows.append(f"""
+                <tr{hidden_class} data-cve="{cve_id}" data-severity="{severity_value}" data-cvss="{cvss_value}" data-component="{component}" data-days="{days_open_value}">
+                    <td>{cve_link}</td>
+                    <td><span class="severity-badge {severity_class}">{severity}</span></td>
+                    <td style="text-align: center;"><strong style="color: {cvss_color}; font-weight: 700;">{cvss_display}</strong></td>
+                    <td style="font-size: 0.9em;"><code>{component}</code></td>
+                    <td style="font-size: 0.85em; color: var(--text-secondary);">{package}</td>
+                    <td style="text-align: center; color: {days_open_color}; font-weight: 600;">{days_open}</td>
+                </tr>""")
+
+    return f"""
+        <h2 id="unfixable-{tab_id}-header" class="section-header" onclick="toggleSection('unfixable-{tab_id}')">🚫 Unfixable CVEs (No upstream patch available: {len(unfixable)})</h2>
+        <div id="unfixable-{tab_id}-content" class="collapsible-content" style="max-height: none;">
+        <p style="color: var(--text-secondary); margin-bottom: 15px;">These vulnerabilities have no fix available from upstream. Consider mitigation strategies or risk acceptance.</p>
+        <table class="component-table" id="unfixableTable-{tab_id}">
+            <thead>
+                <tr>
+                    <th onclick="sortUnfixableTable('{tab_id}', 0, 'string')">CVE ID</th>
+                    <th onclick="sortUnfixableTable('{tab_id}', 1, 'number')">Severity</th>
+                    <th style="text-align: center;" onclick="sortUnfixableTable('{tab_id}', 2, 'number')">CVSS</th>
+                    <th onclick="sortUnfixableTable('{tab_id}', 3, 'string')">Component</th>
+                    <th>Package</th>
+                    <th style="text-align: center;" onclick="sortUnfixableTable('{tab_id}', 5, 'number')">Days Open</th>
+                </tr>
+            </thead>
+            <tbody>
+                {''.join(rows)}
+            </tbody>
+        </table>
+        {f'<button class="show-all-btn" onclick="toggleShowAll({chr(39)}{tab_id}{chr(39)}, {chr(39)}unfixable{chr(39)})">Show All Unfixable ({len(unfixable)} total)</button>' if len(unfixable) > 15 else ''}
+        </div>
+    """
+
+
+def generate_cross_release_cve_table(releases, cve_descriptions=None):
+    """Generate table of CVEs appearing across multiple releases"""
+    if cve_descriptions is None:
+        cve_descriptions = {}
+
+    # Track CVE occurrences across releases
+    cve_tracker = {}  # {cve_id: {releases: set(), severity: str, fixable: bool}}
+
+    for release, history in releases.items():
+        scans = history.get('scans', [])
+        if not scans:
+            continue
+
+        latest_scan = scans[-1]
+        cve_details = latest_scan.get('summary', {}).get('cve_details', [])
+
+        for cve in cve_details:
+            cve_id = cve.get('cve_id')
+            if cve_id not in cve_tracker:
+                cve_tracker[cve_id] = {
+                    'releases': set(),
+                    'severity': cve.get('severity', 'UNKNOWN'),
+                    'fixable': len(cve.get('fixed_versions', [])) > 0
+                }
+            cve_tracker[cve_id]['releases'].add(release)
+
+    # Filter to CVEs in 3+ releases
+    cross_release_cves = {
+        cve_id: data for cve_id, data in cve_tracker.items()
+        if len(data['releases']) >= 3
+    }
+
+    if not cross_release_cves:
+        return ''
+
+    # Sort by release count desc, then severity
+    severity_order = {'CRITICAL': 4, 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1, 'UNKNOWN': 0}
+    sorted_cves = sorted(
+        cross_release_cves.items(),
+        key=lambda x: (-len(x[1]['releases']), -severity_order.get(x[1]['severity'], 0))
+    )
+
+    rows = []
+    for cve_id, data in sorted_cves[:20]:  # Limit to top 20
+        severity = data['severity']
+        severity_class = 'severity-' + severity.lower()
+        severity_value = severity_order.get(severity, 0)
+        release_count = len(data['releases'])
+        releases_list = ', '.join(sorted(data['releases']))
+        fixable = '✓' if data['fixable'] else '✗'
+        fixable_color = '#28a745' if data['fixable'] else '#666'
+
+        # Get description
+        desc_data = cve_descriptions.get(cve_id, {})
+        description = desc_data.get('description', 'No description available')
+        cvss_score = desc_data.get('cvss_score')
+
+        if len(description) > 250:
+            description = description[:247] + '...'
+
+        # Build tooltip
+        tooltip_content = f'<div class="tooltip-title">{cve_id}</div>'
+        if cvss_score:
+            tooltip_content += f'<div class="tooltip-cvss">CVSS: {cvss_score} ({severity})</div>'
+        tooltip_content += f'<div>{description}</div>'
+
+        # CVE link
+        if cve_id.startswith('CVE-'):
+            base_link = f'https://access.redhat.com/security/cve/{cve_id}'
+            nvd_link = f'https://nvd.nist.gov/vuln/detail/{cve_id}'
+            cve_link = f'''<div class="cve-tooltip">
+                <a href="{base_link}" target="_blank" class="cve-blast-link"><code>{cve_id}</code></a>
+                <span class="tooltiptext">{tooltip_content}</span>
+            </div> <a href="{nvd_link}" target="_blank" style="font-size: 0.8em; color: var(--text-secondary);">(NVD)</a>'''
+        elif cve_id.startswith('GO-'):
+            base_link = f'https://pkg.go.dev/vuln/{cve_id}'
+            cve_link = f'''<div class="cve-tooltip">
+                <a href="{base_link}" target="_blank" class="cve-blast-link"><code>{cve_id}</code></a>
+                <span class="tooltiptext">{tooltip_content}</span>
+            </div>'''
+        else:
+            cve_link = f'<code>{cve_id}</code>'
+
+        rows.append(f"""
+                <tr data-cve="{cve_id}" data-severity="{severity_value}" data-releases="{release_count}">
+                    <td>{cve_link}</td>
+                    <td><span class="severity-badge {severity_class}">{severity}</span></td>
+                    <td style="text-align: center;"><strong style="color: #d73a49;">{release_count}</strong></td>
+                    <td style="font-size: 0.85em; color: var(--text-secondary);">{releases_list}</td>
+                    <td style="text-align: center; color: {fixable_color}; font-weight: bold;">{fixable}</td>
+                </tr>""")
+
+    return f"""
+        <h2 id="cross-release-header" class="section-header" onclick="toggleSection('cross-release')" style="margin-top: 30px;">🔗 Cross-Release CVEs (affecting 3+ releases)</h2>
+        <div id="cross-release-content" class="collapsible-content" style="max-height: none;">
+            <p style="color: var(--text-secondary); margin-bottom: 15px;">Fix these CVEs once to improve security across multiple releases.</p>
+            <table class="component-table" id="crossReleaseTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortCrossReleaseTable(0, 'string')">CVE ID</th>
+                        <th onclick="sortCrossReleaseTable(1, 'number')">Severity</th>
+                        <th style="text-align: center;" onclick="sortCrossReleaseTable(2, 'number')">Releases Affected</th>
+                        <th>Release List</th>
+                        <th style="text-align: center;" onclick="sortCrossReleaseTable(4, 'number')">Fixable</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {''.join(rows)}
+                </tbody>
+            </table>
+        </div>
     """
 
 
@@ -1337,6 +2422,32 @@ def generate_comparison_card(release, history):
 
     latest = scans[-1].get('summary', {}).get('by_severity', {})
 
+    # Calculate health score: critical×4 + high×3 + unfixable×2
+    critical_count = latest.get('CRITICAL', 0)
+    high_count = latest.get('HIGH', 0)
+    medium_count = latest.get('MEDIUM', 0)
+    low_count = latest.get('LOW', 0)
+
+    # Count unfixable CVEs
+    cve_details = scans[-1].get('summary', {}).get('cve_details', [])
+    unfixable_count = sum(1 for cve in cve_details if not cve.get('fixed_versions'))
+
+    health_score = (critical_count * 4) + (high_count * 3) + (unfixable_count * 2)
+
+    # Color code health score
+    if health_score > 100:
+        score_color = '#d73a49'  # Critical
+        score_label = 'Critical'
+    elif health_score > 50:
+        score_color = '#f66a0a'  # High
+        score_label = 'High Risk'
+    elif health_score > 20:
+        score_color = '#e36209'  # Medium
+        score_label = 'Medium Risk'
+    else:
+        score_color = '#28a745'  # Low
+        score_label = 'Low Risk'
+
     # Calculate trend
     trend = "—"
     if len(scans) >= 2:
@@ -1351,34 +2462,41 @@ def generate_comparison_card(release, history):
         else:
             trend = "<span style='color: #666;'>0 →</span>"
 
-    return f"""
-        <div class="release-card">
-            <h3>{release}</h3>
-            <div class="stat">
-                <span>CRITICAL:</span>
-                <strong style="color: #d73a49;">{latest.get('CRITICAL', 0)}</strong>
+    tab_id = release.replace('.', '').replace('-', '')
+    total_cves = scans[-1].get('summary', {}).get('total_cves', 0)
+    critical_pct = (critical_count / max(total_cves, 1)) * 100 if total_cves > 0 else 0
+    high_pct = (high_count / max(total_cves, 1)) * 100 if total_cves > 0 else 0
+
+    return (health_score, f"""
+        <div class="release-card" data-critical="{critical_count}" data-high="{high_count}" data-medium="{medium_count}" data-low="{low_count}"
+             data-tab="{tab_id}" onclick="openTabById('{tab_id}')"
+             style="border-left: 4px solid {score_color}; cursor: pointer; transition: all 0.2s ease;">
+            <h3 style="margin: 0 0 12px 0; font-size: 1.1em;">{release}</h3>
+            <div style="margin-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                    <span style="font-size: 0.85em; font-weight: 600; color: #d73a49;">CRIT</span>
+                    <strong style="color: #d73a49; font-size: 1.1em;">{critical_count}</strong>
+                </div>
+                <div style="background: var(--border-color); height: 6px; border-radius: 3px; overflow: hidden;">
+                    <div style="background: #d73a49; height: 100%; width: {critical_pct:.1f}%;"></div>
+                </div>
             </div>
-            <div class="stat">
-                <span>HIGH:</span>
-                <strong style="color: #f66a0a;">{latest.get('HIGH', 0)}</strong>
+            <div style="margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                    <span style="font-size: 0.85em; font-weight: 600; color: #f66a0a;">HIGH</span>
+                    <strong style="color: #f66a0a; font-size: 1.1em;">{high_count}</strong>
+                </div>
+                <div style="background: var(--border-color); height: 6px; border-radius: 3px; overflow: hidden;">
+                    <div style="background: #f66a0a; height: 100%; width: {high_pct:.1f}%;"></div>
+                </div>
             </div>
-            <div class="stat">
-                <span>Unique CVEs:</span>
-                <strong>{scans[-1].get('summary', {}).get('total_cves', 0)}</strong>
+            <div style="border-top: 1px solid var(--border-color); padding-top: 8px; font-size: 0.8em; color: var(--text-secondary); display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <div><span>Unique:</span> <strong>{scans[-1].get('summary', {}).get('total_cves', 0)}</strong></div>
+                <div><span>Total:</span> <strong>{scans[-1].get('summary', {}).get('total_matches', 0)}</strong></div>
+                <div><span>Scans:</span> <strong>{len(scans)}</strong></div>
+                <div><span>Trend:</span> {trend}</div>
             </div>
-            <div class="stat">
-                <span>Total instances:</span>
-                <strong style="color: #666;">{scans[-1].get('summary', {}).get('total_matches', 0)}</strong>
-            </div>
-            <div class="stat">
-                <span>Scans:</span>
-                <strong>{len(scans)}</strong>
-            </div>
-            <div class="stat">
-                <span>Trend:</span>
-                {trend}
-            </div>
-        </div>"""
+        </div>""")
 
 
 def generate_chart_data(release, history):
@@ -1391,6 +2509,9 @@ def generate_chart_data(release, history):
     high = [scan.get('summary', {}).get('by_severity', {}).get('HIGH', 0) for scan in scans]
     new_cves = [len(scan.get('new_cves', [])) for scan in scans]
     fixed_cves = [len(scan.get('fixed_cves', [])) for scan in scans]
+
+    # Get latest severity for donut chart
+    latest_severity = scans[-1].get('summary', {}).get('by_severity', {}) if scans else {}
 
     return f"""
         // {release} charts
@@ -1481,6 +2602,690 @@ def generate_chart_data(release, history):
                 }}
             }});
         }}
+
+        // Severity donut chart with click filtering
+        const donutCtx{tab_id} = document.getElementById('severityDonut-{tab_id}');
+        if (donutCtx{tab_id}) {{
+            let activeSeverity{tab_id} = null;
+            const baseColors = ['#d73a49', '#f66a0a', '#e36209', '#999'];
+            const dimmedColors = ['rgba(215, 58, 73, 0.2)', 'rgba(246, 106, 10, 0.2)', 'rgba(227, 98, 9, 0.2)', 'rgba(153, 153, 153, 0.2)'];
+            const getBorderColor = () => document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#000';
+
+            const donutChart{tab_id} = new Chart(donutCtx{tab_id}.getContext('2d'), {{
+                type: 'doughnut',
+                data: {{
+                    labels: ['Critical', 'High', 'Medium', 'Low'],
+                    datasets: [{{
+                        data: {json.dumps([latest_severity.get('CRITICAL', 0), latest_severity.get('HIGH', 0), latest_severity.get('MEDIUM', 0), latest_severity.get('LOW', 0)])},
+                        backgroundColor: baseColors.slice(),
+                        borderColor: ['transparent', 'transparent', 'transparent', 'transparent'],
+                        borderWidth: [0, 0, 0, 0]
+                    }}]
+                }},
+                options: {{
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {{
+                        legend: {{ display: false }},
+                        tooltip: {{
+                            callbacks: {{
+                                label: function(context) {{
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percent = total > 0 ? Math.round((value / total) * 100) : 0;
+                                    return label + ': ' + value + ' (' + percent + '%)';
+                                }}
+                            }}
+                        }}
+                    }},
+                    onClick: (event, elements) => {{
+                        if (elements.length > 0) {{
+                            const index = elements[0].index;
+                            const severity = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'][index];
+
+                            // Toggle filter
+                            if (activeSeverity{tab_id} === severity) {{
+                                activeSeverity{tab_id} = null;
+                                filterBySeverity{tab_id}(null);
+                                // Reset colors and borders
+                                donutChart{tab_id}.data.datasets[0].backgroundColor = baseColors.slice();
+                                donutChart{tab_id}.data.datasets[0].borderColor = ['transparent', 'transparent', 'transparent', 'transparent'];
+                                donutChart{tab_id}.data.datasets[0].borderWidth = [0, 0, 0, 0];
+                            }} else {{
+                                activeSeverity{tab_id} = severity;
+                                filterBySeverity{tab_id}(severity);
+                                // Highlight selected, dim others
+                                const newColors = dimmedColors.slice();
+                                newColors[index] = baseColors[index];
+                                donutChart{tab_id}.data.datasets[0].backgroundColor = newColors;
+
+                                // Add border to selected segment
+                                const newBorders = ['transparent', 'transparent', 'transparent', 'transparent'];
+                                const newWidths = [0, 0, 0, 0];
+                                newBorders[index] = getBorderColor();
+                                newWidths[index] = 4;
+                                donutChart{tab_id}.data.datasets[0].borderColor = newBorders;
+                                donutChart{tab_id}.data.datasets[0].borderWidth = newWidths;
+                            }}
+                            donutChart{tab_id}.update();
+                        }}
+                    }}
+                }}
+            }});
+
+            // Filter function for blast radius and component tables
+            window.filterBySeverity{tab_id} = function(severity) {{
+                // Track active filter state globally
+                window['activeSeverityFilter_{tab_id}'] = severity;
+
+                const blastTable = document.getElementById('blastTable-{tab_id}');
+                const unfixableTable = document.getElementById('unfixableTable-{tab_id}');
+                const componentTable = document.getElementById('componentTable-{tab_id}');
+                const externalTable = document.getElementById('externalTable-{tab_id}');
+                const indicator = document.getElementById('filterIndicator-{tab_id}');
+
+                // Column visibility control
+                const toggleColumn = (table, columnClass, visible) => {{
+                    if (!table) return;
+                    table.querySelectorAll(columnClass).forEach(el => {{
+                        el.style.display = visible ? '' : 'none';
+                    }});
+                }};
+
+                if (!severity) {{
+                    // Clear all filters and show all columns
+                    if (blastTable) {{
+                        blastTable.querySelectorAll('tbody tr').forEach(row => row.style.display = '');
+                    }}
+                    if (unfixableTable) {{
+                        unfixableTable.querySelectorAll('tbody tr').forEach(row => row.style.display = '');
+                    }}
+                    if (componentTable) {{
+                        componentTable.querySelectorAll('tbody tr').forEach(row => row.style.display = '');
+                        toggleColumn(componentTable, '.col-critical', true);
+                        toggleColumn(componentTable, '.col-high', true);
+                        toggleColumn(componentTable, '.col-medium', true);
+                        toggleColumn(componentTable, '.col-low', true);
+                    }}
+                    if (externalTable) {{
+                        externalTable.querySelectorAll('tbody tr').forEach(row => row.style.display = '');
+                        toggleColumn(externalTable, '.col-critical', true);
+                        toggleColumn(externalTable, '.col-high', true);
+                        toggleColumn(externalTable, '.col-medium', true);
+                        toggleColumn(externalTable, '.col-low', true);
+                    }}
+                    if (indicator) indicator.style.display = 'none';
+                }} else {{
+                    // Filter blast radius table by severity badge
+                    if (blastTable) {{
+                        blastTable.querySelectorAll('tbody tr').forEach(row => {{
+                            const rowSeverity = row.querySelector('.severity-badge')?.textContent.trim();
+                            row.style.display = rowSeverity === severity ? '' : 'none';
+                        }});
+                    }}
+
+                    // Filter unfixable table by severity badge
+                    if (unfixableTable) {{
+                        unfixableTable.querySelectorAll('tbody tr').forEach(row => {{
+                            const rowSeverity = row.querySelector('.severity-badge')?.textContent.trim();
+                            row.style.display = rowSeverity === severity ? '' : 'none';
+                        }});
+                    }}
+
+                    // Filter component tables - hide components and columns
+                    [componentTable, externalTable].forEach(table => {{
+                        if (!table) return;
+
+                        // Hide non-selected severity columns
+                        toggleColumn(table, '.col-critical', severity === 'CRITICAL');
+                        toggleColumn(table, '.col-high', severity === 'HIGH');
+                        toggleColumn(table, '.col-medium', severity === 'MEDIUM');
+                        toggleColumn(table, '.col-low', severity === 'LOW');
+
+                        // Hide rows with 0 of selected severity
+                        table.querySelectorAll('tbody tr').forEach(row => {{
+                            const count = parseInt(row.dataset[severity.toLowerCase()] || 0);
+                            row.style.display = count > 0 ? '' : 'none';
+                        }});
+                    }});
+
+                    if (indicator) {{
+                        indicator.textContent = `Showing ${{severity}} vulnerabilities only (click chart again to clear)`;
+                        indicator.style.display = 'block';
+                    }}
+                }}
+            }};
+
+            // Update CVE counter
+            // Track current page for CVE table
+            let currentPageCVE{tab_id} = 1;
+
+            window.updateCVECounter{tab_id} = function(matchingRowCount) {{
+                const cvesTable = document.getElementById('cvesTable-{tab_id}');
+                const counter = document.getElementById('cveCounter-{tab_id}');
+                const pageInfo = document.getElementById('cvePageInfo-{tab_id}');
+                const prevBtn = document.getElementById('cvePrevBtn-{tab_id}');
+                const nextBtn = document.getElementById('cveNextBtn-{tab_id}');
+                const pagination = document.getElementById('cvePagination-{tab_id}');
+
+                if (!cvesTable || !counter) return;
+
+                const allRows = cvesTable.querySelectorAll('tbody tr');
+                const visibleRows = Array.from(allRows).filter(row => row.style.display !== 'none');
+                const pageSizeSelect = document.getElementById('pageSize-{tab_id}');
+                const pageSize = pageSizeSelect ? pageSizeSelect.value : '10';
+
+                // Use passed matchingRowCount if available, otherwise count all
+                const totalMatching = matchingRowCount !== undefined ? matchingRowCount : allRows.length;
+                counter.textContent = `Showing ${{visibleRows.length}} of ${{totalMatching}} CVEs`;
+
+                // Update pagination controls
+                if (pageSize === 'all' || totalMatching === 0) {{
+                    if (pagination) pagination.style.display = 'none';
+                }} else {{
+                    if (pagination) pagination.style.display = 'flex';
+                    const limit = parseInt(pageSize);
+                    const totalPages = Math.ceil(totalMatching / limit);
+
+                    if (pageInfo) pageInfo.textContent = `Page ${{currentPageCVE{tab_id}}} of ${{totalPages}}`;
+                    if (prevBtn) prevBtn.disabled = currentPageCVE{tab_id} <= 1;
+                    if (nextBtn) nextBtn.disabled = currentPageCVE{tab_id} >= totalPages;
+                }}
+            }};
+
+            window.applyPageCVE{tab_id} = function() {{
+                const cvesTable = document.getElementById('cvesTable-{tab_id}');
+                if (!cvesTable) return;
+
+                const pageSizeSelect = document.getElementById('pageSize-{tab_id}');
+                const pageSize = pageSizeSelect ? pageSizeSelect.value : '10';
+                const filterSelect = document.getElementById('fixableFilter-{tab_id}');
+                const activeFilter = filterSelect ? filterSelect.value : '';
+
+                // Count matching rows first
+                let matchingCount = 0;
+                cvesTable.querySelectorAll('tbody tr').forEach(row => {{
+                    const fixable = row.dataset.fixable === '1';
+                    let passesFilter = true;
+                    if (activeFilter === 'fixable' && !fixable) passesFilter = false;
+                    if (activeFilter === 'unfixable' && fixable) passesFilter = false;
+                    if (passesFilter) matchingCount++;
+                }});
+
+                if (pageSize === 'all') {{
+                    cvesTable.querySelectorAll('tbody tr').forEach(row => {{
+                        const fixable = row.dataset.fixable === '1';
+                        let passesFilter = true;
+                        if (activeFilter === 'fixable' && !fixable) passesFilter = false;
+                        if (activeFilter === 'unfixable' && fixable) passesFilter = false;
+                        row.style.display = passesFilter ? 'table-row' : 'none';
+                    }});
+                    updateCVECounter{tab_id}(matchingCount);
+                    return;
+                }}
+
+                const limit = parseInt(pageSize);
+                const startIdx = (currentPageCVE{tab_id} - 1) * limit;
+                const endIdx = startIdx + limit;
+
+                let visibleIndex = 0;
+                cvesTable.querySelectorAll('tbody tr').forEach(row => {{
+                    const fixable = row.dataset.fixable === '1';
+                    let passesFilter = true;
+                    if (activeFilter === 'fixable' && !fixable) passesFilter = false;
+                    if (activeFilter === 'unfixable' && fixable) passesFilter = false;
+
+                    if (passesFilter) {{
+                        // Update # column
+                        const numberCell = row.cells[0];
+                        if (numberCell) numberCell.textContent = visibleIndex + 1;
+
+                        if (visibleIndex >= startIdx && visibleIndex < endIdx) {{
+                            row.style.display = 'table-row';
+                        }} else {{
+                            row.style.display = 'none';
+                        }}
+                        visibleIndex++;
+                    }} else {{
+                        row.style.display = 'none';
+                    }}
+                }});
+
+                updateCVECounter{tab_id}(matchingCount);
+            }};
+
+            window.prevPageCVE{tab_id} = function() {{
+                if (currentPageCVE{tab_id} > 1) {{
+                    currentPageCVE{tab_id}--;
+                    applyPageCVE{tab_id}();
+                }}
+            }};
+
+            window.nextPageCVE{tab_id} = function() {{
+                const cvesTable = document.getElementById('cvesTable-{tab_id}');
+                const pageSizeSelect = document.getElementById('pageSize-{tab_id}');
+                const pageSize = pageSizeSelect ? pageSizeSelect.value : '10';
+                const limit = parseInt(pageSize);
+
+                const visibleRows = Array.from(cvesTable.querySelectorAll('tbody tr')).filter(row => {{
+                    const filterSelect = document.getElementById('fixableFilter-{tab_id}');
+                    const activeFilter = filterSelect ? filterSelect.value : '';
+                    const fixable = row.dataset.fixable === '1';
+
+                    if (activeFilter === 'fixable' && !fixable) return false;
+                    if (activeFilter === 'unfixable' && fixable) return false;
+                    return true;
+                }});
+
+                const totalPages = Math.ceil(visibleRows.length / limit);
+                if (currentPageCVE{tab_id} < totalPages) {{
+                    currentPageCVE{tab_id}++;
+                    applyPageCVE{tab_id}();
+                }}
+            }};
+
+            // Search CVEs
+            window.searchCVEs{tab_id} = function(query) {{
+                const cvesTable = document.getElementById('cvesTable-{tab_id}');
+                if (!cvesTable) return;
+
+                const searchTerm = query.toLowerCase().trim();
+
+                if (!searchTerm) {{
+                    // Search cleared, re-apply pagination
+                    currentPageCVE{tab_id} = 1;
+                    applyPageCVE{tab_id}();
+                    return;
+                }}
+
+                // Disable pagination during search - show all matching results
+                const pagination = document.getElementById('cvePagination-{tab_id}');
+                if (pagination) pagination.style.display = 'none';
+
+                let matchIndex = 0;
+                cvesTable.querySelectorAll('tbody tr').forEach(row => {{
+                    const cveId = row.dataset.cve.toLowerCase();
+                    const affectedCell = row.cells[5]; // Affected components column (adjusted for # column)
+                    const affected = affectedCell ? affectedCell.textContent.toLowerCase() : '';
+
+                    if (cveId.includes(searchTerm) || affected.includes(searchTerm)) {{
+                        matchIndex++;
+                        const numberCell = row.cells[0];
+                        if (numberCell) numberCell.textContent = matchIndex;
+                        row.style.display = 'table-row';
+                    }} else {{
+                        row.style.display = 'none';
+                    }}
+                }});
+
+                updateCVECounter{tab_id}();
+            }};
+
+            // Update page size
+            window.updatePageSize{tab_id} = function(size) {{
+                currentPageCVE{tab_id} = 1;  // Reset to page 1 when page size changes
+                applyPageCVE{tab_id}();
+            }};
+
+            // CVE fixable filter function
+            window.filterByFixable{tab_id} = function(filter) {{
+                currentPageCVE{tab_id} = 1;  // Reset to page 1 when filter changes
+                applyPageCVE{tab_id}();
+            }};
+
+            // CVE table sort function
+            window.sortCVETable{tab_id} = function(columnIndex, type) {{
+                const table = document.getElementById('cvesTable-{tab_id}');
+                if (!table) return;
+
+                const tbody = table.querySelector('tbody');
+                const rows = Array.from(tbody.querySelectorAll('tr'));
+                const header = table.querySelectorAll('th')[columnIndex];
+
+                const currentSort = header.classList.contains('sort-asc') ? 'asc' :
+                                   header.classList.contains('sort-desc') ? 'desc' : 'none';
+                const newSort = currentSort === 'asc' ? 'desc' : 'asc';
+
+                table.querySelectorAll('th').forEach(th => {{
+                    th.classList.remove('sort-asc', 'sort-desc');
+                }});
+
+                header.classList.add('sort-' + newSort);
+
+                rows.sort((a, b) => {{
+                    let aVal, bVal;
+
+                    if (type === 'number') {{
+                        const dataAttr = ['', 'cve', 'severity', 'cvss', 'component', '', 'days', 'fixable'][columnIndex];
+                        aVal = parseFloat(a.dataset[dataAttr] || 0);
+                        bVal = parseFloat(b.dataset[dataAttr] || 0);
+                    }} else {{
+                        aVal = a.cells[columnIndex].textContent.trim().toLowerCase();
+                        bVal = b.cells[columnIndex].textContent.trim().toLowerCase();
+                    }}
+
+                    if (newSort === 'asc') {{
+                        return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+                    }} else {{
+                        return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+                    }}
+                }});
+
+                // Re-append sorted rows
+                rows.forEach(row => tbody.appendChild(row));
+
+                // Re-apply search or filter/page size
+                const searchInput = document.getElementById('cveSearch-{tab_id}');
+                const searchTerm = searchInput ? searchInput.value.trim() : '';
+
+                if (searchTerm) {{
+                    // Re-apply search
+                    searchCVEs{tab_id}(searchTerm);
+                }} else {{
+                    // Re-apply current filter/page size to maintain visibility
+                    const filterSelect = document.getElementById('fixableFilter-{tab_id}');
+                    const activeFilter = filterSelect ? filterSelect.value : '';
+                    filterByFixable{tab_id}(activeFilter);
+                }}
+            }};
+
+            // Track current pages for component tables
+            let currentPageInternal{tab_id} = 1;
+            let currentPageExternal{tab_id} = 1;
+            const COMPONENT_PAGE_SIZE = 15;
+
+            // Update component counters
+            window.updateComponentCounters{tab_id} = function() {{
+                const componentTable = document.getElementById('componentTable-{tab_id}');
+                const externalTable = document.getElementById('externalTable-{tab_id}');
+                const internalCounter = document.getElementById('internalCounter-{tab_id}');
+                const externalCounter = document.getElementById('externalCounter-{tab_id}');
+                const internalPageInfo = document.getElementById('internalPageInfo-{tab_id}');
+                const externalPageInfo = document.getElementById('externalPageInfo-{tab_id}');
+                const internalPrevBtn = document.getElementById('internalPrevBtn-{tab_id}');
+                const internalNextBtn = document.getElementById('internalNextBtn-{tab_id}');
+                const externalPrevBtn = document.getElementById('externalPrevBtn-{tab_id}');
+                const externalNextBtn = document.getElementById('externalNextBtn-{tab_id}');
+
+                if (componentTable && internalCounter) {{
+                    const allRows = componentTable.querySelectorAll('tbody tr');
+                    const visibleRows = Array.from(allRows).filter(row => row.style.display !== 'none');
+                    internalCounter.textContent = `Showing ${{visibleRows.length}} of ${{allRows.length}} internal components`;
+
+                    const totalPages = Math.ceil(allRows.length / COMPONENT_PAGE_SIZE);
+                    if (internalPageInfo) internalPageInfo.textContent = `Page ${{currentPageInternal{tab_id}}} of ${{totalPages}}`;
+                    if (internalPrevBtn) internalPrevBtn.disabled = currentPageInternal{tab_id} <= 1;
+                    if (internalNextBtn) internalNextBtn.disabled = currentPageInternal{tab_id} >= totalPages;
+                }}
+
+                if (externalTable && externalCounter) {{
+                    const allRows = externalTable.querySelectorAll('tbody tr');
+                    const visibleRows = Array.from(allRows).filter(row => row.style.display !== 'none');
+                    externalCounter.textContent = `Showing ${{visibleRows.length}} of ${{allRows.length}} external components`;
+
+                    const totalPages = Math.ceil(allRows.length / COMPONENT_PAGE_SIZE);
+                    if (externalPageInfo) externalPageInfo.textContent = `Page ${{currentPageExternal{tab_id}}} of ${{totalPages}}`;
+                    if (externalPrevBtn) externalPrevBtn.disabled = currentPageExternal{tab_id} <= 1;
+                    if (externalNextBtn) externalNextBtn.disabled = currentPageExternal{tab_id} >= totalPages;
+                }}
+            }};
+
+            window.applyPageInternal{tab_id} = function() {{
+                const table = document.getElementById('componentTable-{tab_id}');
+                if (!table) return;
+
+                const squadFilter = document.getElementById('squadFilter-{tab_id}');
+                const componentFilter = document.getElementById('componentFilter-{tab_id}');
+                const activeSquad = squadFilter ? squadFilter.value : '';
+                const activeComponent = componentFilter ? componentFilter.value : '';
+
+                const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+                // First pass: determine which rows match current filters
+                const matchingRows = rows.filter(row => {{
+                    let matches = true;
+                    if (activeSquad && row.dataset.squad !== activeSquad) matches = false;
+                    if (activeComponent && row.dataset.component !== activeComponent) matches = false;
+                    return matches;
+                }});
+
+                // Paginate only matching rows
+                const startIdx = (currentPageInternal{tab_id} - 1) * COMPONENT_PAGE_SIZE;
+                const endIdx = startIdx + COMPONENT_PAGE_SIZE;
+                let visibleIndex = 0;
+
+                rows.forEach(row => {{
+                    const isMatching = matchingRows.includes(row);
+
+                    if (!isMatching) {{
+                        // Doesn't match filter - hide
+                        row.style.display = 'none';
+                        row.classList.add('component-row-hidden');
+                    }} else {{
+                        // Matches filter - apply pagination
+                        if (visibleIndex >= startIdx && visibleIndex < endIdx) {{
+                            row.style.display = '';
+                            row.classList.remove('component-row-hidden');
+                        }} else {{
+                            row.style.display = 'none';
+                            row.classList.add('component-row-hidden');
+                        }}
+                        visibleIndex++;
+                    }}
+                }});
+
+                updateComponentCounters{tab_id}();
+            }};
+
+            window.prevPageInternal{tab_id} = function() {{
+                if (currentPageInternal{tab_id} > 1) {{
+                    currentPageInternal{tab_id}--;
+                    applyPageInternal{tab_id}();
+                }}
+            }};
+
+            window.nextPageInternal{tab_id} = function() {{
+                const table = document.getElementById('componentTable-{tab_id}');
+                const squadFilter = document.getElementById('squadFilter-{tab_id}');
+                const componentFilter = document.getElementById('componentFilter-{tab_id}');
+                const activeSquad = squadFilter ? squadFilter.value : '';
+                const activeComponent = componentFilter ? componentFilter.value : '';
+
+                const rows = Array.from(table.querySelectorAll('tbody tr'));
+                const matchingRows = rows.filter(row => {{
+                    let matches = true;
+                    if (activeSquad && row.dataset.squad !== activeSquad) matches = false;
+                    if (activeComponent && row.dataset.component !== activeComponent) matches = false;
+                    return matches;
+                }});
+
+                const totalPages = Math.ceil(matchingRows.length / COMPONENT_PAGE_SIZE);
+
+                if (currentPageInternal{tab_id} < totalPages) {{
+                    currentPageInternal{tab_id}++;
+                    applyPageInternal{tab_id}();
+                }}
+            }};
+
+            window.applyPageExternal{tab_id} = function() {{
+                const table = document.getElementById('externalTable-{tab_id}');
+                if (!table) return;
+
+                const squadFilter = document.getElementById('squadFilter-{tab_id}');
+                const componentFilter = document.getElementById('componentFilter-{tab_id}');
+                const activeSquad = squadFilter ? squadFilter.value : '';
+                const activeComponent = componentFilter ? componentFilter.value : '';
+
+                const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+                // Determine which rows match current filters
+                const matchingRows = rows.filter(row => {{
+                    let matches = true;
+                    if (activeSquad && row.dataset.squad !== activeSquad) matches = false;
+                    if (activeComponent && row.dataset.component !== activeComponent) matches = false;
+                    return matches;
+                }});
+
+                // Paginate only matching rows
+                const startIdx = (currentPageExternal{tab_id} - 1) * COMPONENT_PAGE_SIZE;
+                const endIdx = startIdx + COMPONENT_PAGE_SIZE;
+                let visibleIndex = 0;
+
+                rows.forEach(row => {{
+                    const isMatching = matchingRows.includes(row);
+
+                    if (!isMatching) {{
+                        row.style.display = 'none';
+                        row.classList.add('component-row-hidden');
+                    }} else {{
+                        if (visibleIndex >= startIdx && visibleIndex < endIdx) {{
+                            row.style.display = '';
+                            row.classList.remove('component-row-hidden');
+                        }} else {{
+                            row.style.display = 'none';
+                            row.classList.add('component-row-hidden');
+                        }}
+                        visibleIndex++;
+                    }}
+                }});
+
+                updateComponentCounters{tab_id}();
+            }};
+
+            window.prevPageExternal{tab_id} = function() {{
+                if (currentPageExternal{tab_id} > 1) {{
+                    currentPageExternal{tab_id}--;
+                    applyPageExternal{tab_id}();
+                }}
+            }};
+
+            window.nextPageExternal{tab_id} = function() {{
+                const table = document.getElementById('externalTable-{tab_id}');
+                const squadFilter = document.getElementById('squadFilter-{tab_id}');
+                const componentFilter = document.getElementById('componentFilter-{tab_id}');
+                const activeSquad = squadFilter ? squadFilter.value : '';
+                const activeComponent = componentFilter ? componentFilter.value : '';
+
+                const rows = Array.from(table.querySelectorAll('tbody tr'));
+                const matchingRows = rows.filter(row => {{
+                    let matches = true;
+                    if (activeSquad && row.dataset.squad !== activeSquad) matches = false;
+                    if (activeComponent && row.dataset.component !== activeComponent) matches = false;
+                    return matches;
+                }});
+
+                const totalPages = Math.ceil(matchingRows.length / COMPONENT_PAGE_SIZE);
+
+                if (currentPageExternal{tab_id} < totalPages) {{
+                    currentPageExternal{tab_id}++;
+                    applyPageExternal{tab_id}();
+                }}
+            }};
+
+            // Component search function
+            window.searchComponents{tab_id} = function(query) {{
+                const componentTable = document.getElementById('componentTable-{tab_id}');
+                const externalTable = document.getElementById('externalTable-{tab_id}');
+                const searchTerm = query.toLowerCase().trim();
+
+                [componentTable, externalTable].forEach(table => {{
+                    if (!table) return;
+                    table.querySelectorAll('tbody tr').forEach(row => {{
+                        if (!searchTerm) {{
+                            // Show based on hidden class
+                            if (row.classList.contains('component-row-hidden')) {{
+                                row.style.display = 'none';
+                            }} else {{
+                                row.style.display = '';
+                            }}
+                        }} else {{
+                            const componentName = row.dataset.component.toLowerCase();
+                            row.style.display = componentName.includes(searchTerm) ? 'table-row' : 'none';
+                        }}
+                    }});
+                }});
+
+                updateComponentCounters{tab_id}();
+            }};
+
+            // Squad filter function
+            window.filterBySquad{tab_id} = function(squad) {{
+                // Repopulate component dropdown with only components from selected squad
+                populateComponentDropdown{tab_id}(squad || null);
+
+                // Reset component filter when squad changes
+                const componentFilter = document.getElementById('componentFilter-{tab_id}');
+                if (componentFilter) componentFilter.value = '';
+
+                // Reset to page 1 and apply pagination with filter
+                // applyPage functions will handle showing/hiding based on squad
+                currentPageInternal{tab_id} = 1;
+                currentPageExternal{tab_id} = 1;
+                applyPageInternal{tab_id}();
+                applyPageExternal{tab_id}();
+            }};
+
+            // Component filter function
+            window.filterByComponent{tab_id} = function(component) {{
+                const componentTable = document.getElementById('componentTable-{tab_id}');
+                const externalTable = document.getElementById('externalTable-{tab_id}');
+
+                [componentTable, externalTable].forEach(table => {{
+                    if (!table) return;
+                    table.querySelectorAll('tbody tr').forEach((row, index) => {{
+                        if (!component) {{
+                            // Reset to default: show top 15, hide rest
+                            if (row.classList.contains('component-row-hidden')) {{
+                                row.style.display = 'none';
+                            }} else {{
+                                row.style.display = '';
+                            }}
+                        }} else {{
+                            const rowComponent = row.dataset.component;
+                            // Show matching rows even if they're in hidden class
+                            row.style.display = rowComponent === component ? 'table-row' : 'none';
+                        }}
+                    }});
+                }});
+            }};
+
+            // Populate component dropdown (optionally filtered by squad)
+            window.populateComponentDropdown{tab_id} = function(filterBySquad) {{
+                const componentFilter = document.getElementById('componentFilter-{tab_id}');
+                if (!componentFilter) return;
+
+                // Clear existing options (except "All Components")
+                componentFilter.innerHTML = '<option value="">All Components</option>';
+
+                const components = new Set();
+                const componentTable = document.getElementById('componentTable-{tab_id}');
+                const externalTable = document.getElementById('externalTable-{tab_id}');
+
+                [componentTable, externalTable].forEach(table => {{
+                    if (!table) return;
+                    table.querySelectorAll('tbody tr').forEach(row => {{
+                        const comp = row.dataset.component;
+                        const squad = row.dataset.squad;
+
+                        // If filtering by squad, only include components from that squad
+                        if (!filterBySquad || squad === filterBySquad) {{
+                            if (comp) components.add(comp);
+                        }}
+                    }});
+                }});
+
+                Array.from(components).sort().forEach(comp => {{
+                    const option = document.createElement('option');
+                    option.value = comp;
+                    option.textContent = comp;
+                    componentFilter.appendChild(option);
+                }});
+            }};
+
+            // Initial population
+            populateComponentDropdown{tab_id}(null);
+        }}
     """
 
 
@@ -1531,10 +3336,17 @@ def main():
     # Generate HTML components
     tab_buttons = '\n'.join([generate_tab_button(rel, hist) for rel, hist in sorted(releases.items())])
     tab_contents = '\n'.join([generate_release_tab_content(rel, hist, extras_metadata) for rel, hist in sorted(releases.items())])
-    comparison_cards = '\n'.join([generate_comparison_card(rel, hist) for rel, hist in sorted(releases.items())])
+
+    # Generate comparison cards with health scores, sorted by score (worst first)
+    card_data = [(rel, hist, *generate_comparison_card(rel, hist)) for rel, hist in releases.items()]
+    card_data.sort(key=lambda x: -x[2])  # Sort by health_score descending
+    comparison_cards = '\n'.join([card[3] for card in card_data])  # Extract HTML
 
     # Generate component CVE data for drill-down
     component_cve_data_js = generate_component_cve_data_js(releases, cve_descriptions)
+
+    # Generate cross-release CVE table
+    cross_release_table = generate_cross_release_cve_table(releases, cve_descriptions)
 
     # Generate comparison chart data
     compare_labels = []
@@ -1561,6 +3373,7 @@ def main():
         tab_buttons=tab_buttons,
         tab_contents=tab_contents,
         comparison_cards=comparison_cards,
+        cross_release_table=cross_release_table,
         chart_data_js=compare_data_js,
         component_cve_data_js=component_cve_data_js,
         individual_charts_js=individual_charts
