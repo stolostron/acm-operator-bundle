@@ -1480,7 +1480,9 @@ def generate_component_cve_data_js(releases, cve_descriptions):
 
             desc_data = cve_descriptions.get(cve_id, {})
             cvss_score = desc_data.get('cvss_score')
-            description = desc_data.get('description', 'No description available')
+            raw_description = desc_data.get('description', 'No description available')
+            # Sanitize description: remove control chars, normalize whitespace
+            description = ' '.join(raw_description.split())
 
             fixed_versions = detail.get('fixed_versions', [])
             if len(fixed_versions) == 0:
@@ -2607,7 +2609,7 @@ def generate_chart_data(release, history):
         const donutCtx{tab_id} = document.getElementById('severityDonut-{tab_id}');
         if (donutCtx{tab_id}) {{
             let activeSeverity{tab_id} = null;
-            const baseColors = ['#d73a49', '#f66a0a', '#e36209', '#999'];
+            const baseColors = ['#d73a49', '#f66a0a', '#fb8500', '#ffd60a'];
             const dimmedColors = ['rgba(215, 58, 73, 0.2)', 'rgba(246, 106, 10, 0.2)', 'rgba(227, 98, 9, 0.2)', 'rgba(153, 153, 153, 0.2)'];
             const getBorderColor = () => document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#000';
 
@@ -2679,6 +2681,7 @@ def generate_chart_data(release, history):
                 // Track active filter state globally
                 window['activeSeverityFilter_{tab_id}'] = severity;
 
+                const cvesTable = document.getElementById('cvesTable-{tab_id}');
                 const blastTable = document.getElementById('blastTable-{tab_id}');
                 const unfixableTable = document.getElementById('unfixableTable-{tab_id}');
                 const componentTable = document.getElementById('componentTable-{tab_id}');
@@ -2695,6 +2698,12 @@ def generate_chart_data(release, history):
 
                 if (!severity) {{
                     // Clear all filters and show all columns
+                    if (cvesTable) {{
+                        // Clear severity filter and reset pagination
+                        window['activeCVESeverity_{tab_id}'] = null;
+                        currentPageCVE{tab_id} = 1;
+                        applyPageCVE{tab_id}();
+                    }}
                     if (blastTable) {{
                         blastTable.querySelectorAll('tbody tr').forEach(row => row.style.display = '');
                     }}
@@ -2717,6 +2726,14 @@ def generate_chart_data(release, history):
                     }}
                     if (indicator) indicator.style.display = 'none';
                 }} else {{
+                    // Filter CVE table by severity - use pagination system
+                    if (cvesTable) {{
+                        // Store severity filter in global state
+                        window['activeCVESeverity_{tab_id}'] = severity;
+                        currentPageCVE{tab_id} = 1;
+                        applyPageCVE{tab_id}();
+                    }}
+
                     // Filter blast radius table by severity badge
                     if (blastTable) {{
                         blastTable.querySelectorAll('tbody tr').forEach(row => {{
@@ -2802,23 +2819,28 @@ def generate_chart_data(release, history):
                 const pageSize = pageSizeSelect ? pageSizeSelect.value : '10';
                 const filterSelect = document.getElementById('fixableFilter-{tab_id}');
                 const activeFilter = filterSelect ? filterSelect.value : '';
+                const activeSeverity = window['activeCVESeverity_{tab_id}'] || null;
 
                 // Count matching rows first
                 let matchingCount = 0;
                 cvesTable.querySelectorAll('tbody tr').forEach(row => {{
                     const fixable = row.dataset.fixable === '1';
+                    const rowSeverity = row.querySelector('.severity-badge')?.textContent.trim();
                     let passesFilter = true;
                     if (activeFilter === 'fixable' && !fixable) passesFilter = false;
                     if (activeFilter === 'unfixable' && fixable) passesFilter = false;
+                    if (activeSeverity && rowSeverity !== activeSeverity) passesFilter = false;
                     if (passesFilter) matchingCount++;
                 }});
 
                 if (pageSize === 'all') {{
                     cvesTable.querySelectorAll('tbody tr').forEach(row => {{
                         const fixable = row.dataset.fixable === '1';
+                        const rowSeverity = row.querySelector('.severity-badge')?.textContent.trim();
                         let passesFilter = true;
                         if (activeFilter === 'fixable' && !fixable) passesFilter = false;
                         if (activeFilter === 'unfixable' && fixable) passesFilter = false;
+                        if (activeSeverity && rowSeverity !== activeSeverity) passesFilter = false;
                         row.style.display = passesFilter ? 'table-row' : 'none';
                     }});
                     updateCVECounter{tab_id}(matchingCount);
@@ -2832,9 +2854,11 @@ def generate_chart_data(release, history):
                 let visibleIndex = 0;
                 cvesTable.querySelectorAll('tbody tr').forEach(row => {{
                     const fixable = row.dataset.fixable === '1';
+                    const rowSeverity = row.querySelector('.severity-badge')?.textContent.trim();
                     let passesFilter = true;
                     if (activeFilter === 'fixable' && !fixable) passesFilter = false;
                     if (activeFilter === 'unfixable' && fixable) passesFilter = false;
+                    if (activeSeverity && rowSeverity !== activeSeverity) passesFilter = false;
 
                     if (passesFilter) {{
                         // Update # column
@@ -2871,10 +2895,13 @@ def generate_chart_data(release, history):
                 const visibleRows = Array.from(cvesTable.querySelectorAll('tbody tr')).filter(row => {{
                     const filterSelect = document.getElementById('fixableFilter-{tab_id}');
                     const activeFilter = filterSelect ? filterSelect.value : '';
+                    const activeSeverity = window['activeCVESeverity_{tab_id}'] || null;
                     const fixable = row.dataset.fixable === '1';
+                    const rowSeverity = row.querySelector('.severity-badge')?.textContent.trim();
 
                     if (activeFilter === 'fixable' && !fixable) return false;
                     if (activeFilter === 'unfixable' && fixable) return false;
+                    if (activeSeverity && rowSeverity !== activeSeverity) return false;
                     return true;
                 }});
 
