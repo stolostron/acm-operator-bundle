@@ -3,7 +3,7 @@
 # Configuration
 export EXTRAS_DIR ?= extras
 export REPORTS_DIR ?= reports
-export SCAN_SEVERITY ?= HIGH,CRITICAL
+export SCAN_SEVERITY ?= CRITICAL,HIGH,MEDIUM,LOW
 export SCAN_FORMAT ?= table
 export SCAN_TIMEOUT ?= 10m
 IMAGE_KEY ?=
