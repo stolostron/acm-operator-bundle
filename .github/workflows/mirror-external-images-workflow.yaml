@@ -98,9 +98,10 @@ jobs:
         BRANCH_NAME="${WORKFLOW_RUN_BRANCH:-${INPUT_BRANCH:-${REF_NAME}}}"
         echo "name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
 
-        # Extract release version from branch name (e.g., release-2.14 -> 2.14)
+        # Extract release version from branch name
+        # Matches: release-2.14, update-snapshot-release-5.0, etc.
         RELEASE_VERSION=""
-        if [[ "${BRANCH_NAME}" =~ ^release-([0-9]+\.[0-9]+) ]]; then
+        if [[ "${BRANCH_NAME}" =~ release-([0-9]+\.[0-9]+) ]]; then
           RELEASE_VERSION="${BASH_REMATCH[1]}"
         fi
         echo "release_version=${RELEASE_VERSION}" >> $GITHUB_OUTPUT
@@ -226,15 +227,10 @@ jobs:
             HAS_FAILURE=false
           fi
 
-          # Build summary
-          SUMMARY="*Summary:*\n• Mirrored: $MIRRORED\n• Skipped: $SKIPPED\n• Failed: $FAILED"
-
-          # Build failure details if any
-          DETAILS=""
+          # Get failure details if any
+          FAILURES_JSON=""
           if [ "$FAILED" -gt 0 ]; then
-            DETAILS="\n\n*Failed Images:*\n"
-            FAILURES=$(jq -r '.failures[] | "• `\(.image_key)` [\(.operator)]\n  Source: `\(.source)`\n  Target: `\(.target)`\n  Error: \(.error)\n"' workflow/mirror-results.json)
-            DETAILS="$DETAILS$FAILURES"
+            FAILURES_JSON=$(jq -c '[.failures[] | "• `\(.image_key)` [\(.operator)]\n  Source: `\(.source)`\n  Target: `\(.target)`\n  Error: \(.error)"]' workflow/mirror-results.json)
           fi
         fi
 
@@ -255,7 +251,10 @@ jobs:
         MESSAGE=$(jq -n \
           --arg header "$HEADER_TEXT" \
           --arg status "$STATUS$USER_MENTION" \
-          --arg summary "$SUMMARY$DETAILS" \
+          --argjson mirrored "$MIRRORED" \
+          --argjson skipped "$SKIPPED" \
+          --argjson failed "$FAILED" \
+          --argjson failures "${FAILURES_JSON:-[]}" \
           --arg event "$EVENT_NAME" \
           --arg branch "$BRANCH_NAME" \
           --arg url "$WORKFLOW_URL" \
@@ -272,7 +271,7 @@ jobs:
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": ($status + "\n\n" + $summary)
+                  "text": ($status + "\n\n*Summary:*\n• Mirrored: " + ($mirrored|tostring) + "\n• Skipped: " + ($skipped|tostring) + "\n• Failed: " + ($failed|tostring) + (if ($failures | length) > 0 then "\n\n*Failed Images:*\n" + ($failures | join("\n")) else "" end))
                 }
               },
               {
