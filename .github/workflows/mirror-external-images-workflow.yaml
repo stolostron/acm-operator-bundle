@@ -98,9 +98,10 @@ jobs:
         BRANCH_NAME="${WORKFLOW_RUN_BRANCH:-${INPUT_BRANCH:-${REF_NAME}}}"
         echo "name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
 
-        # Extract release version from branch name (e.g., release-2.14 -> 2.14)
+        # Extract release version from branch name
+        # Matches: release-2.14, update-snapshot-release-5.0, etc.
         RELEASE_VERSION=""
-        if [[ "${BRANCH_NAME}" =~ ^release-([0-9]+\.[0-9]+) ]]; then
+        if [[ "${BRANCH_NAME}" =~ release-([0-9]+\.[0-9]+) ]]; then
           RELEASE_VERSION="${BASH_REMATCH[1]}"
         fi
         echo "release_version=${RELEASE_VERSION}" >> $GITHUB_OUTPUT
