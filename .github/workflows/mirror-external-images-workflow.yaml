@@ -242,55 +242,59 @@ jobs:
           HEADER_TEXT="Image Mirroring Report - ACM ${RELEASE_VERSION}"
         fi
 
-        # Build the Slack message
+        # Build the Slack message using jq for safe JSON construction
         WORKFLOW_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        MESSAGE=$(cat <<EOF
-        {
-          "blocks": [
-            {
-              "type": "header",
-              "text": {
-                "type": "plain_text",
-                "text": "$HEADER_TEXT"
-              }
-            },
-            {
-              "type": "section",
-              "text": {
-                "type": "mrkdwn",
-                "text": "$STATUS$USER_MENTION\n\n$SUMMARY$DETAILS"
-              }
-            },
-            {
-              "type": "section",
-              "fields": [
-                {
-                  "type": "mrkdwn",
-                  "text": "*Triggered by:*\n${EVENT_NAME}"
-                },
-                {
-                  "type": "mrkdwn",
-                  "text": "*Branch:*\n${BRANCH_NAME}"
+        MESSAGE=$(jq -n \
+          --arg header "$HEADER_TEXT" \
+          --arg status "$STATUS$USER_MENTION" \
+          --arg summary "$SUMMARY$DETAILS" \
+          --arg event "$EVENT_NAME" \
+          --arg branch "$BRANCH_NAME" \
+          --arg url "$WORKFLOW_URL" \
+          '{
+            "blocks": [
+              {
+                "type": "header",
+                "text": {
+                  "type": "plain_text",
+                  "text": $header
                 }
-              ]
-            },
-            {
-              "type": "actions",
-              "elements": [
-                {
-                  "type": "button",
-                  "text": {
-                    "type": "plain_text",
-                    "text": "View Workflow Run"
+              },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": ($status + "\n\n" + $summary)
+                }
+              },
+              {
+                "type": "section",
+                "fields": [
+                  {
+                    "type": "mrkdwn",
+                    "text": ("*Triggered by:*\n" + $event)
                   },
-                  "url": "$WORKFLOW_URL"
-                }
-              ]
-            }
-          ]
-        }
-        EOF
-        )
+                  {
+                    "type": "mrkdwn",
+                    "text": ("*Branch:*\n" + $branch)
+                  }
+                ]
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "View Workflow Run"
+                    },
+                    "url": $url
+                  }
+                ]
+              }
+            ]
+          }')
 
         # Send to Slack
         curl -X POST -H 'Content-type: application/json' \
