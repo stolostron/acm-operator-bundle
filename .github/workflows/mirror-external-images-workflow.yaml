@@ -87,11 +87,15 @@ jobs:
 
     - name: Determine branch context
       id: branch
-      run: |
+      env:
         # Use the branch that triggered the workflow:
         # - workflow_run: use head_branch (the PR branch, e.g., release-2.14)
         # - workflow_dispatch: use ref_name or input branch
-        BRANCH_NAME="${{ github.event.workflow_run.head_branch || inputs.branch || github.ref_name }}"
+        WORKFLOW_RUN_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        INPUT_BRANCH: ${{ inputs.branch }}
+        REF_NAME: ${{ github.ref_name }}
+      run: |
+        BRANCH_NAME="${WORKFLOW_RUN_BRANCH:-${INPUT_BRANCH:-${REF_NAME}}}"
         echo "name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
 
         # Extract release version from branch name (e.g., release-2.14 -> 2.14)
