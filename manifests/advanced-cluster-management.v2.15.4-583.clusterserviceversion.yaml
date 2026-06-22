@@ -8,7 +8,7 @@ metadata:
     categories: Integration & Delivery
     certified: 'true'
     support: Red Hat
-    createdAt: '2026-06-22T06:48:09Z'
+    createdAt: '2026-06-22T18:20:21Z'
     description: Advanced provisioning and management of OpenShift and Kubernetes clusters
     operatorframework.io/suggested-namespace: open-cluster-management
     operatorframework.io/initialization-resource: '{"apiVersion":"operator.open-cluster-management.io/v1",
@@ -29,9 +29,9 @@ metadata:
     features.operators.openshift.io/token-auth-azure: 'false'
     features.operators.openshift.io/token-auth-gcp: 'false'
     olm.properties: '[{"type": "olm.maxOpenShiftVersion", "value": "4.21"}]'
-    olm.skipRange: '>=2.13.0 <2.15.3'
+    olm.skipRange: '>=2.13.0 <2.15.4-583'
     operators.openshift.io/must-gather-image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:51b65b95b45a45e4aa8002b3b1abc399ff15afaba2f4027935c27a027f563fe1
-  name: advanced-cluster-management.v2.15.3
+  name: advanced-cluster-management.v2.15.4-583
   namespace: placeholder
   labels:
     operatorframework.io/arch.amd64: supported
@@ -41,7 +41,7 @@ metadata:
     operatorframework.io/os.linux: supported
 spec:
   displayName: Advanced Cluster Management for Kubernetes
-  version: 2.15.3
+  version: 2.15.4-583
   provider:
     name: Red Hat
   maintainers:
@@ -2011,7 +2011,7 @@ spec:
                 - name: OPERAND_IMAGE_RBAC_QUERY_PROXY
                   value: registry.redhat.io/rhacm2/rbac-query-proxy-rhel9@sha256:d601635fc07a7250ca1962a53dd211e01ffec0af8d789245b003180ead1dfab0
                 - name: OPERAND_IMAGE_SEARCH_COLLECTOR
-                  value: registry.redhat.io/rhacm2/search-collector-rhel9@sha256:d75936162b6b18aaddc847666fa625e006cb24326372399bd72a19f85e34373b
+                  value: registry.redhat.io/rhacm2/search-collector-rhel9@sha256:cd399aa49e1d521ba8eecbc3c14329db377c78a4f1313bfa24499bdc8261175c
                 - name: OPERAND_IMAGE_SEARCH_INDEXER
                   value: registry.redhat.io/rhacm2/acm-search-indexer-rhel9@sha256:9184eec90a5ec73f31dcca160b16c890c642cb6f9a2456ba26ef27455996834f
                 - name: OPERAND_IMAGE_SEARCH_V2_API
@@ -2027,7 +2027,7 @@ spec:
                 - name: OPERAND_IMAGE_THANOS_RECEIVE_CONTROLLER
                   value: registry.redhat.io/rhacm2/thanos-receive-controller-rhel9@sha256:23ddf5dbf8016f3a6e62be480c79d466c4a12019ccc37a078047308568a4df0d
                 - name: OPERAND_IMAGE_VOLSYNC_ADDON_CONTROLLER
-                  value: registry.redhat.io/rhacm2/acm-volsync-addon-controller-rhel9@sha256:893f9f2a94ec5f10a32d2bde62f9afd75e5e1e6e16b22f579bec7745652d3792
+                  value: registry.redhat.io/rhacm2/acm-volsync-addon-controller-rhel9@sha256:0c4488930e568fd34ce48e7c1ba7751019058f04309e71e784949ea43ea5e2bf
                 - name: OPERAND_IMAGE_CONFIGMAP_RELOADER
                   value: registry.redhat.io/openshift4/ose-configmap-reloader-rhel9@sha256:30f752325a783ed8ca2c5d5cc21b490fd5f56e5fa23818f2368b94aecc6403c8
                 - name: OPERAND_IMAGE_FLIGHTCTL_API
@@ -2067,7 +2067,7 @@ spec:
                 - name: OPERAND_IMAGE_VOLSYNC
                   value: registry.redhat.io/rhacm2/volsync-rhel9@sha256:c17cd6eb9fe0c5e5dea0b0e564c5e4bb95572f9fc5179da3917c037ce20139c0
                 - name: OPERATOR_VERSION
-                  value: 2.15.3
+                  value: 2.15.4-583
                 - name: OPERATOR_PACKAGE
                   value: advanced-cluster-management
                 image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:1bdd401f6950a23c4035b808383b330367bc5db7629a1baaeab3456d545ca7bf
@@ -2113,9 +2113,7 @@ spec:
                 secret:
                   defaultMode: 420
                   secretName: multiclusterhub-operator-webhook
-  replaces: advanced-cluster-management.v2.15.1
-  skips:
-  - advanced-cluster-management.v2.15.2
+  replaces: advanced-cluster-management.v2.15.3
   relatedImages:
   - name: acm_cli
     image: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:c4f972adf57145eb5331c41e3c0912506f6678133c5013ae26d1c6fdd736b2e6
@@ -2190,7 +2188,7 @@ spec:
   - name: rbac_query_proxy
     image: registry.redhat.io/rhacm2/rbac-query-proxy-rhel9@sha256:d601635fc07a7250ca1962a53dd211e01ffec0af8d789245b003180ead1dfab0
   - name: search_collector
-    image: registry.redhat.io/rhacm2/search-collector-rhel9@sha256:d75936162b6b18aaddc847666fa625e006cb24326372399bd72a19f85e34373b
+    image: registry.redhat.io/rhacm2/search-collector-rhel9@sha256:cd399aa49e1d521ba8eecbc3c14329db377c78a4f1313bfa24499bdc8261175c
   - name: search_indexer
     image: registry.redhat.io/rhacm2/acm-search-indexer-rhel9@sha256:9184eec90a5ec73f31dcca160b16c890c642cb6f9a2456ba26ef27455996834f
   - name: search_v2_api
@@ -2206,7 +2204,7 @@ spec:
   - name: thanos_receive_controller
     image: registry.redhat.io/rhacm2/thanos-receive-controller-rhel9@sha256:23ddf5dbf8016f3a6e62be480c79d466c4a12019ccc37a078047308568a4df0d
   - name: volsync_addon_controller
-    image: registry.redhat.io/rhacm2/acm-volsync-addon-controller-rhel9@sha256:893f9f2a94ec5f10a32d2bde62f9afd75e5e1e6e16b22f579bec7745652d3792
+    image: registry.redhat.io/rhacm2/acm-volsync-addon-controller-rhel9@sha256:0c4488930e568fd34ce48e7c1ba7751019058f04309e71e784949ea43ea5e2bf
   - name: configmap_reloader
     image: registry.redhat.io/openshift4/ose-configmap-reloader-rhel9@sha256:30f752325a783ed8ca2c5d5cc21b490fd5f56e5fa23818f2368b94aecc6403c8
   - name: flightctl_api
