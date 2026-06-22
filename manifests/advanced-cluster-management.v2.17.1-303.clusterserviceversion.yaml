@@ -8,7 +8,7 @@ metadata:
     categories: Integration & Delivery
     certified: 'true'
     support: Red Hat
-    createdAt: '2026-06-22T04:29:32Z'
+    createdAt: '2026-06-22T16:35:31Z'
     description: Advanced provisioning and management of OpenShift and Kubernetes clusters
     operatorframework.io/suggested-namespace: open-cluster-management
     operatorframework.io/initialization-resource: '{"apiVersion":"operator.open-cluster-management.io/v1",
@@ -29,9 +29,9 @@ metadata:
     features.operators.openshift.io/token-auth-azure: 'false'
     features.operators.openshift.io/token-auth-gcp: 'false'
     olm.properties: '[{"type": "olm.maxOpenShiftVersion", "value": "5.0"}]'
-    olm.skipRange: '>=2.15.0 <2.17.0'
+    olm.skipRange: '>=2.15.0 <2.17.1-303'
     operators.openshift.io/must-gather-image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:6ab06c17b7dcdfcd838a6367cdb3b885a0f7cd4cb98063790310127fca96e1d5
-  name: advanced-cluster-management.v2.17.0
+  name: advanced-cluster-management.v2.17.1-303
   namespace: placeholder
   labels:
     operatorframework.io/arch.amd64: supported
@@ -41,7 +41,7 @@ metadata:
     operatorframework.io/os.linux: supported
 spec:
   displayName: Advanced Cluster Management for Kubernetes
-  version: 2.17.0
+  version: 2.17.1-303
   provider:
     name: Red Hat
   maintainers:
@@ -1995,7 +1995,7 @@ spec:
                 - name: OPERAND_IMAGE_THANOS_RECEIVE_CONTROLLER
                   value: registry.redhat.io/rhacm2/thanos-receive-controller-rhel9@sha256:823e45bb4e0745955a75a8eacaca20c93275f127085a4d96bb45556328f6f6fd
                 - name: OPERAND_IMAGE_VOLSYNC_ADDON_CONTROLLER
-                  value: registry.redhat.io/rhacm2/acm-volsync-addon-controller-rhel9@sha256:90a1e10de0d79c661cf822d2257f5a331518456a8a0184d3d8f3d985968e3689
+                  value: registry.redhat.io/rhacm2/acm-volsync-addon-controller-rhel9@sha256:efaf58ab032f5ef05bf06dd54cb35187d2191073a846dedce17173a5dd3e1f29
                 - name: OPERAND_IMAGE_CONFIGMAP_RELOADER
                   value: registry.redhat.io/openshift4/ose-configmap-reloader-rhel9@sha256:540b039b0b0ac8c5a58c416c5445b2a875dd6b072197e349199ec81571227cab
                 - name: OPERAND_IMAGE_POSTGRESQL_16
@@ -2005,7 +2005,7 @@ spec:
                 - name: OPERAND_IMAGE_VOLSYNC
                   value: registry.redhat.io/rhacm2/volsync-rhel9@sha256:002945b7dd12efe07a724b4c4bac7cf8e82d9d77b816a868d3961023b2c402d9
                 - name: OPERATOR_VERSION
-                  value: 2.17.0
+                  value: 2.17.1-303
                 - name: OPERATOR_PACKAGE
                   value: advanced-cluster-management
                 image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:181ef1fa64fc32571688d6aa26ade752a553ec53e9c5477a3fc286d45aec8725
@@ -2051,6 +2051,7 @@ spec:
                 secret:
                   defaultMode: 420
                   secretName: multiclusterhub-operator-webhook
+  replaces: advanced-cluster-management.v2.17.0
   relatedImages:
   - name: acm_cli
     image: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:edb0427b086d8fd7ea7665d43d8d42c47ebcdf45e15d0523a0bc26d93e25fbf4
@@ -2141,7 +2142,7 @@ spec:
   - name: thanos_receive_controller
     image: registry.redhat.io/rhacm2/thanos-receive-controller-rhel9@sha256:823e45bb4e0745955a75a8eacaca20c93275f127085a4d96bb45556328f6f6fd
   - name: volsync_addon_controller
-    image: registry.redhat.io/rhacm2/acm-volsync-addon-controller-rhel9@sha256:90a1e10de0d79c661cf822d2257f5a331518456a8a0184d3d8f3d985968e3689
+    image: registry.redhat.io/rhacm2/acm-volsync-addon-controller-rhel9@sha256:efaf58ab032f5ef05bf06dd54cb35187d2191073a846dedce17173a5dd3e1f29
   - name: configmap_reloader
     image: registry.redhat.io/openshift4/ose-configmap-reloader-rhel9@sha256:540b039b0b0ac8c5a58c416c5445b2a875dd6b072197e349199ec81571227cab
   - name: postgresql_16
