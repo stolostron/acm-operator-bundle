@@ -2,129 +2,73 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/multicluster-observability-operator?rev=a83b257b62d7a27157435095c2bbf1e9c89eaecf
-    build.appstudio.redhat.com/commit_sha: a83b257b62d7a27157435095c2bbf1e9c89eaecf
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/mtv-integrations?rev=86df8d61f42c421625ab9fb4530b7c2995498a20
+    build.appstudio.redhat.com/commit_sha: 86df8d61f42c421625ab9fb4530b7c2995498a20
     build.appstudio.redhat.com/target_branch: release-2.15
     pac.test.appstudio.openshift.io/branch: release-2.15
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "83402568199"
+    pac.test.appstudio.openshift.io/check-run-id: "83512791920"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-idjkrh
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-ijtiuz
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/endpoint-monitoring-operator-acm-215-on-push-97kb7
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/mtv-integrations-acm-215-on-push-jvf2h
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-2.15"
-    pac.test.appstudio.openshift.io/original-prname: endpoint-monitoring-operator-acm-215-on-push
-    pac.test.appstudio.openshift.io/pull-request: "2482"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/multicluster-observability-operator
-    pac.test.appstudio.openshift.io/repository: endpoint-monitoring-operator-acm-210
+    pac.test.appstudio.openshift.io/original-prname: mtv-integrations-acm-215-on-push
+    pac.test.appstudio.openshift.io/pull-request: "365"
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/mtv-integrations
+    pac.test.appstudio.openshift.io/repository: mtv-integrations-acm-215
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
-    pac.test.appstudio.openshift.io/sender: coleenquadros
-    pac.test.appstudio.openshift.io/sha: a83b257b62d7a27157435095c2bbf1e9c89eaecf
+    pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
+    pac.test.appstudio.openshift.io/sha: 86df8d61f42c421625ab9fb4530b7c2995498a20
     pac.test.appstudio.openshift.io/sha-title: |-
-      [release-2.15] fix(proxy): remove vestigial rbac-query-proxy-ingress (#2482)
+      [release-2.15] chore: upgrade to Go 1.26 (#365)
 
-      * fix(proxy): remove vestigial rbac-query-proxy-ingress
+      ref: https://redhat.atlassian.net/browse/ACM-35531
 
-      Remove the unused rbac-query-proxy-ingress Ingress resource that breaks
-      MCO reconciliation on AWS STS clusters with the AWS Load Balancer
-      Controller (ALBO).
-
-      The Ingress hardcoded ingressClassName: ingress-open-cluster-management,
-      which ALBO's admission webhook rejects because no IngressClass by that
-      name exists. The management-ingress component that originally served this
-      Ingress is deprecated (last commit July 2023, removed from MCH default
-      components). The RBAC query proxy is already exposed via OCP Route
-      (GenerateProxyRoute), making this Ingress redundant.
-
-      ## Problem
-
-      On AWS STS clusters with ALBO installed, the admission webhook
-      vingress.elbv2.k8s.aws validates that referenced IngressClasses exist.
-      The hardcoded class ingress-open-cluster-management was never registered
-      as a Kubernetes IngressClass resource, causing the webhook to reject the
-      Ingress. This halted the entire MCO reconciliation loop, preventing
-      certificate creation, Grafana datasource setup, and leaving Grafana and
-      RBAC Query Proxy pods stuck in ContainerCreating.
-
-      ## Root Cause
-
-      PR #1312 moved the class from annotation (kubernetes.io/ingress.class)
-      to spec.ingressClassName to suppress the OCP IngressWithoutClassName
-      alert. While annotations were informal hints not validated by webhooks,
-      spec.ingressClassName is a formal API field that ALBO strictly validates.
-
-      ## Fix
-
-      Delete the Ingress manifest entirely. The proxy is already accessible
-      via OCP Route, following the same pattern used when the Grafana Ingress
-      was removed in commit e7adf1dd (July 2022).
-
-      Fixes ACM-33641
-
-      Signed-off-by: Coleen Iona Quadros <coleen.quadros27@gmail.com>
-
-      * fix(proxy): clean up orphaned rbac-query-proxy-ingress on upgrade
-
-      The rbac-query-proxy Ingress targeted the deprecated management-ingress
-      controller and is no longer rendered. On existing clusters it persists
-      after upgrade because the operator has no automatic pruning. Add a
-      one-time cleanup in the legacy resource removal block to delete it.
-
-      The delete is idempotent: NotFound is ignored on both Get and Delete.
-
-      Ref: ACM-33641
-
-      Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-      Signed-off-by: Coleen Iona Quadros <coleen.quadros27@gmail.com>
-
-      ---------
-
-      Signed-off-by: Coleen Iona Quadros <coleen.quadros27@gmail.com>
-      Co-authored-by: Coleen Iona Quadros <coleen.quadros27@gmail.com>
-      Co-authored-by: Claude Opus 4.6 <noreply@anthropic.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/multicluster-observability-operator/commit/a83b257b62d7a27157435095c2bbf1e9c89eaecf
+      Signed-off-by: Janelle Law <jalaw@redhat.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/mtv-integrations/commit/86df8d61f42c421625ab9fb4530b7c2995498a20
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-2.15
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multicluster-observability-operator
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/mtv-integrations
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: multicluster-observability-operator
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-06-25T09:57:55Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-215-release-acm-215-20260625-094423-000":{"lastUpdateTime":"2026-06-25T10:01:21.565327004Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: mtv-integrations
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-06-25T19:21:59Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-215-release-acm-215-20260625-191222-000":{"lastUpdateTime":"2026-06-25T19:26:37.541991991Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1782380663000"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1782414742000"
     test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/result-chains-git-commit: a83b257b62d7a27157435095c2bbf1e9c89eaecf
-    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/multicluster-observability-operator
-    test.appstudio.openshift.io/result-image-digest: sha256:977dc27201aeb1ee4f490886c0c43220ca9a8585587691d14518f64fce694878
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/endpoint-monitoring-operator-acm-215:a83b257b62d7a27157435095c2bbf1e9c89eaecf
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multicluster-observability-operator
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-215","status":"BuildPLRInProgress","lastUpdateTime":"2026-06-25T10:01:21.565327004Z","details":"Integration
-      test passed with warnings","startTime":"2026-06-25T09:57:55.859203119Z","completionTime":"2026-06-25T10:01:21.565327004Z","testPipelineRunName":"enterprise-contract-acm-215-khrqf"}]'
-  creationTimestamp: "2026-06-25T09:57:55Z"
+    test.appstudio.openshift.io/result-chains-git-commit: 86df8d61f42c421625ab9fb4530b7c2995498a20
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/mtv-integrations
+    test.appstudio.openshift.io/result-image-digest: sha256:afc0a267d013ed646193b7ecd273b6c1fd734944f067800514e8ea7d6d531464
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-215:86df8d61f42c421625ab9fb4530b7c2995498a20
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/mtv-integrations
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-215","status":"BuildPLRInProgress","lastUpdateTime":"2026-06-25T19:26:37.541991991Z","details":"Integration
+      test passed with warnings","startTime":"2026-06-25T19:21:59.450569135Z","completionTime":"2026-06-25T19:26:37.541991991Z","testPipelineRunName":"enterprise-contract-acm-215-rqqth"}]'
+  creationTimestamp: "2026-06-25T19:21:59Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-215
-    appstudio.openshift.io/build-pipelinerun: endpoint-monitoring-operator-acm-215-on-push-97kb7
-    appstudio.openshift.io/component: endpoint-monitoring-operator-acm-215
+    appstudio.openshift.io/build-pipelinerun: mtv-integrations-acm-215-on-push-jvf2h
+    appstudio.openshift.io/component: mtv-integrations-acm-215
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "83402568199"
+    pac.test.appstudio.openshift.io/check-run-id: "83512791920"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: endpoint-monitoring-operator-acm-215-on-push
-    pac.test.appstudio.openshift.io/pull-request: "2482"
-    pac.test.appstudio.openshift.io/repository: endpoint-monitoring-operator-acm-210
-    pac.test.appstudio.openshift.io/sha: a83b257b62d7a27157435095c2bbf1e9c89eaecf
+    pac.test.appstudio.openshift.io/original-prname: mtv-integrations-acm-215-on-push
+    pac.test.appstudio.openshift.io/pull-request: "365"
+    pac.test.appstudio.openshift.io/repository: mtv-integrations-acm-215
+    pac.test.appstudio.openshift.io/sha: 86df8d61f42c421625ab9fb4530b7c2995498a20
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: multicluster-observability-operator
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1782381469"
+    pac.test.appstudio.openshift.io/url-repository: mtv-integrations
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1782415310"
     test.appstudio.openshift.io/type: component
-  name: release-acm-215-20260625-094423-000
+  name: release-acm-215-20260625-191222-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -133,44 +77,12 @@ metadata:
     kind: Application
     name: release-acm-215
     uid: 100ebaae-96cc-48d3-9c2d-540e1b991216
-  resourceVersion: "9527598685"
-  uid: 7dc06383-c207-48b4-a68c-1620425e6ba7
+  resourceVersion: "9540210964"
+  uid: ff7886d9-9eed-4447-bd64-69da162d2160
 spec:
   application: release-acm-215
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/metrics-collector-acm-215@sha256:6603e9f250bbc17c05c8a8a6d29214f1594c1d3cace5f31b4dc001a080153442
-    name: metrics-collector-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: collectors/metrics/Containerfile.operator
-        revision: a83b257b62d7a27157435095c2bbf1e9c89eaecf
-        url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-215@sha256:d9d4ddc3373f2adc7af0f9c3cd9a451ce0a806c5fb691be7f2951f88d19feed5
-    name: mtv-integrations-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile
-        revision: c414da937dddb2ac8970eef3141c1e79a77c4075
-        url: https://github.com/stolostron/mtv-integrations
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-operator-acm-215@sha256:f7b3787218fce414a4a13818ebd195591a40420df02e27c91ce79336589b6c67
-    name: multicluster-observability-operator-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: operators/multiclusterobservability/Containerfile.operator
-        revision: a83b257b62d7a27157435095c2bbf1e9c89eaecf
-        url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-215@sha256:f54d03f2cd9004ed213be57a6f6c99f03ee479217eb6056466b1e4d1ab3f0f74
-    name: multicluster-operators-application-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 4d2c5aad99f04fd7e3bb488ed04169e2af177aab
-        url: https://github.com/stolostron/multicloud-operators-application
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/node-exporter-acm-215@sha256:97bd98195e3b33a28d629ceade50ee00bca9bc9bffbed54d192f789e413ef140
     name: node-exporter-acm-215
     source:
@@ -307,13 +219,13 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: b70baabc71a30bb81870fd121c262e90b5208ef2
         url: https://github.com/stolostron/observatorium
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/observatorium-operator-acm-215@sha256:c63fe1c07c97698eb3267f5d07bcdf5b13e677b42dd42d83c2dcdd1e5607a255
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/observatorium-operator-acm-215@sha256:44370c52afeceb7e049e18b94d126008d92a624f9f07a27a687b5d3dba91c622
     name: observatorium-operator-acm-215
     source:
       git:
         context: ./
         dockerfileUrl: Containerfile.operator
-        revision: bd90ebefcb6484a7d875c25f54b6c66e0b4abf79
+        revision: eda7a64608116b36dede5bf47db36315cbe8712e
         url: https://github.com/stolostron/observatorium-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/insights-metrics-acm-215@sha256:00215340d995e0cfc2c3b3420f09d3f3fdfdaf573a89d777a3aac15e3406d1b5
     name: insights-metrics-acm-215
@@ -427,13 +339,13 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: 03aaf086f1c3e366a9f699d54e2c1b97eed5a4f0
         url: https://github.com/stolostron/governance-policy-framework-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-rbac-proxy-acm-215@sha256:d53e50985ddca71c4e638821f85759f8654125850e6bd622a955765772c561cf
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-rbac-proxy-acm-215@sha256:2abb1e88d39fd899cd8daf76b474b116cf647b2681a10088e4593f2ab411b179
     name: kube-rbac-proxy-acm-215
     source:
       git:
         context: ./
         dockerfileUrl: Containerfile.operator
-        revision: 0b58f2af109b0ecbb6984a4517b6dc0210acbb51
+        revision: e8c7873216b70c20a34a78852c09f0d6b7e5fa5f
         url: https://github.com/stolostron/kube-rbac-proxy
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-addon-acm-215@sha256:0685ca0828527054125c22ebdeca2f97b809df948f13eb3cd979b59a6054cf06
     name: multicluster-observability-addon-acm-215
@@ -496,6 +408,7 @@ spec:
     source:
       git:
         context: ./
+        dockerfileUrl: operators/endpointmetrics/Containerfile.operator
         revision: a83b257b62d7a27157435095c2bbf1e9c89eaecf
         url: https://github.com/stolostron/multicluster-observability-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/memcached-exporter-acm-215@sha256:14a84fcbba89c32090b9dfa78419b0f9d7acdc16896860660fd2fc7356648032
@@ -506,20 +419,51 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: 3ea89a6ca5e91d17b0d311c628a88f081a83ce8c
         url: https://github.com/stolostron/memcached_exporter
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/metrics-collector-acm-215@sha256:6603e9f250bbc17c05c8a8a6d29214f1594c1d3cace5f31b4dc001a080153442
+    name: metrics-collector-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: collectors/metrics/Containerfile.operator
+        revision: a83b257b62d7a27157435095c2bbf1e9c89eaecf
+        url: https://github.com/stolostron/multicluster-observability-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-215@sha256:afc0a267d013ed646193b7ecd273b6c1fd734944f067800514e8ea7d6d531464
+    name: mtv-integrations-acm-215
+    source:
+      git:
+        context: ./
+        revision: 86df8d61f42c421625ab9fb4530b7c2995498a20
+        url: https://github.com/stolostron/mtv-integrations
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-operator-acm-215@sha256:f7b3787218fce414a4a13818ebd195591a40420df02e27c91ce79336589b6c67
+    name: multicluster-observability-operator-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: operators/multiclusterobservability/Containerfile.operator
+        revision: a83b257b62d7a27157435095c2bbf1e9c89eaecf
+        url: https://github.com/stolostron/multicluster-observability-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-215@sha256:f54d03f2cd9004ed213be57a6f6c99f03ee479217eb6056466b1e4d1ab3f0f74
+    name: multicluster-operators-application-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 4d2c5aad99f04fd7e3bb488ed04169e2af177aab
+        url: https://github.com/stolostron/multicloud-operators-application
 status:
   conditions:
-  - lastTransitionTime: "2026-06-25T10:01:21Z"
+  - lastTransitionTime: "2026-06-25T19:26:37Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-06-25T10:01:21Z"
+  - lastTransitionTime: "2026-06-25T19:26:37Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-06-25T10:01:21Z"
+  - lastTransitionTime: "2026-06-25T19:26:37Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
