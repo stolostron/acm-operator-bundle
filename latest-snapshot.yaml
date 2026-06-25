@@ -2,73 +2,95 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/prometheus-alertmanager?rev=59a1fd2cf052a39b76012122b56dcdc358e78688
-    build.appstudio.redhat.com/commit_sha: 59a1fd2cf052a39b76012122b56dcdc358e78688
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/kube-rbac-proxy?rev=f94d7412cdcbc61380866882e1e0116b99022e62
+    build.appstudio.redhat.com/commit_sha: f94d7412cdcbc61380866882e1e0116b99022e62
     build.appstudio.redhat.com/target_branch: release-2.16
     pac.test.appstudio.openshift.io/branch: release-2.16
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "83379088752"
+    pac.test.appstudio.openshift.io/check-run-id: "83469395179"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-ooxmio
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-lixuzk
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/prometheus-alertmanager-acm-216-on-push-dgr44
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/kube-rbac-proxy-acm-216-on-push-tb4xt
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-2.16"
-    pac.test.appstudio.openshift.io/original-prname: prometheus-alertmanager-acm-216-on-push
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/prometheus-alertmanager
-    pac.test.appstudio.openshift.io/repository: prometheus-alertmanager-acm-210
+    pac.test.appstudio.openshift.io/original-prname: kube-rbac-proxy-acm-216-on-push
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/kube-rbac-proxy
+    pac.test.appstudio.openshift.io/repository: kube-rbac-proxy-mce-25
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
     pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
-    pac.test.appstudio.openshift.io/sha: 59a1fd2cf052a39b76012122b56dcdc358e78688
+    pac.test.appstudio.openshift.io/sha: f94d7412cdcbc61380866882e1e0116b99022e62
     pac.test.appstudio.openshift.io/sha-title: |-
-      Add FIPS build flags to Dockerfile
+      [release-2.16] ACM-34820 Add E2E Tests For Kube-rbac-proxy (#355)
 
-      Add CGO_ENABLED=1 and GOEXPERIMENT=strictfipsruntime to go build,
-      make, and promu build lines for FIPS compliance.
+      * First pass of adding e2e tests for kube-rbac-proxy
 
-      JIRA: HYPBLD-847
+      Signed-off-by: George Aeillo <gaeillo@redhat.com>
 
-      Signed-off-by: Brian Smith <briansmi@redhat.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/prometheus-alertmanager/commit/59a1fd2cf052a39b76012122b56dcdc358e78688
+      * Update prometheus-example-app to later version so docker will accept image format that is being pulled
+
+      Signed-off-by: George Aeillo <gaeillo@redhat.com>
+
+      * Update prometheus-example-app to later version so docker will accept image format that is being pulled
+
+      Signed-off-by: George Aeillo <gaeillo@redhat.com>
+
+      * Do cgo_enabled=0 to support running on distroless images
+
+      Signed-off-by: George Aeillo <gaeillo@redhat.com>
+
+      * Make certs not expired
+
+      Signed-off-by: George Aeillo <gaeillo@redhat.com>
+
+      * Fix corrupted certs
+
+      Signed-off-by: George Aeillo <gaeillo@redhat.com>
+
+      ---------
+
+      Signed-off-by: George Aeillo <gaeillo@redhat.com>
+      Co-authored-by: George Aeillo <gaeillo@redhat.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/kube-rbac-proxy/commit/f94d7412cdcbc61380866882e1e0116b99022e62
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-2.16
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/prometheus-alertmanager
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/kube-rbac-proxy
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: prometheus-alertmanager
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-06-25T07:42:09Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-216-release-acm-216-20260625-073159-000":{"lastUpdateTime":"2026-06-25T07:43:26.583249017Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: kube-rbac-proxy
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-06-25T15:38:44Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-216-release-acm-216-20260625-152724-000":{"lastUpdateTime":"2026-06-25T16:07:03.393249239Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1782372719000"
-    test.appstudio.openshift.io/result-chains-git-commit: 59a1fd2cf052a39b76012122b56dcdc358e78688
-    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/prometheus-alertmanager
-    test.appstudio.openshift.io/result-image-digest: sha256:e2e14c36bd6ddabe5677e3c49febced1987982b301ef961031c7fa7ec0981e81
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-alertmanager-acm-216:59a1fd2cf052a39b76012122b56dcdc358e78688
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/prometheus-alertmanager
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-216","status":"BuildPLRInProgress","lastUpdateTime":"2026-06-25T07:43:26.583249017Z","details":"Integration
-      test passed with warnings","startTime":"2026-06-25T07:42:10.193255936Z","completionTime":"2026-06-25T07:43:26.583249017Z","testPipelineRunName":"enterprise-contract-acm-216-kd2vf"}]'
-  creationTimestamp: "2026-06-25T07:42:10Z"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1782401244000"
+    test.appstudio.openshift.io/result-chains-git-commit: f94d7412cdcbc61380866882e1e0116b99022e62
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/kube-rbac-proxy
+    test.appstudio.openshift.io/result-image-digest: sha256:100fe3aab26f93cdb6997c089d223606fe992d5a4266eda5c0d41418e28fc706
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-rbac-proxy-acm-216:f94d7412cdcbc61380866882e1e0116b99022e62
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/kube-rbac-proxy
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-216","status":"BuildPLRInProgress","lastUpdateTime":"2026-06-25T16:07:03.393249239Z","details":"Integration
+      test passed with warnings","startTime":"2026-06-25T15:38:44.965517586Z","completionTime":"2026-06-25T16:07:03.393249239Z","testPipelineRunName":"enterprise-contract-acm-216-svshw"}]'
+  creationTimestamp: "2026-06-25T15:38:44Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-216
-    appstudio.openshift.io/build-pipelinerun: prometheus-alertmanager-acm-216-on-push-dgr44
-    appstudio.openshift.io/component: prometheus-alertmanager-acm-216
+    appstudio.openshift.io/build-pipelinerun: kube-rbac-proxy-acm-216-on-push-tb4xt
+    appstudio.openshift.io/component: kube-rbac-proxy-acm-216
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "83379088752"
+    pac.test.appstudio.openshift.io/check-run-id: "83469395179"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: prometheus-alertmanager-acm-216-on-push
-    pac.test.appstudio.openshift.io/repository: prometheus-alertmanager-acm-210
-    pac.test.appstudio.openshift.io/sha: 59a1fd2cf052a39b76012122b56dcdc358e78688
+    pac.test.appstudio.openshift.io/original-prname: kube-rbac-proxy-acm-216-on-push
+    pac.test.appstudio.openshift.io/repository: kube-rbac-proxy-mce-25
+    pac.test.appstudio.openshift.io/sha: f94d7412cdcbc61380866882e1e0116b99022e62
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: prometheus-alertmanager
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1782373323"
+    pac.test.appstudio.openshift.io/url-repository: kube-rbac-proxy
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1782401917"
     test.appstudio.openshift.io/type: component
-  name: release-acm-216-20260625-073159-000
+  name: release-acm-216-20260625-152724-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -77,52 +99,12 @@ metadata:
     kind: Application
     name: release-acm-216
     uid: 36e17c1d-3fe4-44ec-96e0-7fac572eda72
-  resourceVersion: "9525082787"
-  uid: 16ea19eb-4a8d-4cd6-b80d-d93bf7d8a4df
+  resourceVersion: "9535539341"
+  uid: 20afdfc8-075b-4b79-8dab-9936b80fe82c
 spec:
   application: release-acm-216
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-216@sha256:bbe19b29ad913a5af603f37852ae171030da493dcf23b7381ec24840ad4673f9
-    name: search-indexer-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 1bfd9d425c7502a4779ec2948b0e5acfae668d64
-        url: https://github.com/stolostron/search-indexer
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-216@sha256:c5204a7c33061469927b9b86c03ee5b4071973a11c006459b5f851434eb1aada
-    name: submariner-addon-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.konflux
-        revision: afdce6912204d5fe597f5fb773103d9c41015fd6
-        url: https://github.com/stolostron/submariner-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/thanos-acm-216@sha256:fbadeb775e4157053ef9828bef14e7e0ab9107890fade0ba8dc64318f718d0a5
-    name: thanos-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 7f0de3c8b5557498989b4042ded2426069b25c5b
-        url: https://github.com/stolostron/thanos
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-216@sha256:509bc5ee933a4aeb5a667a608cf832a9242e44c926fdc55cbf5d2c4653b12cdb
-    name: cert-policy-controller-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 25dc4311b749f8a9e78ab87dc72af095dafa09ca
-        url: https://github.com/stolostron/cert-policy-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-backup-operator-acm-216@sha256:c50a48fa65cadc17b4a3e31716f58e873530048d02306cbc956bc84bc6567f4e
-    name: cluster-backup-operator-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 3fc0a005e690175cba2750d1e03a3463f4b58b7f
-        url: https://github.com/stolostron/cluster-backup-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-addon-controller-acm-216@sha256:325cb2e7f7aabe97d9146a3c2da82730b87424e647990e834680c4b0e2410858
     name: governance-policy-addon-controller-acm-216
     source:
@@ -139,13 +121,12 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: 2a1914c88f5aaa78b04f7eca26304ddf5ea0ba36
         url: https://github.com/stolostron/insights-client
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-rbac-proxy-acm-216@sha256:e7ff40b29d11a889dadc2e47dd8b82d8d9783dda5aebcfeb6f776b4d24b1939d
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-rbac-proxy-acm-216@sha256:100fe3aab26f93cdb6997c089d223606fe992d5a4266eda5c0d41418e28fc706
     name: kube-rbac-proxy-acm-216
     source:
       git:
         context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 62b0102cfbd08c592e2b76a5931e15c425a26bb3
+        revision: f94d7412cdcbc61380866882e1e0116b99022e62
         url: https://github.com/stolostron/kube-rbac-proxy
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-operator-acm-216@sha256:40a468854c2c3159f54f30b4cd3f8ad5ecbb55d73c11cfefa5944afafcd8be6a
     name: multicluster-observability-operator-acm-216
@@ -243,19 +224,20 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: f109f73e9e618cc218ef935e04deeb9a7527cb12
         url: https://github.com/stolostron/memcached_exporter
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/observatorium-operator-acm-216@sha256:46cfa8be57fe13936a2b0690360f58825cc1dec46c707921c0c569fd8103b62a
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/observatorium-operator-acm-216@sha256:7615d2727897d3a444441239682a590b6335de06463b80f5a497ac2543dc3e6e
     name: observatorium-operator-acm-216
     source:
       git:
         context: ./
         dockerfileUrl: Containerfile.operator
-        revision: bfa630cf37aaf656b616c586c95ed14a43ae266a
+        revision: 14828e370fff64b23a7aa7c2e961fa4a55b22770
         url: https://github.com/stolostron/observatorium-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-alertmanager-acm-216@sha256:e2e14c36bd6ddabe5677e3c49febced1987982b301ef961031c7fa7ec0981e81
     name: prometheus-alertmanager-acm-216
     source:
       git:
         context: ./
+        dockerfileUrl: Containerfile.operator
         revision: 59a1fd2cf052a39b76012122b56dcdc358e78688
         url: https://github.com/stolostron/prometheus-alertmanager
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-propagator-acm-216@sha256:5b19e7d3d3d515451fc0ccddca9c1c22ab952e1458e46892637d434b8d739508
@@ -458,20 +440,60 @@ spec:
         dockerfileUrl: proxy/Containerfile.operator
         revision: 2a65661f7fcf5044a36795881f100eeb99662c3a
         url: https://github.com/stolostron/multicluster-observability-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-216@sha256:bbe19b29ad913a5af603f37852ae171030da493dcf23b7381ec24840ad4673f9
+    name: search-indexer-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 1bfd9d425c7502a4779ec2948b0e5acfae668d64
+        url: https://github.com/stolostron/search-indexer
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-216@sha256:c5204a7c33061469927b9b86c03ee5b4071973a11c006459b5f851434eb1aada
+    name: submariner-addon-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.konflux
+        revision: afdce6912204d5fe597f5fb773103d9c41015fd6
+        url: https://github.com/stolostron/submariner-addon
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/thanos-acm-216@sha256:fbadeb775e4157053ef9828bef14e7e0ab9107890fade0ba8dc64318f718d0a5
+    name: thanos-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 7f0de3c8b5557498989b4042ded2426069b25c5b
+        url: https://github.com/stolostron/thanos
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-216@sha256:509bc5ee933a4aeb5a667a608cf832a9242e44c926fdc55cbf5d2c4653b12cdb
+    name: cert-policy-controller-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 25dc4311b749f8a9e78ab87dc72af095dafa09ca
+        url: https://github.com/stolostron/cert-policy-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-backup-operator-acm-216@sha256:c50a48fa65cadc17b4a3e31716f58e873530048d02306cbc956bc84bc6567f4e
+    name: cluster-backup-operator-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 3fc0a005e690175cba2750d1e03a3463f4b58b7f
+        url: https://github.com/stolostron/cluster-backup-operator
 status:
   conditions:
-  - lastTransitionTime: "2026-06-25T07:43:26Z"
+  - lastTransitionTime: "2026-06-25T16:07:03Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-06-25T07:43:26Z"
+  - lastTransitionTime: "2026-06-25T16:07:03Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-06-25T07:43:26Z"
+  - lastTransitionTime: "2026-06-25T16:07:03Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
