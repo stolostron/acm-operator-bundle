@@ -2,130 +2,66 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/console?rev=21072d1b24e1603055a56c276c19938814dbe8b8
-    build.appstudio.redhat.com/commit_sha: 21072d1b24e1603055a56c276c19938814dbe8b8
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/prometheus?rev=6567c6e623ba703e0599f5e6cd2cb4ff4e65a7b6
+    build.appstudio.redhat.com/commit_sha: 6567c6e623ba703e0599f5e6cd2cb4ff4e65a7b6
     build.appstudio.redhat.com/target_branch: release-5.0
     pac.test.appstudio.openshift.io/branch: release-5.0
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "86017028268"
+    pac.test.appstudio.openshift.io/check-run-id: "86057758331"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
-    pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-kpisin
+    pac.test.appstudio.openshift.io/event-type: incoming
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-qxxymn
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/console-acm-50-on-push-wv5bb
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/prometheus-acm-50-on-push-nb7gv
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-5.0"
-    pac.test.appstudio.openshift.io/original-prname: console-acm-50-on-push
-    pac.test.appstudio.openshift.io/pull-request: "6442"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/console
-    pac.test.appstudio.openshift.io/repository: console
+    pac.test.appstudio.openshift.io/original-prname: prometheus-acm-50-on-push
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/prometheus
+    pac.test.appstudio.openshift.io/repository: prometheus-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
-    pac.test.appstudio.openshift.io/sender: acm-cicd-prow-bot
-    pac.test.appstudio.openshift.io/sha: 21072d1b24e1603055a56c276c19938814dbe8b8
-    pac.test.appstudio.openshift.io/sha-title: |-
-      ACM-34843: Implement new NodePool health statuses (#6442)
-
-      * ACM-34843 Add NodePool condition type constants and unified status derivation
-
-      Add NodePoolConditionType enum with all 17 HyperShift NodePool condition
-      types, replacing magic strings throughout the codebase. Implement a single
-      getNodePoolStatus() utility with priority-based status derivation:
-      error > warning > updating > pending > ready.
-
-      Includes 33 unit tests covering every status path, priority ordering,
-      multiple simultaneous conditions, and edge cases.
-
-      Ultraworked with [Sisyphus](https://github.com/code-yeongyu/oh-my-openagent)
-
-      Co-authored-by: Sisyphus <clio-agent@sisyphuslabs.ai>
-      Signed-off-by: fxiang1 <fxiang@redhat.com>
-
-      * ACM-34843 Update NodePool status rendering with AcmInlineStatus and condition popover
-
-      Replace simple Ready/Pending icon rendering in NodePoolsTable with
-      AcmInlineStatus component showing error (red), warning (yellow),
-      updating (blue/spinner), pending (spinner), and ready (green) states.
-      Add popover on status cell displaying all conditions with icons and
-      messages so users can see details without checking YAML.
-
-      Update NodePoolsProgress stepper to reflect error and warning states
-      with appropriate icons (ExclamationCircleIcon, ExclamationTriangleIcon).
-      Remove duplicate getNodePoolStatus/getNodePoolsStatus functions,
-      re-export consolidated function from resources.
-
-      Update existing tests for new function signature and add error/warning
-      stepper coverage.
-
-      Ultraworked with [Sisyphus](https://github.com/code-yeongyu/oh-my-openagent)
-
-      Co-authored-by: Sisyphus <clio-agent@sisyphuslabs.ai>
-      Signed-off-by: fxiang1 <fxiang@redhat.com>
-
-      * ACM-34843 Update upgrade-readiness gating to use consolidated status
-
-      Update DistributionField and ClusterActionDropdown to import
-      getNodePoolStatus from resources instead of the removed
-      getNodepoolStatus from NodePoolsTable. Use .isReady property
-      for upgrade gating instead of string comparison.
-
-      Ultraworked with [Sisyphus](https://github.com/code-yeongyu/oh-my-openagent)
-
-      Co-authored-by: Sisyphus <clio-agent@sisyphuslabs.ai>
-      Signed-off-by: fxiang1 <fxiang@redhat.com>
-
-      * Fix check and CodeRabbit comments
-
-      Signed-off-by: fxiang1 <fxiang@redhat.com>
-
-      * Reuse translation
-
-      Signed-off-by: fxiang1 <fxiang@redhat.com>
-
-      ---------
-
-      Signed-off-by: fxiang1 <fxiang@redhat.com>
-      Co-authored-by: Sisyphus <clio-agent@sisyphuslabs.ai>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/console/commit/21072d1b24e1603055a56c276c19938814dbe8b8
-    pac.test.appstudio.openshift.io/source-branch: refs/heads/release-5.0
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
+    pac.test.appstudio.openshift.io/sender: incoming
+    pac.test.appstudio.openshift.io/sha: 6567c6e623ba703e0599f5e6cd2cb4ff4e65a7b6
+    pac.test.appstudio.openshift.io/sha-title: Revert breaking change to see it correctly
+      fails
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/prometheus/commit/6567c6e623ba703e0599f5e6cd2cb4ff4e65a7b6
+    pac.test.appstudio.openshift.io/source-branch: release-5.0
+    pac.test.appstudio.openshift.io/source-repo-url: ""
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: console
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-07-09T01:21:20Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-50-release-acm-50-20260709-010148-000":{"lastUpdateTime":"2026-07-09T01:22:18.48944684Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: prometheus
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-07-09T07:10:34Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-50-release-acm-50-20260709-065328-000":{"lastUpdateTime":"2026-07-09T07:11:41.25744161Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1783558908000"
-    test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/result-chains-git-commit: 21072d1b24e1603055a56c276c19938814dbe8b8
-    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/console
-    test.appstudio.openshift.io/result-image-digest: sha256:9b249b54fbbcee6fe9df8ae27646e6633d8cf3f3cb7da5c050df208833e3196d
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-50:21072d1b24e1603055a56c276c19938814dbe8b8
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-50","status":"BuildPLRInProgress","lastUpdateTime":"2026-07-09T01:22:18.48944684Z","details":"Integration
-      test passed with warnings","startTime":"2026-07-09T01:21:21.089160479Z","completionTime":"2026-07-09T01:22:18.48944684Z","testPipelineRunName":"enterprise-contract-acm-50-wlfbq"}]'
-  creationTimestamp: "2026-07-09T01:21:20Z"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1783580008000"
+    test.appstudio.openshift.io/result-chains-git-commit: 6567c6e623ba703e0599f5e6cd2cb4ff4e65a7b6
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/prometheus
+    test.appstudio.openshift.io/result-image-digest: sha256:d150209d46168c73af613aa6bb0b36accfe925f455cd4732cb381dd7858ed89b
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-acm-50:6567c6e623ba703e0599f5e6cd2cb4ff4e65a7b6
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/prometheus
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-50","status":"BuildPLRInProgress","lastUpdateTime":"2026-07-09T07:11:41.25744161Z","details":"Integration
+      test passed with warnings","startTime":"2026-07-09T07:10:34.835479058Z","completionTime":"2026-07-09T07:11:41.25744161Z","testPipelineRunName":"enterprise-contract-acm-50-52dbs"}]'
+  creationTimestamp: "2026-07-09T07:10:34Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-50
-    appstudio.openshift.io/build-pipelinerun: console-acm-50-on-push-wv5bb
-    appstudio.openshift.io/component: console-acm-50
+    appstudio.openshift.io/build-pipelinerun: prometheus-acm-50-on-push-nb7gv
+    appstudio.openshift.io/component: prometheus-acm-50
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "86017028268"
-    pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: console-acm-50-on-push
-    pac.test.appstudio.openshift.io/pull-request: "6442"
-    pac.test.appstudio.openshift.io/repository: console
-    pac.test.appstudio.openshift.io/sha: 21072d1b24e1603055a56c276c19938814dbe8b8
+    pac.test.appstudio.openshift.io/check-run-id: "86057758331"
+    pac.test.appstudio.openshift.io/event-type: incoming
+    pac.test.appstudio.openshift.io/original-prname: prometheus-acm-50-on-push
+    pac.test.appstudio.openshift.io/repository: prometheus-acm-210
+    pac.test.appstudio.openshift.io/sha: 6567c6e623ba703e0599f5e6cd2cb4ff4e65a7b6
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: console
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1783560072"
+    pac.test.appstudio.openshift.io/url-repository: prometheus
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1783581028"
     test.appstudio.openshift.io/type: component
-  name: release-acm-50-20260709-010148-000
+  name: release-acm-50-20260709-065328-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -134,27 +70,12 @@ metadata:
     kind: Application
     name: release-acm-50
     uid: 95420e61-ff03-40c3-a8b9-47011873be13
-  resourceVersion: "9801302290"
-  uid: c1f60d43-d10a-495f-9f70-c70e54106e8f
+  resourceVersion: "9805487617"
+  uid: dcd30e76-afc7-433a-9b51-16f833e7d2c6
 spec:
   application: release-acm-50
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-50@sha256:9b249b54fbbcee6fe9df8ae27646e6633d8cf3f3cb7da5c050df208833e3196d
-    name: console-acm-50
-    source:
-      git:
-        context: ./
-        revision: 21072d1b24e1603055a56c276c19938814dbe8b8
-        url: https://github.com/stolostron/console
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/insights-metrics-acm-50@sha256:06af47f12e162f619f2fa933abfc6ed18f5bc77aa36be179568d4f72e5ea0b15
-    name: insights-metrics-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: b3572665a8ec5ecc53286360b48e059cb4c2c80e
-        url: https://github.com/stolostron/insights-metrics
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/obo-prometheus-operator-acm-50@sha256:e6585a281a8cd7204ba2471698a5d78a481d9e5cf2f3bc35e9cb0dd545a26bb3
     name: obo-prometheus-operator-acm-50
     source:
@@ -251,7 +172,7 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: cda5870924d4c726f9658bf4b948c73082285d48
         url: https://github.com/stolostron/siteconfig
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/observatorium-operator-acm-50@sha256:a9654e3f55d18e8a13d158b07f7d3e94316df80c3c28be7425258e9d9254a904
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/observatorium-operator-acm-50@sha256:f7be3028574ff7b3c39ed8bdd0625445fe67ccf6d75703342474fc6cfeee4bae
     name: observatorium-operator-acm-50
     source:
       git:
@@ -347,12 +268,11 @@ spec:
         dockerfileUrl: Dockerfile.konflux
         revision: f9e627854f63038ff99fa39d417eeda4b08379b9
         url: https://github.com/stolostron/submariner-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-acm-50@sha256:7ed909a9fdfa10383a25147bcdc8bd082b8740b7aea0331c57bdb7ebdb99e783
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-acm-50@sha256:d150209d46168c73af613aa6bb0b36accfe925f455cd4732cb381dd7858ed89b
     name: prometheus-acm-50
     source:
       git:
         context: ./
-        dockerfileUrl: Containerfile.operator
         revision: 6567c6e623ba703e0599f5e6cd2cb4ff4e65a7b6
         url: https://github.com/stolostron/prometheus
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/thanos-receive-controller-acm-50@sha256:691cd775a763ae76b068c031d613fc7d4df0631d8d7aaec4aee14db265636f2d
@@ -499,28 +419,44 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: 9c843dddd655a153025d834e2b526d4eda2270c7
         url: https://github.com/stolostron/search-indexer
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/must-gather-acm-50@sha256:7e10de6546f83d0fcb35e5375b6a33f3b315c2b115d8f4dfef2e789d7b77942c
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/must-gather-acm-50@sha256:71085c7dfaad7facf8628a8f30141a766825d2bc02fae9ca1fbb0492748bf953
     name: must-gather-acm-50
     source:
       git:
         context: ./
         dockerfileUrl: build/Dockerfile.rhtap
-        revision: 267901f266c43ddc03c524a72ee319c263845c8f
+        revision: 09b38c841bb916f0e4eb8318db03c658bc760c1a
         url: https://github.com/stolostron/must-gather
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-50@sha256:9b249b54fbbcee6fe9df8ae27646e6633d8cf3f3cb7da5c050df208833e3196d
+    name: console-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.acm.konflux
+        revision: 21072d1b24e1603055a56c276c19938814dbe8b8
+        url: https://github.com/stolostron/console
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/insights-metrics-acm-50@sha256:06af47f12e162f619f2fa933abfc6ed18f5bc77aa36be179568d4f72e5ea0b15
+    name: insights-metrics-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: b3572665a8ec5ecc53286360b48e059cb4c2c80e
+        url: https://github.com/stolostron/insights-metrics
 status:
   conditions:
-  - lastTransitionTime: "2026-07-09T01:22:18Z"
+  - lastTransitionTime: "2026-07-09T07:11:41Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-07-09T01:22:18Z"
+  - lastTransitionTime: "2026-07-09T07:11:41Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-07-09T01:22:18Z"
+  - lastTransitionTime: "2026-07-09T07:11:41Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
