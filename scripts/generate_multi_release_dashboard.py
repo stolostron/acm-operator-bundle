@@ -638,6 +638,191 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
         {component_cve_data_js}
 
+        // Lazy-load component CVE data
+        window.componentCVEData = {{}};
+        window.componentCVEDataLoading = {{}};
+
+        async function loadComponentCVEData(tabId) {{
+            // Already loaded
+            if (window.componentCVEData[tabId]) {{
+                return window.componentCVEData[tabId];
+            }}
+
+            // Already loading
+            if (window.componentCVEDataLoading[tabId]) {{
+                return window.componentCVEDataLoading[tabId];
+            }}
+
+            // Start loading
+            const loadPromise = fetch(`componentCVEData-${{tabId}}.json`)
+                .then(response => {{
+                    if (!response.ok) throw new Error(`Failed to load CVE data for ${{tabId}}`);
+                    return response.json();
+                }})
+                .then(data => {{
+                    window.componentCVEData[tabId] = data;
+                    delete window.componentCVEDataLoading[tabId];
+                    populateComponentSummary(tabId, data);
+                    return data;
+                }})
+                .catch(err => {{
+                    console.error(err);
+                    delete window.componentCVEDataLoading[tabId];
+                    window.componentCVEData[tabId] = {{}};
+                    return {{}};
+                }});
+
+            window.componentCVEDataLoading[tabId] = loadPromise;
+            return loadPromise;
+        }}
+
+        function populateComponentSummary(tabId, data) {{
+            // Update component unique counts in total cells
+            const uniqueCounts = window.componentUniqueCounts[tabId] || {{}};
+            for (const component in uniqueCounts) {{
+                const totalCell = document.getElementById(`total-${{tabId}}-${{component.replace('/', '-')}}`);
+                if (totalCell) {{
+                    totalCell.textContent = uniqueCounts[component];
+                }}
+            }}
+        }}
+
+        // Lazy-load CVE summary data
+        window.cveSummaryData = {{}};
+        window.cveSummaryDataLoading = {{}};
+
+        async function loadCVESummaryData(tabId) {{
+            console.log('loadCVESummaryData called for:', tabId);
+
+            // Already loaded
+            if (window.cveSummaryData[tabId]) {{
+                console.log('CVE data already loaded for:', tabId);
+                return window.cveSummaryData[tabId];
+            }}
+
+            // Already loading
+            if (window.cveSummaryDataLoading[tabId]) {{
+                console.log('CVE data already loading for:', tabId);
+                return window.cveSummaryDataLoading[tabId];
+            }}
+
+            // Start loading
+            console.log('Fetching CVE data from:', `cveSummaryData-${{tabId}}.json`);
+            const loadPromise = fetch(`cveSummaryData-${{tabId}}.json`)
+                .then(response => {{
+                    if (!response.ok) throw new Error(`Failed to load CVE summary for ${{tabId}}`);
+                    return response.json();
+                }})
+                .then(data => {{
+                    console.log('CVE data loaded for:', tabId, 'count:', data.length);
+                    window.cveSummaryData[tabId] = data;
+                    delete window.cveSummaryDataLoading[tabId];
+                    populateCVETable(tabId, data);
+                    return data;
+                }})
+                .catch(err => {{
+                    console.error(err);
+                    delete window.cveSummaryDataLoading[tabId];
+                    window.cveSummaryData[tabId] = [];
+                    return [];
+                }});
+
+            window.cveSummaryDataLoading[tabId] = loadPromise;
+            return loadPromise;
+        }}
+
+        function populateCVETable(tabId, cveData) {{
+            console.log('populateCVETable called for:', tabId, 'with', cveData.length, 'CVEs');
+            const table = document.getElementById('cvesTable-' + tabId);
+            if (!table) {{
+                console.error('Table not found: cvesTable-' + tabId);
+                return;
+            }}
+
+            const tbody = table.querySelector('tbody');
+            tbody.innerHTML = '';
+            console.log('Populating table with', cveData.length, 'rows');
+
+            const severityOrder = {{'CRITICAL': 4, 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1, 'UNKNOWN': 0}};
+
+            cveData.forEach(cve => {{
+                const severityClass = 'severity-' + cve.severity.toLowerCase();
+                const severityValue = severityOrder[cve.severity] || 0;
+                const fixableDisplay = cve.fixable ? '✓' : '✗';
+                const fixableColor = cve.fixable ? '#28a745' : '#d73a49';
+                const fixableClass = cve.fixable ? 'fixable' : 'unfixable';
+                const hiddenClass = cve.index >= 10 ? ' cve-row-hidden' : '';
+
+                const componentPreview = cve.components.slice(0, 3).join(', ') +
+                    (cve.component_count > 3 ? ` +${{cve.component_count - 3}} more` : '');
+
+                let cveLink;
+                const tooltipContent = `<div class="tooltip-title">${{cve.cve_id}}</div>` +
+                    (cve.cvss_score ? `<div class="tooltip-cvss">CVSS: ${{cve.cvss_score}} (${{cve.severity}})</div>` : '') +
+                    `<div>${{cve.description}}</div>`;
+
+                if (cve.cve_id.startsWith('CVE-')) {{
+                    cveLink = `<div class="cve-tooltip">
+                        <a href="https://access.redhat.com/security/cve/${{cve.cve_id}}" target="_blank" class="cve-blast-link"><code>${{cve.cve_id}}</code></a>
+                        <span class="tooltiptext">${{tooltipContent}}</span>
+                    </div> <a href="https://nvd.nist.gov/vuln/detail/${{cve.cve_id}}" target="_blank" style="font-size: 0.8em; color: var(--text-secondary);">(NVD)</a>`;
+                }} else if (cve.cve_id.startsWith('GO-')) {{
+                    cveLink = `<div class="cve-tooltip">
+                        <a href="https://pkg.go.dev/vuln/${{cve.cve_id}}" target="_blank" class="cve-blast-link"><code>${{cve.cve_id}}</code></a>
+                        <span class="tooltiptext">${{tooltipContent}}</span>
+                    </div>`;
+                }} else {{
+                    cveLink = `<div class="cve-tooltip">
+                        <code>${{cve.cve_id}}</code>
+                        <span class="tooltiptext">${{tooltipContent}}</span>
+                    </div>`;
+                }}
+
+                const cvssDisplay = cve.cvss_score ? cve.cvss_score.toFixed(1) : '—';
+                const cvssValue = cve.cvss_score || 0;
+                let cvssColor = '#666';
+                if (cve.cvss_score >= 9.0) cvssColor = '#d73a49';
+                else if (cve.cvss_score >= 7.0) cvssColor = '#f66a0a';
+                else if (cve.cvss_score >= 4.0) cvssColor = '#fb8500';
+                else if (cve.cvss_score) cvssColor = '#ffd60a';
+
+                const daysOpen = cve.days_open !== null ? cve.days_open : '—';
+                const daysOpenValue = cve.days_open || 0;
+                let daysOpenColor = '#666';
+                if (cve.days_open > 90) daysOpenColor = '#d73a49';
+                else if (cve.days_open > 30) daysOpenColor = '#f66a0a';
+                else if (cve.days_open > 7) daysOpenColor = '#fb8500';
+
+                const row = document.createElement('tr');
+                row.className = `cve-row ${{fixableClass}}${{hiddenClass}}`;
+                row.dataset.cve = cve.cve_id;
+                row.dataset.severity = severityValue;
+                row.dataset.cvss = cvssValue;
+                row.dataset.component = cve.component_count;
+                row.dataset.days = daysOpenValue;
+                row.dataset.fixable = cve.fixable ? '1' : '0';
+
+                row.innerHTML = `
+                    <td style="text-align: center; color: var(--text-secondary); font-size: 0.9em;">${{cve.index + 1}}</td>
+                    <td>${{cveLink}}</td>
+                    <td style="text-align: center;"><span class="severity-badge ${{severityClass}}">${{cve.severity}}</span></td>
+                    <td style="text-align: center; color: ${{cvssColor}}; font-weight: 600;">${{cvssDisplay}}</td>
+                    <td style="text-align: center;">${{cve.component_count}}</td>
+                    <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{cve.components.join(', ')}}">${{componentPreview}}</td>
+                    <td style="text-align: center; color: ${{daysOpenColor}}; font-weight: 600;">${{daysOpen}}</td>
+                    <td style="text-align: center; color: ${{fixableColor}}; font-weight: 600; font-size: 1.2em;">${{fixableDisplay}}</td>
+                `;
+
+                tbody.appendChild(row);
+            }});
+
+            // Apply pagination after populating
+            const applyPageCVE = window['applyPageCVE' + tabId];
+            if (applyPageCVE) {{
+                applyPageCVE();
+            }}
+        }}
+
         // Theme toggle
         function toggleTheme() {{
             const html = document.documentElement;
@@ -682,6 +867,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
             // Save active tab to localStorage
             localStorage.setItem('activeTab', tabName);
+
+            // Preload component CVE data and CVE summary for this tab
+            if (tabName !== 'compare-all' && tabName !== 'cross-release') {{
+                loadComponentCVEData(tabName);
+                loadCVESummaryData(tabName);
+            }}
         }}
 
         function sortTable(tabId, columnIndex, type) {{
@@ -1124,19 +1315,23 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             document.getElementById('cveModal').style.display = 'none';
         }}
 
-        function showComponentCVEs(component, tabId) {{
+        async function showComponentCVEs(component, tabId) {{
             const modal = document.getElementById('cveModal');
             const title = document.getElementById('modalTitle');
             const content = document.getElementById('modalContent');
 
             title.textContent = `CVEs for ${{component}}`;
+            content.innerHTML = '<p style="text-align: center; padding: 20px;">Loading...</p>';
+            modal.style.display = 'block';
+
+            // Load CVE data for this tab if needed
+            await loadComponentCVEData(tabId);
 
             // Get CVE data for this component
             const componentData = window.componentCVEData[tabId][component];
 
             if (!componentData || componentData.length === 0) {{
                 content.innerHTML = '<p>No CVE data available for this component.</p>';
-                modal.style.display = 'block';
                 return;
             }}
 
@@ -1289,6 +1484,26 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 const tabBtn = document.querySelector(`[onclick*="'${{savedTab}}'"]`);
                 if (tabBtn) {{
                     tabBtn.click();
+                }} else {{
+                    // If savedTab not found, check if a release tab is initially active
+                    const activeTab = document.querySelector('.tab-content.active');
+                    if (activeTab) {{
+                        const tabId = activeTab.id;
+                        if (tabId !== 'compare-all' && tabId !== 'cross-release') {{
+                            loadComponentCVEData(tabId);
+                            loadCVESummaryData(tabId);
+                        }}
+                    }}
+                }}
+            }} else {{
+                // No saved tab - check if a release tab is initially active
+                const activeTab = document.querySelector('.tab-content.active');
+                if (activeTab) {{
+                    const tabId = activeTab.id;
+                    if (tabId !== 'compare-all' && tabId !== 'cross-release') {{
+                        loadComponentCVEData(tabId);
+                        loadCVESummaryData(tabId);
+                    }}
                 }}
             }}
         }});
@@ -1449,10 +1664,14 @@ def generate_tab_button(release, history=None, is_active=False):
     return f'<button class="tab{active_class}" onclick="openTab(event, \'{tab_id}\')">{display_name}</button>'
 
 
-def generate_component_cve_data_js(releases, cve_descriptions):
-    """Generate JavaScript data mapping components to their CVEs and unique counts"""
-    component_data = {}
+def generate_component_cve_data_js(releases, cve_descriptions, output_dir):
+    """Generate JavaScript data mapping components to their CVEs and unique counts
+
+    Writes separate JSON files per release to avoid massive inline data.
+    Returns JS code to lazy-load the data.
+    """
     component_unique_counts = {}
+    json_files = []
 
     for release, history in releases.items():
         tab_id = release.replace('.', '').replace('-', '')
@@ -1508,9 +1727,16 @@ def generate_component_cve_data_js(releases, cve_descriptions):
         for component in comp_cve_map:
             comp_cve_map[component] = list(comp_cve_map[component].values())
 
-        component_data[tab_id] = comp_cve_map
+        # Write to separate JSON file
+        json_filename = f"componentCVEData-{tab_id}.json"
+        json_path = output_dir / json_filename
+        with open(json_path, 'w') as f:
+            json.dump(comp_cve_map, f)
 
-    return f"window.componentCVEData = {json.dumps(component_data)};\nwindow.componentUniqueCounts = {json.dumps(component_unique_counts)};"
+        json_files.append((tab_id, json_filename))
+
+    # Return JS code that lazy-loads data
+    return f"window.componentUniqueCounts = {json.dumps(component_unique_counts)};"
 
 
 def generate_release_tab_content(release, history, extras_metadata=None):
@@ -1550,11 +1776,23 @@ def generate_release_tab_content(release, history, extras_metadata=None):
     # Get top components and separate internal vs external
     component_breakdown = latest_scan.get('summary', {}).get('component_breakdown', {})
 
+    # Helper to normalize component key for metadata lookup
+    def get_metadata(component_key):
+        """Try component key directly, then try kebab-case-acm variant"""
+        if not extras_metadata:
+            return None
+        if component_key in extras_metadata:
+            return extras_metadata[component_key]
+        # Try converting snake_case -> kebab-case-acm
+        registry_key = component_key.replace('_', '-') + '-acm'
+        return extras_metadata.get(registry_key)
+
     internal_components = []
     external_components = []
 
     for component, counts in component_breakdown.items():
-        has_git_link = extras_metadata and component in extras_metadata and extras_metadata[component].get('git_url')
+        meta = get_metadata(component)
+        has_git_link = meta and meta.get('git_url')
 
         if has_git_link:
             internal_components.append((component, counts))
@@ -1574,8 +1812,8 @@ def generate_release_tab_content(release, history, extras_metadata=None):
         total = counts.get('total', 0)
 
         # Get git metadata and make clickable for CVE drill-down (use data attrs to avoid XSS)
-        if extras_metadata and component in extras_metadata:
-            meta = extras_metadata[component]
+        meta = get_metadata(component)
+        if meta:
             display_name = meta.get('image_name', component)
 
             # Build rich tooltip
@@ -1602,9 +1840,8 @@ def generate_release_tab_content(release, history, extras_metadata=None):
         # Hide rows beyond top 15 by default
         hidden_class = ' class="component-row-hidden"' if i >= 15 else ''
 
-        squad = ''
-        if extras_metadata and component in extras_metadata:
-            squad = extras_metadata[component].get('squad', '')
+        meta = get_metadata(component)
+        squad = meta.get('squad', '') if meta else ''
 
         internal_rows.append(f"""
                 <tr{hidden_class} data-component="{component}" data-squad="{squad}" data-critical="{critical}" data-high="{high}" data-medium="{medium}" data-low="{low}" data-total="{total}">
@@ -1624,13 +1861,12 @@ def generate_release_tab_content(release, history, extras_metadata=None):
         low = counts.get('LOW', 0)
         total = counts.get('total', 0)
 
-        squad = ''
-        if extras_metadata and component in extras_metadata:
-            squad = extras_metadata[component].get('squad', '')
+        meta = get_metadata(component)
+        squad = meta.get('squad', '') if meta else ''
 
         # Check if component has metadata (image-name)
-        if extras_metadata and component in extras_metadata:
-            meta = extras_metadata[component]
+        meta = get_metadata(component)
+        if meta:
             display_name = meta.get('image_name', component)
 
             # Build rich tooltip
@@ -1797,42 +2033,26 @@ def generate_release_tab_content(release, history, extras_metadata=None):
     </div>"""
 
 
-def generate_combined_cve_table(latest_scan, tab_id, cve_descriptions=None, history=None):
-    """Generate combined CVE table with fixable filter"""
-    blast_radius_data = analyze_blast_radius(latest_scan, top_n=1000)  # Get all CVEs
+def extract_cve_table_data(latest_scan, cve_descriptions=None, history=None):
+    """Extract CVE table data as JSON-serializable structure"""
+    blast_radius_data = analyze_blast_radius(latest_scan, top_n=1000)
 
     if not blast_radius_data:
-        return ''
+        return []
 
     if cve_descriptions is None:
         cve_descriptions = {}
 
-    # Get first_seen tracking
     cve_first_seen = history.get('cve_first_seen', {}) if history else {}
 
-    rows = []
+    cve_data = []
     for i, cve in enumerate(blast_radius_data):
-        severity_class = 'severity-' + cve.get('severity', 'unknown').lower()
-        fixable = cve.get('fixable', False)
-        fixable_display = '✓' if fixable else '✗'
-        fixable_color = '#28a745' if fixable else '#d73a49'
-        fixable_class = 'fixable' if fixable else 'unfixable'
-
-        # Hide rows beyond top 10 by default
-        hidden_class = ' cve-row-hidden' if i >= 10 else ''
-
-        # Get affected components
-        components = cve.get('components', [])[:3]
-        component_preview = ', '.join(components)
-        if cve.get('component_count', 0) > 3:
-            component_preview += f" +{cve.get('component_count') - 3} more"
-
-        severity_order = {'CRITICAL': 4, 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1, 'UNKNOWN': 0}
-        severity_value = severity_order.get(cve.get('severity', 'UNKNOWN'), 0)
-
         cve_id = cve.get('cve_id', 'Unknown')
+        severity = cve.get('severity', 'UNKNOWN')
+        fixable = cve.get('fixable', False)
+        components = cve.get('components', [])
+        component_count = cve.get('component_count', 0)
 
-        # Get description and CVSS
         desc_data = cve_descriptions.get(cve_id, {})
         description = desc_data.get('description', 'No description available')
         cvss_score = desc_data.get('cvss_score')
@@ -1840,49 +2060,8 @@ def generate_combined_cve_table(latest_scan, tab_id, cve_descriptions=None, hist
         if len(description) > 300:
             description = description[:297] + '...'
 
-        tooltip_content = f'<div class="tooltip-title">{cve_id}</div>'
-        if cvss_score:
-            tooltip_content += f'<div class="tooltip-cvss">CVSS: {cvss_score} ({cve.get("severity", "UNKNOWN")})</div>'
-        tooltip_content += f'<div>{description}</div>'
-
-        if cve_id.startswith('CVE-'):
-            base_link = f'https://access.redhat.com/security/cve/{cve_id}'
-            nvd_link = f'https://nvd.nist.gov/vuln/detail/{cve_id}'
-            cve_link = f'''<div class="cve-tooltip">
-                <a href="{base_link}" target="_blank" class="cve-blast-link"><code>{cve_id}</code></a>
-                <span class="tooltiptext">{tooltip_content}</span>
-            </div> <a href="{nvd_link}" target="_blank" style="font-size: 0.8em; color: var(--text-secondary);">(NVD)</a>'''
-        elif cve_id.startswith('GO-'):
-            base_link = f'https://pkg.go.dev/vuln/{cve_id}'
-            cve_link = f'''<div class="cve-tooltip">
-                <a href="{base_link}" target="_blank" class="cve-blast-link"><code>{cve_id}</code></a>
-                <span class="tooltiptext">{tooltip_content}</span>
-            </div>'''
-        else:
-            cve_link = f'''<div class="cve-tooltip">
-                <code>{cve_id}</code>
-                <span class="tooltiptext">{tooltip_content}</span>
-            </div>'''
-
-        cvss_display = '—'
-        cvss_color = '#666'
-        cvss_value = 0
-        if cvss_score:
-            cvss_display = f'{cvss_score:.1f}'
-            cvss_value = cvss_score
-            if cvss_score >= 9.0:
-                cvss_color = '#d73a49'
-            elif cvss_score >= 7.0:
-                cvss_color = '#f66a0a'
-            elif cvss_score >= 4.0:
-                cvss_color = '#fb8500'
-            else:
-                cvss_color = '#ffd60a'
-
         # Calculate days open
-        days_open = '—'
-        days_open_value = 0
-        days_open_color = '#666'
+        days_open = None
         cve_key = f"{cve_id}:{components[0] if components else 'unknown'}"
         first_seen_str = cve_first_seen.get(cve_key)
         if first_seen_str:
@@ -1892,28 +2071,87 @@ def generate_combined_cve_table(latest_scan, tab_id, cve_descriptions=None, hist
                 ts += '+00:00'
             first_seen = datetime.fromisoformat(ts)
             now = datetime.now(timezone.utc)
-            days = (now - first_seen).days
-            days_open = str(days)
-            days_open_value = days
-            if days > 90:
-                days_open_color = '#d73a49'
-            elif days > 30:
-                days_open_color = '#f66a0a'
-            elif days > 7:
-                days_open_color = '#fb8500'
+            days_open = (now - first_seen).days
 
-        rows.append(f'''
-            <tr class="cve-row {fixable_class}{hidden_class}" data-cve="{cve_id}" data-severity="{severity_value}" data-cvss="{cvss_value}" data-component="{cve.get('component_count', 0)}" data-days="{days_open_value}" data-fixable="{1 if fixable else 0}">
-                <td style="text-align: center; color: var(--text-secondary); font-size: 0.9em;">{i + 1}</td>
-                <td>{cve_link}</td>
-                <td style="text-align: center;"><span class="severity-badge {severity_class}">{cve.get('severity', 'UNKNOWN')}</span></td>
-                <td style="text-align: center; color: {cvss_color}; font-weight: 600;">{cvss_display}</td>
-                <td style="text-align: center;">{cve.get('component_count', 0)}</td>
-                <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{', '.join(cve.get('components', []))}">{component_preview}</td>
-                <td style="text-align: center; color: {days_open_color}; font-weight: 600;">{days_open}</td>
-                <td style="text-align: center; color: {fixable_color}; font-weight: 600; font-size: 1.2em;">{fixable_display}</td>
-            </tr>''')
+        cve_data.append({
+            'index': i,
+            'cve_id': cve_id,
+            'severity': severity,
+            'cvss_score': cvss_score,
+            'component_count': component_count,
+            'components': components,
+            'fixable': fixable,
+            'days_open': days_open,
+            'description': description
+        })
 
+    return cve_data
+
+
+def generate_combined_cve_table(latest_scan, tab_id, cve_descriptions=None, history=None):
+    """Generate combined CVE table with empty tbody (data loaded via JS)"""
+    blast_radius_data = analyze_blast_radius(latest_scan, top_n=1000)
+
+    if not blast_radius_data:
+        return ''
+
+    # Just return empty table structure - data loaded from JSON
+    return f'''
+        <hr style="margin: 40px 0 30px 0; border: none; border-top: 2px solid var(--border-color);">
+
+        <h2 id="cves-{tab_id}-header" class="section-header" onclick="toggleSection('cves-{tab_id}')">🔍 CVE Analysis</h2>
+        <div id="cves-{tab_id}-content" class="collapsible-content" style="max-height: none;">
+            <div style="margin-bottom: 20px; display: flex; gap: 25px; align-items: center; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 250px;">
+                    <label for="cveSearch-{tab_id}" style="font-weight: 600; font-size: 0.95em;">Search:</label>
+                    <input type="text" id="cveSearch-{tab_id}" placeholder="CVE ID or component name..." oninput="searchCVEs{tab_id}(this.value)" style="flex: 1; padding: 10px 14px; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.95em; transition: border-color 0.2s;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label for="fixableFilter-{tab_id}" style="font-weight: 600; font-size: 0.95em;">Filter:</label>
+                    <select id="fixableFilter-{tab_id}" onchange="filterByFixable{tab_id}(this.value)" style="padding: 10px 14px; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.95em; cursor: pointer; transition: border-color 0.2s; min-width: 160px;">
+                        <option value="">All CVEs</option>
+                        <option value="fixable">Fixable Only</option>
+                        <option value="unfixable">Unfixable Only</option>
+                    </select>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label for="pageSize-{tab_id}" style="font-weight: 600; font-size: 0.95em;">Show:</label>
+                    <select id="pageSize-{tab_id}" onchange="updatePageSize{tab_id}(this.value)" style="padding: 10px 14px; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.95em; cursor: pointer; transition: border-color 0.2s; min-width: 100px;">
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="all">All</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div id="cveCounter-{tab_id}" style="color: var(--text-secondary); font-size: 0.9em;"></div>
+                <div id="cvePagination-{tab_id}" style="display: flex; gap: 10px; align-items: center;">
+                    <button onclick="prevPageCVE{tab_id}()" id="cvePrevBtn-{tab_id}" style="padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; font-size: 0.9em;">← Previous</button>
+                    <span id="cvePageInfo-{tab_id}" style="color: var(--text-secondary); font-size: 0.9em; min-width: 80px; text-align: center;"></span>
+                    <button onclick="nextPageCVE{tab_id}()" id="cveNextBtn-{tab_id}" style="padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; font-size: 0.9em;">Next →</button>
+                </div>
+            </div>
+            <table class="component-table" id="cvesTable-{tab_id}">
+                <thead>
+                    <tr>
+                        <th style="text-align: center; width: 50px;">#</th>
+                        <th onclick="sortCVETable{tab_id}(1, 'string')">CVE ID</th>
+                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(2, 'number')">Severity</th>
+                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(3, 'number')">CVSS</th>
+                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(4, 'number')">Components</th>
+                        <th onclick="sortCVETable{tab_id}(5, 'string')">Affected</th>
+                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(6, 'number')">Days Open</th>
+                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(7, 'number')">Fixable</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Populated via cveSummaryData-{tab_id}.json -->
+                </tbody>
+            </table>
+        </div>
+    '''
     return f'''
         <hr style="margin: 40px 0 30px 0; border: none; border-top: 2px solid var(--border-color);">
 
@@ -3370,7 +3608,20 @@ def main():
     comparison_cards = '\n'.join([card[3] for card in card_data])  # Extract HTML
 
     # Generate component CVE data for drill-down
-    component_cve_data_js = generate_component_cve_data_js(releases, cve_descriptions)
+    component_cve_data_js = generate_component_cve_data_js(releases, cve_descriptions, trends_dir)
+
+    # Generate CVE summary data for each release
+    for release, history in releases.items():
+        tab_id = release.replace('.', '').replace('-', '')
+        scans = history.get('scans', [])
+        if scans:
+            latest_scan = scans[-1]
+            cve_data = extract_cve_table_data(latest_scan, cve_descriptions, history)
+            if cve_data:
+                json_filename = f"cveSummaryData-{tab_id}.json"
+                json_path = trends_dir / json_filename
+                with open(json_path, 'w') as f:
+                    json.dump(cve_data, f)
 
     # Generate cross-release CVE table
     cross_release_table = generate_cross_release_cve_table(releases, cve_descriptions)

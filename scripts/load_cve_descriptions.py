@@ -6,13 +6,23 @@ from pathlib import Path
 
 
 def load_cve_descriptions(json_dir='reports'):
-    """Load CVE descriptions from Grype JSON files
+    """Load CVE descriptions from cached file or Grype JSON files
 
     Returns:
         dict: {cve_id: {description, cvss_score}}
     """
-    # Try to find most recent scan JSONs
     reports_path = Path(json_dir)
+
+    # Check for cached descriptions file first
+    cache_file = reports_path / 'cve-descriptions.json'
+    if cache_file.exists():
+        try:
+            with open(cache_file, 'r') as f:
+                return json.load(f)
+        except Exception:
+            pass  # Fall through to grype JSON parsing
+
+    # Try to find most recent scan JSONs
 
     # Look for version directories (e.g., 2.17.0)
     version_dirs = list(reports_path.glob('*/json'))
