@@ -687,34 +687,32 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             }}
         }}
 
+        function escapeHtml(str) {{
+            if (str == null) return '';
+            return String(str).replace(/[&<>"']/g, c => ({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}}[c]));
+        }}
+
         // Lazy-load CVE summary data
         window.cveSummaryData = {{}};
         window.cveSummaryDataLoading = {{}};
 
         async function loadCVESummaryData(tabId) {{
-            console.log('loadCVESummaryData called for:', tabId);
-
             // Already loaded
             if (window.cveSummaryData[tabId]) {{
-                console.log('CVE data already loaded for:', tabId);
                 return window.cveSummaryData[tabId];
             }}
 
             // Already loading
             if (window.cveSummaryDataLoading[tabId]) {{
-                console.log('CVE data already loading for:', tabId);
                 return window.cveSummaryDataLoading[tabId];
             }}
 
-            // Start loading
-            console.log('Fetching CVE data from:', `cveSummaryData-${{tabId}}.json`);
             const loadPromise = fetch(`cveSummaryData-${{tabId}}.json`)
                 .then(response => {{
                     if (!response.ok) throw new Error(`Failed to load CVE summary for ${{tabId}}`);
                     return response.json();
                 }})
                 .then(data => {{
-                    console.log('CVE data loaded for:', tabId, 'count:', data.length);
                     window.cveSummaryData[tabId] = data;
                     delete window.cveSummaryDataLoading[tabId];
                     populateCVETable(tabId, data);
@@ -732,7 +730,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         }}
 
         function populateCVETable(tabId, cveData) {{
-            console.log('populateCVETable called for:', tabId, 'with', cveData.length, 'CVEs');
             const table = document.getElementById('cvesTable-' + tabId);
             if (!table) {{
                 console.error('Table not found: cvesTable-' + tabId);
@@ -741,7 +738,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
             const tbody = table.querySelector('tbody');
             tbody.innerHTML = '';
-            console.log('Populating table with', cveData.length, 'rows');
 
             const severityOrder = {{'CRITICAL': 4, 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1, 'UNKNOWN': 0}};
 
@@ -753,27 +749,30 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 const fixableClass = cve.fixable ? 'fixable' : 'unfixable';
                 const hiddenClass = cve.index >= 10 ? ' cve-row-hidden' : '';
 
-                const componentPreview = cve.components.slice(0, 3).join(', ') +
+                const componentPreview = escapeHtml(cve.components.slice(0, 3).join(', ')) +
                     (cve.component_count > 3 ? ` +${{cve.component_count - 3}} more` : '');
 
                 let cveLink;
-                const tooltipContent = `<div class="tooltip-title">${{cve.cve_id}}</div>` +
-                    (cve.cvss_score ? `<div class="tooltip-cvss">CVSS: ${{cve.cvss_score}} (${{cve.severity}})</div>` : '') +
-                    `<div>${{cve.description}}</div>`;
+                const safeCveId = escapeHtml(cve.cve_id);
+                const safeSeverity = escapeHtml(cve.severity);
+                const safeDescription = escapeHtml(cve.description);
+                const tooltipContent = `<div class="tooltip-title">${{safeCveId}}</div>` +
+                    (cve.cvss_score ? `<div class="tooltip-cvss">CVSS: ${{cve.cvss_score}} (${{safeSeverity}})</div>` : '') +
+                    `<div>${{safeDescription}}</div>`;
 
                 if (cve.cve_id.startsWith('CVE-')) {{
                     cveLink = `<div class="cve-tooltip">
-                        <a href="https://access.redhat.com/security/cve/${{cve.cve_id}}" target="_blank" class="cve-blast-link"><code>${{cve.cve_id}}</code></a>
+                        <a href="https://access.redhat.com/security/cve/${{encodeURIComponent(cve.cve_id)}}" target="_blank" class="cve-blast-link"><code>${{safeCveId}}</code></a>
                         <span class="tooltiptext">${{tooltipContent}}</span>
-                    </div> <a href="https://nvd.nist.gov/vuln/detail/${{cve.cve_id}}" target="_blank" style="font-size: 0.8em; color: var(--text-secondary);">(NVD)</a>`;
+                    </div> <a href="https://nvd.nist.gov/vuln/detail/${{encodeURIComponent(cve.cve_id)}}" target="_blank" style="font-size: 0.8em; color: var(--text-secondary);">(NVD)</a>`;
                 }} else if (cve.cve_id.startsWith('GO-')) {{
                     cveLink = `<div class="cve-tooltip">
-                        <a href="https://pkg.go.dev/vuln/${{cve.cve_id}}" target="_blank" class="cve-blast-link"><code>${{cve.cve_id}}</code></a>
+                        <a href="https://pkg.go.dev/vuln/${{encodeURIComponent(cve.cve_id)}}" target="_blank" class="cve-blast-link"><code>${{safeCveId}}</code></a>
                         <span class="tooltiptext">${{tooltipContent}}</span>
                     </div>`;
                 }} else {{
                     cveLink = `<div class="cve-tooltip">
-                        <code>${{cve.cve_id}}</code>
+                        <code>${{safeCveId}}</code>
                         <span class="tooltiptext">${{tooltipContent}}</span>
                     </div>`;
                 }}
@@ -805,10 +804,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 row.innerHTML = `
                     <td style="text-align: center; color: var(--text-secondary); font-size: 0.9em;">${{cve.index + 1}}</td>
                     <td>${{cveLink}}</td>
-                    <td style="text-align: center;"><span class="severity-badge ${{severityClass}}">${{cve.severity}}</span></td>
+                    <td style="text-align: center;"><span class="severity-badge ${{severityClass}}">${{safeSeverity}}</span></td>
                     <td style="text-align: center; color: ${{cvssColor}}; font-weight: 600;">${{cvssDisplay}}</td>
                     <td style="text-align: center;">${{cve.component_count}}</td>
-                    <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{cve.components.join(', ')}}">${{componentPreview}}</td>
+                    <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{escapeHtml(cve.components.join(', '))}}">${{componentPreview}}</td>
                     <td style="text-align: center; color: ${{daysOpenColor}}; font-weight: 600;">${{daysOpen}}</td>
                     <td style="text-align: center; color: ${{fixableColor}}; font-weight: 600; font-size: 1.2em;">${{fixableDisplay}}</td>
                 `;
@@ -1368,24 +1367,28 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 const cvssColor = cve.cvss_score >= 9 ? '#d73a49' : cve.cvss_score >= 7 ? '#f66a0a' : '#666';
                 const severityClass = 'severity-' + cve.severity.toLowerCase();
                 const severityValue = severityOrder[cve.severity] || 0;
-                const description = cve.description.substring(0, 150) + (cve.description.length > 150 ? '...' : '');
+                const rawDesc = cve.description.substring(0, 150) + (cve.description.length > 150 ? '...' : '');
+                const description = escapeHtml(rawDesc);
+                const safeCveId = escapeHtml(cve.cve_id);
+                const safeSeverity = escapeHtml(cve.severity);
+                const safeFixDisplay = escapeHtml(cve.fix_display);
 
                 let cveLink;
                 if (cve.cve_id.startsWith('CVE-')) {{
-                    cveLink = `<a href="https://access.redhat.com/security/cve/${{cve.cve_id}}" target="_blank"><code>${{cve.cve_id}}</code></a> <a href="https://nvd.nist.gov/vuln/detail/${{cve.cve_id}}" target="_blank" style="font-size: 0.8em; color: var(--text-secondary);">(NVD)</a>`;
+                    cveLink = `<a href="https://access.redhat.com/security/cve/${{encodeURIComponent(cve.cve_id)}}" target="_blank"><code>${{safeCveId}}</code></a> <a href="https://nvd.nist.gov/vuln/detail/${{encodeURIComponent(cve.cve_id)}}" target="_blank" style="font-size: 0.8em; color: var(--text-secondary);">(NVD)</a>`;
                 }} else if (cve.cve_id.startsWith('GO-')) {{
-                    cveLink = `<a href="https://pkg.go.dev/vuln/${{cve.cve_id}}" target="_blank"><code>${{cve.cve_id}}</code></a>`;
+                    cveLink = `<a href="https://pkg.go.dev/vuln/${{encodeURIComponent(cve.cve_id)}}" target="_blank"><code>${{safeCveId}}</code></a>`;
                 }} else {{
-                    cveLink = `<code>${{cve.cve_id}}</code>`;
+                    cveLink = `<code>${{safeCveId}}</code>`;
                 }}
 
                 html += `
-                    <tr data-cve="${{cve.cve_id}}" data-severity="${{severityValue}}" data-cvss="${{cvssValue}}" data-description="${{description}}" data-fix="${{cve.fix_display}}">
+                    <tr data-cve="${{safeCveId}}" data-severity="${{severityValue}}" data-cvss="${{cvssValue}}" data-description="${{description}}" data-fix="${{safeFixDisplay}}">
                         <td>${{cveLink}}</td>
-                        <td><span class="severity-badge ${{severityClass}}">${{cve.severity}}</span></td>
+                        <td><span class="severity-badge ${{severityClass}}">${{safeSeverity}}</span></td>
                         <td style="text-align: center; color: ${{cvssColor}}; font-weight: 700;">${{cvssDisplay}}</td>
                         <td style="font-size: 0.9em;">${{description}}</td>
-                        <td style="text-align: center; font-size: 0.9em;">${{cve.fix_display}}</td>
+                        <td style="text-align: center; font-size: 0.9em;">${{safeFixDisplay}}</td>
                     </tr>`;
             }});
 
@@ -2065,7 +2068,6 @@ def extract_cve_table_data(latest_scan, cve_descriptions=None, history=None):
         cve_key = f"{cve_id}:{components[0] if components else 'unknown'}"
         first_seen_str = cve_first_seen.get(cve_key)
         if first_seen_str:
-            from datetime import datetime, timezone
             ts = first_seen_str.rstrip('Z')
             if not ts.endswith('+00:00'):
                 ts += '+00:00'
@@ -2148,62 +2150,6 @@ def generate_combined_cve_table(latest_scan, tab_id, cve_descriptions=None, hist
                 </thead>
                 <tbody>
                     <!-- Populated via cveSummaryData-{tab_id}.json -->
-                </tbody>
-            </table>
-        </div>
-    '''
-    return f'''
-        <hr style="margin: 40px 0 30px 0; border: none; border-top: 2px solid var(--border-color);">
-
-        <h2 id="cves-{tab_id}-header" class="section-header" onclick="toggleSection('cves-{tab_id}')">🔍 CVE Analysis</h2>
-        <div id="cves-{tab_id}-content" class="collapsible-content" style="max-height: none;">
-            <div style="margin-bottom: 20px; display: flex; gap: 25px; align-items: center; flex-wrap: wrap;">
-                <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 250px;">
-                    <label for="cveSearch-{tab_id}" style="font-weight: 600; font-size: 0.95em;">Search:</label>
-                    <input type="text" id="cveSearch-{tab_id}" placeholder="CVE ID or component name..." oninput="searchCVEs{tab_id}(this.value)" style="flex: 1; padding: 10px 14px; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.95em; transition: border-color 0.2s;">
-                </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <label for="fixableFilter-{tab_id}" style="font-weight: 600; font-size: 0.95em;">Filter:</label>
-                    <select id="fixableFilter-{tab_id}" onchange="filterByFixable{tab_id}(this.value)" style="padding: 10px 14px; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.95em; cursor: pointer; transition: border-color 0.2s; min-width: 160px;">
-                        <option value="">All CVEs</option>
-                        <option value="fixable">Fixable Only</option>
-                        <option value="unfixable">Unfixable Only</option>
-                    </select>
-                </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <label for="pageSize-{tab_id}" style="font-weight: 600; font-size: 0.95em;">Show:</label>
-                    <select id="pageSize-{tab_id}" onchange="updatePageSize{tab_id}(this.value)" style="padding: 10px 14px; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.95em; cursor: pointer; transition: border-color 0.2s; min-width: 100px;">
-                        <option value="10" selected>10</option>
-                        <option value="20">20</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                        <option value="all">All</option>
-                    </select>
-                </div>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <div id="cveCounter-{tab_id}" style="color: var(--text-secondary); font-size: 0.9em;"></div>
-                <div id="cvePagination-{tab_id}" style="display: flex; gap: 10px; align-items: center;">
-                    <button onclick="prevPageCVE{tab_id}()" id="cvePrevBtn-{tab_id}" style="padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; font-size: 0.9em;">← Previous</button>
-                    <span id="cvePageInfo-{tab_id}" style="color: var(--text-secondary); font-size: 0.9em; min-width: 80px; text-align: center;"></span>
-                    <button onclick="nextPageCVE{tab_id}()" id="cveNextBtn-{tab_id}" style="padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; font-size: 0.9em;">Next →</button>
-                </div>
-            </div>
-            <table class="component-table" id="cvesTable-{tab_id}">
-                <thead>
-                    <tr>
-                        <th style="text-align: center; width: 50px;">#</th>
-                        <th onclick="sortCVETable{tab_id}(1, 'string')">CVE ID</th>
-                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(2, 'number')">Severity</th>
-                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(3, 'number')">CVSS</th>
-                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(4, 'number')">Components</th>
-                        <th onclick="sortCVETable{tab_id}(5, 'string')">Affected</th>
-                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(6, 'number')">Days Open</th>
-                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(7, 'number')">Fixable</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {''.join(rows)}
                 </tbody>
             </table>
         </div>

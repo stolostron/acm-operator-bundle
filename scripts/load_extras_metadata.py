@@ -103,7 +103,7 @@ def load_extras_metadata(extras_dir='extras'):
         if image_key not in metadata:
             metadata[image_key] = reg_data.copy()
         # Map repository -> git_url for internal component detection
-        if 'repository' in metadata[image_key] and 'git_url' not in metadata[image_key]:
+        if metadata[image_key].get('repository') and not metadata[image_key].get('git_url'):
             metadata[image_key]['git_url'] = metadata[image_key]['repository']
 
     # Add all squads as special key

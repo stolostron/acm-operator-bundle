@@ -569,7 +569,7 @@
     <div class="header">
         <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙 Dark Mode</button>
         <h1>🔒 ACM CVE Trend Dashboard</h1>
-        <p class="meta">Multi-Release Analysis | Updated: 2026-07-10 19:57 UTC</p>
+        <p class="meta">Multi-Release Analysis | Updated: 2026-07-13 15:52 UTC</p>
     </div>
 
     <div class="tabs">
@@ -6030,34 +6030,32 @@
             }
         }
 
+        function escapeHtml(str) {
+            if (str == null) return '';
+            return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
         // Lazy-load CVE summary data
         window.cveSummaryData = {};
         window.cveSummaryDataLoading = {};
 
         async function loadCVESummaryData(tabId) {
-            console.log('loadCVESummaryData called for:', tabId);
-
             // Already loaded
             if (window.cveSummaryData[tabId]) {
-                console.log('CVE data already loaded for:', tabId);
                 return window.cveSummaryData[tabId];
             }
 
             // Already loading
             if (window.cveSummaryDataLoading[tabId]) {
-                console.log('CVE data already loading for:', tabId);
                 return window.cveSummaryDataLoading[tabId];
             }
 
-            // Start loading
-            console.log('Fetching CVE data from:', `cveSummaryData-${tabId}.json`);
             const loadPromise = fetch(`cveSummaryData-${tabId}.json`)
                 .then(response => {
                     if (!response.ok) throw new Error(`Failed to load CVE summary for ${tabId}`);
                     return response.json();
                 })
                 .then(data => {
-                    console.log('CVE data loaded for:', tabId, 'count:', data.length);
                     window.cveSummaryData[tabId] = data;
                     delete window.cveSummaryDataLoading[tabId];
                     populateCVETable(tabId, data);
@@ -6075,7 +6073,6 @@
         }
 
         function populateCVETable(tabId, cveData) {
-            console.log('populateCVETable called for:', tabId, 'with', cveData.length, 'CVEs');
             const table = document.getElementById('cvesTable-' + tabId);
             if (!table) {
                 console.error('Table not found: cvesTable-' + tabId);
@@ -6084,7 +6081,6 @@
 
             const tbody = table.querySelector('tbody');
             tbody.innerHTML = '';
-            console.log('Populating table with', cveData.length, 'rows');
 
             const severityOrder = {'CRITICAL': 4, 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1, 'UNKNOWN': 0};
 
@@ -6096,27 +6092,30 @@
                 const fixableClass = cve.fixable ? 'fixable' : 'unfixable';
                 const hiddenClass = cve.index >= 10 ? ' cve-row-hidden' : '';
 
-                const componentPreview = cve.components.slice(0, 3).join(', ') +
+                const componentPreview = escapeHtml(cve.components.slice(0, 3).join(', ')) +
                     (cve.component_count > 3 ? ` +${cve.component_count - 3} more` : '');
 
                 let cveLink;
-                const tooltipContent = `<div class="tooltip-title">${cve.cve_id}</div>` +
-                    (cve.cvss_score ? `<div class="tooltip-cvss">CVSS: ${cve.cvss_score} (${cve.severity})</div>` : '') +
-                    `<div>${cve.description}</div>`;
+                const safeCveId = escapeHtml(cve.cve_id);
+                const safeSeverity = escapeHtml(cve.severity);
+                const safeDescription = escapeHtml(cve.description);
+                const tooltipContent = `<div class="tooltip-title">${safeCveId}</div>` +
+                    (cve.cvss_score ? `<div class="tooltip-cvss">CVSS: ${cve.cvss_score} (${safeSeverity})</div>` : '') +
+                    `<div>${safeDescription}</div>`;
 
                 if (cve.cve_id.startsWith('CVE-')) {
                     cveLink = `<div class="cve-tooltip">
-                        <a href="https://access.redhat.com/security/cve/${cve.cve_id}" target="_blank" class="cve-blast-link"><code>${cve.cve_id}</code></a>
+                        <a href="https://access.redhat.com/security/cve/${encodeURIComponent(cve.cve_id)}" target="_blank" class="cve-blast-link"><code>${safeCveId}</code></a>
                         <span class="tooltiptext">${tooltipContent}</span>
-                    </div> <a href="https://nvd.nist.gov/vuln/detail/${cve.cve_id}" target="_blank" style="font-size: 0.8em; color: var(--text-secondary);">(NVD)</a>`;
+                    </div> <a href="https://nvd.nist.gov/vuln/detail/${encodeURIComponent(cve.cve_id)}" target="_blank" style="font-size: 0.8em; color: var(--text-secondary);">(NVD)</a>`;
                 } else if (cve.cve_id.startsWith('GO-')) {
                     cveLink = `<div class="cve-tooltip">
-                        <a href="https://pkg.go.dev/vuln/${cve.cve_id}" target="_blank" class="cve-blast-link"><code>${cve.cve_id}</code></a>
+                        <a href="https://pkg.go.dev/vuln/${encodeURIComponent(cve.cve_id)}" target="_blank" class="cve-blast-link"><code>${safeCveId}</code></a>
                         <span class="tooltiptext">${tooltipContent}</span>
                     </div>`;
                 } else {
                     cveLink = `<div class="cve-tooltip">
-                        <code>${cve.cve_id}</code>
+                        <code>${safeCveId}</code>
                         <span class="tooltiptext">${tooltipContent}</span>
                     </div>`;
                 }
@@ -6148,10 +6147,10 @@
                 row.innerHTML = `
                     <td style="text-align: center; color: var(--text-secondary); font-size: 0.9em;">${cve.index + 1}</td>
                     <td>${cveLink}</td>
-                    <td style="text-align: center;"><span class="severity-badge ${severityClass}">${cve.severity}</span></td>
+                    <td style="text-align: center;"><span class="severity-badge ${severityClass}">${safeSeverity}</span></td>
                     <td style="text-align: center; color: ${cvssColor}; font-weight: 600;">${cvssDisplay}</td>
                     <td style="text-align: center;">${cve.component_count}</td>
-                    <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${cve.components.join(', ')}">${componentPreview}</td>
+                    <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(cve.components.join(', '))}">${componentPreview}</td>
                     <td style="text-align: center; color: ${daysOpenColor}; font-weight: 600;">${daysOpen}</td>
                     <td style="text-align: center; color: ${fixableColor}; font-weight: 600; font-size: 1.2em;">${fixableDisplay}</td>
                 `;
@@ -6711,24 +6710,28 @@
                 const cvssColor = cve.cvss_score >= 9 ? '#d73a49' : cve.cvss_score >= 7 ? '#f66a0a' : '#666';
                 const severityClass = 'severity-' + cve.severity.toLowerCase();
                 const severityValue = severityOrder[cve.severity] || 0;
-                const description = cve.description.substring(0, 150) + (cve.description.length > 150 ? '...' : '');
+                const rawDesc = cve.description.substring(0, 150) + (cve.description.length > 150 ? '...' : '');
+                const description = escapeHtml(rawDesc);
+                const safeCveId = escapeHtml(cve.cve_id);
+                const safeSeverity = escapeHtml(cve.severity);
+                const safeFixDisplay = escapeHtml(cve.fix_display);
 
                 let cveLink;
                 if (cve.cve_id.startsWith('CVE-')) {
-                    cveLink = `<a href="https://access.redhat.com/security/cve/${cve.cve_id}" target="_blank"><code>${cve.cve_id}</code></a> <a href="https://nvd.nist.gov/vuln/detail/${cve.cve_id}" target="_blank" style="font-size: 0.8em; color: var(--text-secondary);">(NVD)</a>`;
+                    cveLink = `<a href="https://access.redhat.com/security/cve/${encodeURIComponent(cve.cve_id)}" target="_blank"><code>${safeCveId}</code></a> <a href="https://nvd.nist.gov/vuln/detail/${encodeURIComponent(cve.cve_id)}" target="_blank" style="font-size: 0.8em; color: var(--text-secondary);">(NVD)</a>`;
                 } else if (cve.cve_id.startsWith('GO-')) {
-                    cveLink = `<a href="https://pkg.go.dev/vuln/${cve.cve_id}" target="_blank"><code>${cve.cve_id}</code></a>`;
+                    cveLink = `<a href="https://pkg.go.dev/vuln/${encodeURIComponent(cve.cve_id)}" target="_blank"><code>${safeCveId}</code></a>`;
                 } else {
-                    cveLink = `<code>${cve.cve_id}</code>`;
+                    cveLink = `<code>${safeCveId}</code>`;
                 }
 
                 html += `
-                    <tr data-cve="${cve.cve_id}" data-severity="${severityValue}" data-cvss="${cvssValue}" data-description="${description}" data-fix="${cve.fix_display}">
+                    <tr data-cve="${safeCveId}" data-severity="${severityValue}" data-cvss="${cvssValue}" data-description="${description}" data-fix="${safeFixDisplay}">
                         <td>${cveLink}</td>
-                        <td><span class="severity-badge ${severityClass}">${cve.severity}</span></td>
+                        <td><span class="severity-badge ${severityClass}">${safeSeverity}</span></td>
                         <td style="text-align: center; color: ${cvssColor}; font-weight: 700;">${cvssDisplay}</td>
                         <td style="font-size: 0.9em;">${description}</td>
-                        <td style="text-align: center; font-size: 0.9em;">${cve.fix_display}</td>
+                        <td style="text-align: center; font-size: 0.9em;">${safeFixDisplay}</td>
                     </tr>`;
             });
 

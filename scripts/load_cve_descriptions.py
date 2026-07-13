@@ -2,7 +2,10 @@
 """Load CVE descriptions from Grype scan results"""
 
 import json
+import logging
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 def load_cve_descriptions(json_dir='reports'):
@@ -18,9 +21,14 @@ def load_cve_descriptions(json_dir='reports'):
     if cache_file.exists():
         try:
             with open(cache_file, 'r') as f:
-                return json.load(f)
-        except Exception:
-            pass  # Fall through to grype JSON parsing
+                cached = json.load(f)
+            for entry in cached.values():
+                desc = entry.get('description', '')
+                if not desc or desc.startswith('Placeholder:'):
+                    entry['description'] = 'No description available'
+            return cached
+        except Exception as e:
+            logger.warning("Failed to load CVE description cache %s: %s", cache_file, e)
 
     # Try to find most recent scan JSONs
 
@@ -55,6 +63,8 @@ def load_cve_descriptions(json_dir='reports'):
                         cvss_score = metrics.get('baseScore')
 
                 if cve_id and cve_id not in cve_desc_map:
+                    if not description or description.startswith('Placeholder:'):
+                        description = 'No description available'
                     cve_desc_map[cve_id] = {
                         'description': description,
                         'cvss_score': cvss_score
