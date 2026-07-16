@@ -53,11 +53,6 @@ def load_extras_metadata(extras_dir='extras'):
     Returns:
         dict: {image_key: {git_url, git_revision}}
     """
-    extras_path = Path(extras_dir)
-
-    if not extras_path.exists():
-        return {}
-
     metadata = {}
 
     # Load component registry
@@ -70,8 +65,9 @@ def load_extras_metadata(extras_dir='extras'):
         if squad:
             all_squads.add(squad)
 
-    # Find all JSON files in extras directory
-    json_files = list(extras_path.glob('*.json'))
+    # Find all JSON files in extras directory (if it exists)
+    extras_path = Path(extras_dir)
+    json_files = list(extras_path.glob('*.json')) if extras_path.exists() else []
 
     for json_file in json_files:
         try:
@@ -106,6 +102,9 @@ def load_extras_metadata(extras_dir='extras'):
     for image_key, reg_data in registry.items():
         if image_key not in metadata:
             metadata[image_key] = reg_data.copy()
+        # Map repository -> git_url for internal component detection
+        if metadata[image_key].get('repository') and not metadata[image_key].get('git_url'):
+            metadata[image_key]['git_url'] = metadata[image_key]['repository']
 
     # Add all squads as special key
     metadata['all_squads'] = all_squads
