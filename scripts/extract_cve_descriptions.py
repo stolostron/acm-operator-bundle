@@ -27,7 +27,7 @@ def extract_cve_descriptions(reports_dir='reports', output_file=None):
         output_file = Path(output_file)
 
     print(f"Extracting CVE descriptions from {reports_dir}...")
-    descriptions = load_cve_descriptions(reports_dir)
+    descriptions = load_cve_descriptions(reports_dir, skip_cache=True)
 
     if not descriptions:
         print("⚠ No CVE descriptions found")
