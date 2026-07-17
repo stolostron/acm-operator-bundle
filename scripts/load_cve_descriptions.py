@@ -8,41 +8,40 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 
-def load_cve_descriptions(json_dir='reports'):
+def load_cve_descriptions(json_dir='reports', skip_cache=False):
     """Load CVE descriptions from cached file or Grype JSON files
+
+    Args:
+        json_dir: Directory containing reports
+        skip_cache: If True, ignore cached file and parse Grype JSONs directly
 
     Returns:
         dict: {cve_id: {description, cvss_score}}
     """
     reports_path = Path(json_dir)
 
-    # Check for cached descriptions file first
-    cache_file = reports_path / 'cve-descriptions.json'
-    if cache_file.exists():
-        try:
-            with open(cache_file, 'r') as f:
-                cached = json.load(f)
-            for entry in cached.values():
-                desc = entry.get('description', '')
-                if not desc or desc.startswith('Placeholder:'):
-                    entry['description'] = 'No description available'
-            return cached
-        except Exception as e:
-            logger.warning("Failed to load CVE description cache %s: %s", cache_file, e)
+    if not skip_cache:
+        cache_file = reports_path / 'cve-descriptions.json'
+        if cache_file.exists():
+            try:
+                with open(cache_file, 'r') as f:
+                    cached = json.load(f)
+                for entry in cached.values():
+                    desc = entry.get('description', '')
+                    if not desc or desc.startswith('Placeholder:'):
+                        entry['description'] = 'No description available'
+                return cached
+            except Exception as e:
+                logger.warning("Failed to load CVE description cache %s: %s", cache_file, e)
 
-    # Try to find most recent scan JSONs
-
-    # Look for version directories (e.g., 2.17.0)
-    version_dirs = list(reports_path.glob('*/json'))
-    if not version_dirs:
+    # Find all Grype JSON files recursively
+    json_files = list(reports_path.rglob('*_grype.json'))
+    if not json_files:
         return {}
-
-    # Use most recent (assume highest version number or latest mtime)
-    latest_dir = max(version_dirs, key=lambda p: p.stat().st_mtime)
 
     cve_desc_map = {}
 
-    for json_file in latest_dir.glob('*_grype.json'):
+    for json_file in json_files:
         try:
             with open(json_file, 'r') as f:
                 data = json.load(f)
