@@ -2,71 +2,86 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/siteconfig?rev=853583533a0e961b345a7a46f014f93be32e2add
-    build.appstudio.redhat.com/commit_sha: 853583533a0e961b345a7a46f014f93be32e2add
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/prometheus-operator?rev=03a8dd6c59cdeca279fa7a9bf9d7a8bb8ddcd4b6
+    build.appstudio.redhat.com/commit_sha: 03a8dd6c59cdeca279fa7a9bf9d7a8bb8ddcd4b6
     build.appstudio.redhat.com/target_branch: release-2.17
     pac.test.appstudio.openshift.io/branch: release-2.17
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "88839585802"
+    pac.test.appstudio.openshift.io/check-run-id: "89033471785"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-rfhzdw
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-ohhdor
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/siteconfig-acm-217-on-push-cblgh
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/prometheus-operator-acm-217-on-push-5gjd7
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-2.17"
-    pac.test.appstudio.openshift.io/original-prname: siteconfig-acm-217-on-push
-    pac.test.appstudio.openshift.io/pull-request: "1197"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/siteconfig
-    pac.test.appstudio.openshift.io/repository: siteconfig-main
+    pac.test.appstudio.openshift.io/original-prname: prometheus-operator-acm-217-on-push
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/prometheus-operator
+    pac.test.appstudio.openshift.io/repository: prometheus-config-reloader-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
-    pac.test.appstudio.openshift.io/sender: red-hat-konflux[bot]
-    pac.test.appstudio.openshift.io/sha: 853583533a0e961b345a7a46f014f93be32e2add
+    pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
+    pac.test.appstudio.openshift.io/sha: 03a8dd6c59cdeca279fa7a9bf9d7a8bb8ddcd4b6
     pac.test.appstudio.openshift.io/sha-title: |-
-      NO-ISSUE: Update module google.golang.org/grpc to v1.82.1 [SECURITY] (#1197)
+      Fix pollBasedListerWatcher for client-go v0.35
 
-      Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/siteconfig/commit/853583533a0e961b345a7a46f014f93be32e2add
+      Cherry-picked two upstream fixes from prometheus-operator v0.90.0
+      (PR #8431) to resolve e2e test failures caused by the automated
+      dependency bump of k8s.io/client-go from v0.34 to v0.35.
+
+      client-go v0.35 enables WatchListClient by default, which requires
+      watchers to emit BOOKMARK events. The pollBasedListerWatcher does
+      not support this protocol, causing:
+      - nil pointer panic in poll() (listwatch.go:333)
+      - 10s stalls from "event bookmark expired" warnings
+      - Prometheus pods never starting (0/1 replicas)
+
+      Changes:
+      - fix: avoid panic in pollBasedListerWatcher (upstream eee6768)
+      - fix: revert namespace lister/watcher to legacy mode (upstream 374f4de)
+        Adds IsWatchListSemanticsUnSupported() to opt out of WatchList
+        and fall back to the legacy List+Watch protocol.
+      - Add e2e workflow name change to trigger CI testing
+
+      Signed-off-by: George Aeillo <gaeillo@redhat.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/prometheus-operator/commit/03a8dd6c59cdeca279fa7a9bf9d7a8bb8ddcd4b6
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-2.17
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/siteconfig
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/prometheus-operator
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: siteconfig
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-07-22T05:58:08Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20260722-054527-000":{"lastUpdateTime":"2026-07-22T05:59:25.209027189Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: prometheus-operator
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-07-22T20:07:10Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20260722-195643-000":{"lastUpdateTime":"2026-07-22T20:14:23.744155872Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1784699127000"
-    test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/result-chains-git-commit: 853583533a0e961b345a7a46f014f93be32e2add
-    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/siteconfig
-    test.appstudio.openshift.io/result-image-digest: sha256:352504daccbd55cab0d9de7dbe815345c6c212e9d148e7fd8e2d04d34d244ffd
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/siteconfig-acm-217:853583533a0e961b345a7a46f014f93be32e2add
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/siteconfig
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"BuildPLRInProgress","lastUpdateTime":"2026-07-22T05:59:25.209027189Z","details":"Integration
-      test passed with warnings","startTime":"2026-07-22T05:58:08.582920445Z","completionTime":"2026-07-22T05:59:25.209027189Z","testPipelineRunName":"enterprise-contract-acm-217-lzzsm"}]'
-  creationTimestamp: "2026-07-22T05:58:08Z"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1784750203000"
+    test.appstudio.openshift.io/result-chains-git-commit: 03a8dd6c59cdeca279fa7a9bf9d7a8bb8ddcd4b6
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/prometheus-operator
+    test.appstudio.openshift.io/result-image-digest: sha256:ec5206ed249b36d0c2af0589ea0c93bf67356771b1e5093cf3cca8b870d9c14f
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-operator-acm-217:03a8dd6c59cdeca279fa7a9bf9d7a8bb8ddcd4b6
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/prometheus-operator
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"BuildPLRInProgress","lastUpdateTime":"2026-07-22T20:14:23.744155872Z","details":"Integration
+      test passed with warnings","startTime":"2026-07-22T20:07:10.537408425Z","completionTime":"2026-07-22T20:14:23.744155872Z","testPipelineRunName":"enterprise-contract-acm-217-d8m98"}]'
+  creationTimestamp: "2026-07-22T20:07:10Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-217
-    appstudio.openshift.io/build-pipelinerun: siteconfig-acm-217-on-push-cblgh
-    appstudio.openshift.io/component: siteconfig-acm-217
+    appstudio.openshift.io/build-pipelinerun: prometheus-operator-acm-217-on-push-5gjd7
+    appstudio.openshift.io/component: prometheus-operator-acm-217
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "88839585802"
+    pac.test.appstudio.openshift.io/check-run-id: "89033471785"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: siteconfig-acm-217-on-push
-    pac.test.appstudio.openshift.io/pull-request: "1197"
-    pac.test.appstudio.openshift.io/repository: siteconfig-main
-    pac.test.appstudio.openshift.io/sha: 853583533a0e961b345a7a46f014f93be32e2add
+    pac.test.appstudio.openshift.io/original-prname: prometheus-operator-acm-217-on-push
+    pac.test.appstudio.openshift.io/repository: prometheus-config-reloader-acm-210
+    pac.test.appstudio.openshift.io/sha: 03a8dd6c59cdeca279fa7a9bf9d7a8bb8ddcd4b6
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: siteconfig
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1784699882"
+    pac.test.appstudio.openshift.io/url-repository: prometheus-operator
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1784750819"
     test.appstudio.openshift.io/type: component
-  name: release-acm-217-20260722-054527-000
+  name: release-acm-217-20260722-195643-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -75,20 +90,12 @@ metadata:
     kind: Application
     name: release-acm-217
     uid: f6a47cb4-5edb-49df-b280-ca2ad71f1d6c
-  resourceVersion: "10077120382"
-  uid: 8d7861ba-3dab-48a1-a2ea-a3fe45f24948
+  resourceVersion: "10096547353"
+  uid: d1afcbdc-76e4-490f-af6f-389e02d1d271
 spec:
   application: release-acm-217
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-addon-controller-acm-217@sha256:a3b4d96ed1cb8101bfc4094d3dd462ab6ba027f24671b98e1660e061bf2e7584
-    name: governance-policy-addon-controller-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: c17c32c598edede03efd4ba9d0c4aa0e5f935ade
-        url: https://github.com/stolostron/governance-policy-addon-controller
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-217@sha256:cf7e07aa33e63069ee3683d4f88caf18bbaecdd92d6f72b0123687bc8f738cde
     name: mtv-integrations-acm-217
     source:
@@ -238,6 +245,7 @@ spec:
     source:
       git:
         context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
         revision: 853583533a0e961b345a7a46f014f93be32e2add
         url: https://github.com/stolostron/siteconfig
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-rbac-proxy-acm-217@sha256:ba433f93fb5a77766bf6947026a15e938210fd7e4350113690b0a522e1861356
@@ -256,13 +264,12 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: d5d0aad277f4b87da2857fc3d4efc5ecd2bae886
         url: https://github.com/stolostron/must-gather
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-operator-acm-217@sha256:e4ba7b1804b1e369cba3bf2deddeeafbd7934bcfc3b20da07fc62a7044a256dd
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-operator-acm-217@sha256:ec5206ed249b36d0c2af0589ea0c93bf67356771b1e5093cf3cca8b870d9c14f
     name: prometheus-operator-acm-217
     source:
       git:
         context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 9c65aa9fda8c8b96965a71a0ca686251c3a2ef29
+        revision: 03a8dd6c59cdeca279fa7a9bf9d7a8bb8ddcd4b6
         url: https://github.com/stolostron/prometheus-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-subscription-acm-217@sha256:16f9b6c259875d1d4172e81c8c24c23da3e5b6996d3880b59708fc62735128e3
     name: multicluster-operators-subscription-acm-217
@@ -296,13 +303,13 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: b683b16d04c800cd1b3a787967219598334ab98e
         url: https://github.com/stolostron/governance-policy-framework-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-config-reloader-acm-217@sha256:efd39838cc1eb5e1047a79be04be8af25c817861ecd7268298700cf54f89196e
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-config-reloader-acm-217@sha256:80ce3d79c48f92628dd20d1de3e24f6f5b3767d4b6eac32ff929e1ee08229b7f
     name: prometheus-config-reloader-acm-217
     source:
       git:
         context: ./
         dockerfileUrl: cmd/prometheus-config-reloader/Containerfile.operator
-        revision: 9c65aa9fda8c8b96965a71a0ca686251c3a2ef29
+        revision: 03a8dd6c59cdeca279fa7a9bf9d7a8bb8ddcd4b6
         url: https://github.com/stolostron/prometheus-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-state-metrics-acm-217@sha256:5250daa8fbe0580ee1aab8003b0c776fd744215e21432afebef46af167aeb872
     name: kube-state-metrics-acm-217
@@ -448,20 +455,28 @@ spec:
         dockerfileUrl: Dockerfile.konflux
         revision: f9e627854f63038ff99fa39d417eeda4b08379b9
         url: https://github.com/stolostron/submariner-addon
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-addon-controller-acm-217@sha256:a3b4d96ed1cb8101bfc4094d3dd462ab6ba027f24671b98e1660e061bf2e7584
+    name: governance-policy-addon-controller-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: c17c32c598edede03efd4ba9d0c4aa0e5f935ade
+        url: https://github.com/stolostron/governance-policy-addon-controller
 status:
   conditions:
-  - lastTransitionTime: "2026-07-22T05:59:25Z"
+  - lastTransitionTime: "2026-07-22T20:14:23Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-07-22T05:59:25Z"
+  - lastTransitionTime: "2026-07-22T20:14:23Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-07-22T05:59:25Z"
+  - lastTransitionTime: "2026-07-22T20:14:23Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
