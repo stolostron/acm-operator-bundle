@@ -115,6 +115,7 @@ if [[ ! -d "$tools_repo_clone_dir" ]]; then
    # specifies the endodedd "token:<TOKEN_VALUE>" auth info.
 
    git remote add origin "https://github.com/$tools_repo"
+   git config credential.helper '!f() { echo "username=x-access-token"; echo "password='"$tools_repo_access_token"'"; }; f'
    basic_auth_creds="x-access-token:$tools_repo_access_token"
    basic_auth_encoded=$(echo -n "$basic_auth_creds" | base64)
    git config  "http.https://github.com/.extraheader" "Authorization: basic $basic_auth_encoded"
