@@ -120,8 +120,19 @@ if [[ ! -d "$tools_repo_clone_dir" ]]; then
    basic_auth_encoded=$(echo -n "$basic_auth_creds" | base64)
    git config  "http.https://github.com/.extraheader" "Authorization: basic $basic_auth_encoded"
 
-   git fetch --depth 1 origin "$tools_repo_branch"
-   git_fetch_rc=$?
+   max_attempts=3
+   git_fetch_rc=1
+   for attempt in $(seq 1 $max_attempts); do
+      git fetch --depth 1 origin "$tools_repo_branch"
+      git_fetch_rc=$?
+      if [[ $git_fetch_rc -eq 0 ]]; then
+         break
+      fi
+      if [[ $attempt -lt $max_attempts ]]; then
+         echo "WARNING: git fetch attempt $attempt of $max_attempts failed (rc=$git_fetch_rc). Retrying in ${attempt}0s..."
+         sleep "${attempt}0"
+      fi
+   done
 
    # In case we're run locally, be friendly and restore original Git SSH command
    if [[ -n "$save_git_ssh_cmd" ]]; then
@@ -130,7 +141,7 @@ if [[ ! -d "$tools_repo_clone_dir" ]]; then
       git config --global --unset core.sshCommand
    fi
    if [[ $git_fetch_rc -ne 0 ]]; then
-      echo "ERROR: Could not fetch tools repo."
+      echo "ERROR: Could not fetch tools repo after $max_attempts attempts."
       exit 2
   fi
 
