@@ -82,21 +82,8 @@ jobs:
         private-key: ${{ secrets.WORKFLOW_BOT_PRIVATE_KEY }}
         owner: ${{ github.repository_owner }}
 
-    - name: Process triggering PR
-      env:
-        GH_CONTEXT: ${{ toJson(github) }}
-        GIT_USER:  ${{ vars.WORKFLOW_BOT_GIT_USER }}
-
-        # Use the TOOLS_REPO_READER_TOKEN GitHub token when initially cloning
-        # the tools repo to obtain the common business logic there.
-        GH_TOOLS_REPO_READER_TOKEN: ${{ steps.gen-tools-repo-token.outputs.token }}
-
-        # Use the GH_WORKFLOW_TOKEN token witin workflow business logic.
-        GH_WORKFLOW_TOKEN: ${{ steps.gen-workflow-token.outputs.token }}
-
+    - name: Authenticate to image registries
       run: |
-        # Authenticate to needed image registries...
-
         # Access to registry.redhat.io needed to resolve external image references (shipped images):
         echo "Doing Docker login to registry.redhat.io"
         echo "${{ secrets.REGISTRY_REDHAT_IO_RGY_PASSWORD }}" \
@@ -112,14 +99,29 @@ jobs:
         echo "${{ secrets.QUAY_IO_ACMD_RGY_PASSWORD }}" \
            | docker login -u="${{ vars.QUAY_IO_ACMD_RGY_USERNAME }}" --password-stdin quay.io
 
-        # Run the business-logic script
+    - name: Process triggering PR
+      uses: nick-fields/retry@v3
+      env:
+        GH_CONTEXT: ${{ toJson(github) }}
+        GIT_USER:  ${{ vars.WORKFLOW_BOT_GIT_USER }}
 
-        # Save GitHub context in env as compact JSON string rather than pretty-printed
-        export GH_CONTEXT=$(jq -c . <<< "$GH_CONTEXT")
+        # Use the TOOLS_REPO_READER_TOKEN GitHub token when initially cloning
+        # the tools repo to obtain the common business logic there.
+        GH_TOOLS_REPO_READER_TOKEN: ${{ steps.gen-tools-repo-token.outputs.token }}
 
-        # Use the workflow token by default.
-        export GITHUB_TOKEN="$GH_WORKFLOW_TOKEN"
+        # Use the GH_WORKFLOW_TOKEN token witin workflow business logic.
+        GH_WORKFLOW_TOKEN: ${{ steps.gen-workflow-token.outputs.token }}
+      with:
+        max_attempts: 3
+        timeout_minutes: 30
+        retry_wait_seconds: 15
+        command: |
+          # Save GitHub context in env as compact JSON string rather than pretty-printed
+          export GH_CONTEXT=$(jq -c . <<< "$GH_CONTEXT")
 
-        # We start with current directoey being the top of the workflow repo clone
-        cd workflow
-        tools/run-script-from-tools-repo config/bundle-pr-config-vars
+          # Use the workflow token by default.
+          export GITHUB_TOKEN="$GH_WORKFLOW_TOKEN"
+
+          # We start with current directoey being the top of the workflow repo clone
+          cd workflow
+          tools/run-script-from-tools-repo config/bundle-pr-config-vars
