@@ -8,7 +8,7 @@ metadata:
     categories: Integration & Delivery
     certified: 'true'
     support: Red Hat
-    createdAt: '2026-08-03T15:54:32Z'
+    createdAt: '2026-08-04T15:35:50Z'
     description: Advanced provisioning and management of OpenShift and Kubernetes clusters
     operatorframework.io/suggested-namespace: open-cluster-management
     operatorframework.io/initialization-resource: '{"apiVersion":"operator.open-cluster-management.io/v1",
@@ -29,9 +29,9 @@ metadata:
     features.operators.openshift.io/token-auth-azure: 'false'
     features.operators.openshift.io/token-auth-gcp: 'false'
     olm.properties: '[{"type": "olm.maxOpenShiftVersion", "value": "5.2"}]'
-    olm.skipRange: '>=5.0.0 <5.1.0-24'
+    olm.skipRange: '>=5.0.0 <5.1.0-25'
     operators.openshift.io/must-gather-image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:b84359ed411c1bc98f1ca141da4477f06265c3800640184b13c699b962deb207
-  name: advanced-cluster-management.v5.1.0-24
+  name: advanced-cluster-management.v5.1.0-25
   namespace: placeholder
   labels:
     operatorframework.io/arch.amd64: supported
@@ -41,7 +41,7 @@ metadata:
     operatorframework.io/os.linux: supported
 spec:
   displayName: Advanced Cluster Management for Kubernetes
-  version: 5.1.0-24
+  version: 5.1.0-25
   provider:
     name: Red Hat
   maintainers:
@@ -1940,7 +1940,7 @@ spec:
                     fieldRef:
                       fieldPath: metadata.namespace
                 - name: OPERAND_IMAGE_ACM_CLI
-                  value: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:188af39f01b66d9d109d401360b2cb3aaa51099c1ba79edba5dc4b68519f0b5b
+                  value: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:358f1d7802d48d1db9a2746c411ab12c2239681bc572a26f6f5b96b25c3d1b91
                 - name: OPERAND_IMAGE_ACM_MUST_GATHER
                   value: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:b84359ed411c1bc98f1ca141da4477f06265c3800640184b13c699b962deb207
                 - name: OPERAND_IMAGE_CERT_POLICY_CONTROLLER
@@ -1950,7 +1950,7 @@ spec:
                 - name: OPERAND_IMAGE_CONFIG_POLICY_CONTROLLER
                   value: registry.redhat.io/rhacm2/config-policy-controller-rhel9@sha256:95f6a4cd9a731ec6abf436838d47a66c61a6e399f75bccb716346e07ea4e2fb5
                 - name: OPERAND_IMAGE_CONSOLE
-                  value: registry.redhat.io/rhacm2/console-rhel9@sha256:a35517fc6ead4c5fbd04bf163056d889d4308b70935e86c4214817c08a82156f
+                  value: registry.redhat.io/rhacm2/console-rhel9@sha256:0db04510e107f27659b01b0b6563a1577be2d77f6813085d793966067f81895f
                 - name: OPERAND_IMAGE_DYNAMIC_SCORING_ADDON
                   value: registry.redhat.io/rhacm2/dynamic-scoring-addon-rhel9@sha256:0000000000000000000000000000000000000000000000000000000000000000
                 - name: OPERAND_IMAGE_DYNAMIC_SCORING_CONTROLLER
@@ -1998,7 +1998,7 @@ spec:
                 - name: OPERAND_IMAGE_MULTICLUSTER_ROLE_ASSIGNMENT
                   value: registry.redhat.io/rhacm2/multicluster-role-assignment-rhel9@sha256:e39d9d24feb80ea2e61b9c426f0010c731bcb9c094ead1ff0bea8b50041eed57
                 - name: OPERAND_IMAGE_MULTICLUSTERHUB_OPERATOR
-                  value: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:5a43978cb337a807d652c129f04a43a76acb796d59472169652025df06f01d79
+                  value: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:b961d6a3f89e7740f1149b0c3c9da85af6ff758fb254a2108dcc1c3a6683a548
                 - name: OPERAND_IMAGE_NODE_EXPORTER
                   value: registry.redhat.io/rhacm2/node-exporter-rhel9@sha256:0000000000000000000000000000000000000000000000000000000000000000
                 - name: OPERAND_IMAGE_OBO_PROMETHEUS_RHEL9_OPERATOR
@@ -2044,10 +2044,10 @@ spec:
                 - name: OPERAND_IMAGE_VOLSYNC
                   value: registry.redhat.io/rhacm2/volsync-rhel9@sha256:9844d253488dcc0179eccdb0061fcb8cf754a34cec6574565e992be3bc4d3089
                 - name: OPERATOR_VERSION
-                  value: 5.1.0-24
+                  value: 5.1.0-25
                 - name: OPERATOR_PACKAGE
                   value: advanced-cluster-management
-                image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:5a43978cb337a807d652c129f04a43a76acb796d59472169652025df06f01d79
+                image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:b961d6a3f89e7740f1149b0c3c9da85af6ff758fb254a2108dcc1c3a6683a548
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -2092,7 +2092,7 @@ spec:
                   secretName: multiclusterhub-operator-webhook
   relatedImages:
   - name: acm_cli
-    image: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:188af39f01b66d9d109d401360b2cb3aaa51099c1ba79edba5dc4b68519f0b5b
+    image: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:358f1d7802d48d1db9a2746c411ab12c2239681bc572a26f6f5b96b25c3d1b91
   - name: acm_must_gather
     image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:b84359ed411c1bc98f1ca141da4477f06265c3800640184b13c699b962deb207
   - name: cert_policy_controller
@@ -2102,7 +2102,7 @@ spec:
   - name: config_policy_controller
     image: registry.redhat.io/rhacm2/config-policy-controller-rhel9@sha256:95f6a4cd9a731ec6abf436838d47a66c61a6e399f75bccb716346e07ea4e2fb5
   - name: console
-    image: registry.redhat.io/rhacm2/console-rhel9@sha256:a35517fc6ead4c5fbd04bf163056d889d4308b70935e86c4214817c08a82156f
+    image: registry.redhat.io/rhacm2/console-rhel9@sha256:0db04510e107f27659b01b0b6563a1577be2d77f6813085d793966067f81895f
   - name: dynamic_scoring_addon
     image: registry.redhat.io/rhacm2/dynamic-scoring-addon-rhel9@sha256:0000000000000000000000000000000000000000000000000000000000000000
   - name: dynamic_scoring_controller
