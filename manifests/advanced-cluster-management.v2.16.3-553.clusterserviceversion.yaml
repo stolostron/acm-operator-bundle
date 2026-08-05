@@ -8,7 +8,7 @@ metadata:
     categories: Integration & Delivery
     certified: 'true'
     support: Red Hat
-    createdAt: '2026-08-04T18:35:42Z'
+    createdAt: '2026-08-05T13:57:19Z'
     description: Advanced provisioning and management of OpenShift and Kubernetes clusters
     operatorframework.io/suggested-namespace: open-cluster-management
     operatorframework.io/initialization-resource: '{"apiVersion":"operator.open-cluster-management.io/v1",
@@ -29,9 +29,9 @@ metadata:
     features.operators.openshift.io/token-auth-azure: 'false'
     features.operators.openshift.io/token-auth-gcp: 'false'
     olm.properties: '[{"type": "olm.maxOpenShiftVersion", "value": "4.22"}]'
-    olm.skipRange: '>=2.15.0 <2.16.3-552'
+    olm.skipRange: '>=2.15.0 <2.16.3-553'
     operators.openshift.io/must-gather-image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:b88ea69c5d8cb96ebea9a206acb6de21d48bec58aa5673b51ea2eb53a663b789
-  name: advanced-cluster-management.v2.16.3-552
+  name: advanced-cluster-management.v2.16.3-553
   namespace: placeholder
   labels:
     operatorframework.io/arch.amd64: supported
@@ -41,7 +41,7 @@ metadata:
     operatorframework.io/os.linux: supported
 spec:
   displayName: Advanced Cluster Management for Kubernetes
-  version: 2.16.3-552
+  version: 2.16.3-553
   provider:
     name: Red Hat
   maintainers:
@@ -1136,6 +1136,7 @@ spec:
           - search.open-cluster-management.io
           resources:
           - consolelinks
+          - consolenotifications
           - consoleplugins
           - searches
           verbs:
@@ -1905,7 +1906,7 @@ spec:
                     fieldRef:
                       fieldPath: metadata.namespace
                 - name: OPERAND_IMAGE_ACM_CLI
-                  value: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:0cc55c010d21d286d4305ab53e6e42932fd065ae910a05b9b91c1fccdad2bdf4
+                  value: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:15fad3e74b3a0b807a3820115a514449c788a3d864a494d810abfbc82dc47baa
                 - name: OPERAND_IMAGE_ACM_MUST_GATHER
                   value: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:b88ea69c5d8cb96ebea9a206acb6de21d48bec58aa5673b51ea2eb53a663b789
                 - name: OPERAND_IMAGE_CERT_POLICY_CONTROLLER
@@ -1915,7 +1916,7 @@ spec:
                 - name: OPERAND_IMAGE_CLUSTER_PERMISSION
                   value: registry.redhat.io/rhacm2/acm-cluster-permission-rhel9@sha256:130999933753db8fe5c7f47e739f155f2284c70942b60181ff03f61fc128a932
                 - name: OPERAND_IMAGE_CONFIG_POLICY_CONTROLLER
-                  value: registry.redhat.io/rhacm2/config-policy-controller-rhel9@sha256:acdb4025b5ef7da1c7b37e5e0e6a0663cd6923b8ae8cbb6797d4a32ade947f54
+                  value: registry.redhat.io/rhacm2/config-policy-controller-rhel9@sha256:0ff693be9c8f87a1bb790e4ab93955335adf9ee3cc20839e096bf33072b570a7
                 - name: OPERAND_IMAGE_CONSOLE
                   value: registry.redhat.io/rhacm2/console-rhel9@sha256:2c9ec530fc34e8a4b62a742ca6044ece572dc2c2974f43124256dc794b1415cc
                 - name: OPERAND_IMAGE_ENDPOINT_MONITORING_OPERATOR
@@ -1939,7 +1940,7 @@ spec:
                 - name: OPERAND_IMAGE_KUBE_RBAC_PROXY
                   value: registry.redhat.io/rhacm2/kube-rbac-proxy-rhel9@sha256:5b3d4fd77a5ab5489cf909672399be4e96fe53c43a6db374b98af9d2385f8059
                 - name: OPERAND_IMAGE_KUBE_STATE_METRICS
-                  value: registry.redhat.io/rhacm2/kube-state-metrics-rhel9@sha256:a1b172df6df6fb2524935fa96aaad3ea6206d3043b8a0ffaff548e3ecf45f547
+                  value: registry.redhat.io/rhacm2/kube-state-metrics-rhel9@sha256:fbcad8a56c7097bfb383be9a00d4d8db9a2a8f607eca50514d43cc4a93094234
                 - name: OPERAND_IMAGE_MEMCACHED_EXPORTER
                   value: registry.redhat.io/rhacm2/memcached-exporter-rhel9@sha256:3b4e1460998c8ae02b8b78c2764578023c758ce47a9480dbf1abcb5cdb94bef6
                 - name: OPERAND_IMAGE_METRICS_COLLECTOR
@@ -1961,7 +1962,7 @@ spec:
                 - name: OPERAND_IMAGE_MULTICLUSTER_ROLE_ASSIGNMENT
                   value: registry.redhat.io/rhacm2/multicluster-role-assignment-rhel9@sha256:4c4fab54b5e72f73cd308b72b87a7f2ad0de8c74a0c4ad05d6507c7cf69d7fb3
                 - name: OPERAND_IMAGE_NODE_EXPORTER
-                  value: registry.redhat.io/rhacm2/node-exporter-rhel9@sha256:f708d779443acd185dc74d6dc47b281bfe55f19c0c339f1def8cfb09e7873846
+                  value: registry.redhat.io/rhacm2/node-exporter-rhel9@sha256:58c69f52ed19e4eb2bf7843c5853435b966d18e55defb09141f4f651d4dabcfd
                 - name: OPERAND_IMAGE_OBO_PROMETHEUS_RHEL9_OPERATOR
                   value: registry.redhat.io/rhacm2/obo-prometheus-rhel9-operator@sha256:2dd273f2bf488cc8da249b150606543aff77956f83f836483bf2973950013fc5
                 - name: OPERAND_IMAGE_OBSERVATORIUM
@@ -1971,7 +1972,7 @@ spec:
                 - name: OPERAND_IMAGE_PROMETHEUS
                   value: registry.redhat.io/rhacm2/prometheus-rhel9@sha256:215e5352d45fb13041844dbf7b858e2371f766f56d8aa40e5d285d0ecfd8aa4d
                 - name: OPERAND_IMAGE_PROMETHEUS_ALERTMANAGER
-                  value: registry.redhat.io/rhacm2/prometheus-alertmanager-rhel9@sha256:e90774eb585b22d819570db3829deb4ed7bee482d5c927eaa7e2865ddd19861e
+                  value: registry.redhat.io/rhacm2/prometheus-alertmanager-rhel9@sha256:1c18375cb0f0e375f25b7b8893740c3ddeafdc444b3e9e3bd17e1b88ab18d1b2
                 - name: OPERAND_IMAGE_PROMETHEUS_CONFIG_RELOADER
                   value: registry.redhat.io/rhacm2/acm-prometheus-config-reloader-rhel9@sha256:e920222f502197be31f39be18213af5492dc996181899386e7504ec9a9a61bac
                 - name: OPERAND_IMAGE_PROMETHEUS_OPERATOR
@@ -2033,12 +2034,12 @@ spec:
                 - name: OPERAND_IMAGE_VOLSYNC
                   value: registry.redhat.io/rhacm2/volsync-rhel9@sha256:6e01ed5be1e91b817820348fd0f96b9249521d721c199ead55e94d0427f03bb5
                 - name: OPERAND_IMAGE_MULTICLUSTERHUB_OPERATOR
-                  value: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:3249c8371f321ea6b4039f28c9431cd8e004ea87d02be7526cc61ac2297f77e1
+                  value: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:ac050af84c7b063ecad3dd8f0ce8ccb35d4d56cb3ceede5f0762eb4289454823
                 - name: OPERATOR_VERSION
-                  value: 2.16.3-552
+                  value: 2.16.3-553
                 - name: OPERATOR_PACKAGE
                   value: advanced-cluster-management
-                image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:3249c8371f321ea6b4039f28c9431cd8e004ea87d02be7526cc61ac2297f77e1
+                image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:ac050af84c7b063ecad3dd8f0ce8ccb35d4d56cb3ceede5f0762eb4289454823
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -2084,7 +2085,7 @@ spec:
   replaces: advanced-cluster-management.v2.16.2
   relatedImages:
   - name: acm_cli
-    image: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:0cc55c010d21d286d4305ab53e6e42932fd065ae910a05b9b91c1fccdad2bdf4
+    image: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:15fad3e74b3a0b807a3820115a514449c788a3d864a494d810abfbc82dc47baa
   - name: acm_must_gather
     image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:b88ea69c5d8cb96ebea9a206acb6de21d48bec58aa5673b51ea2eb53a663b789
   - name: cert_policy_controller
@@ -2094,7 +2095,7 @@ spec:
   - name: cluster_permission
     image: registry.redhat.io/rhacm2/acm-cluster-permission-rhel9@sha256:130999933753db8fe5c7f47e739f155f2284c70942b60181ff03f61fc128a932
   - name: config_policy_controller
-    image: registry.redhat.io/rhacm2/config-policy-controller-rhel9@sha256:acdb4025b5ef7da1c7b37e5e0e6a0663cd6923b8ae8cbb6797d4a32ade947f54
+    image: registry.redhat.io/rhacm2/config-policy-controller-rhel9@sha256:0ff693be9c8f87a1bb790e4ab93955335adf9ee3cc20839e096bf33072b570a7
   - name: console
     image: registry.redhat.io/rhacm2/console-rhel9@sha256:2c9ec530fc34e8a4b62a742ca6044ece572dc2c2974f43124256dc794b1415cc
   - name: endpoint_monitoring_operator
@@ -2118,7 +2119,7 @@ spec:
   - name: kube_rbac_proxy
     image: registry.redhat.io/rhacm2/kube-rbac-proxy-rhel9@sha256:5b3d4fd77a5ab5489cf909672399be4e96fe53c43a6db374b98af9d2385f8059
   - name: kube_state_metrics
-    image: registry.redhat.io/rhacm2/kube-state-metrics-rhel9@sha256:a1b172df6df6fb2524935fa96aaad3ea6206d3043b8a0ffaff548e3ecf45f547
+    image: registry.redhat.io/rhacm2/kube-state-metrics-rhel9@sha256:fbcad8a56c7097bfb383be9a00d4d8db9a2a8f607eca50514d43cc4a93094234
   - name: memcached_exporter
     image: registry.redhat.io/rhacm2/memcached-exporter-rhel9@sha256:3b4e1460998c8ae02b8b78c2764578023c758ce47a9480dbf1abcb5cdb94bef6
   - name: metrics_collector
@@ -2140,7 +2141,7 @@ spec:
   - name: multicluster_role_assignment
     image: registry.redhat.io/rhacm2/multicluster-role-assignment-rhel9@sha256:4c4fab54b5e72f73cd308b72b87a7f2ad0de8c74a0c4ad05d6507c7cf69d7fb3
   - name: node_exporter
-    image: registry.redhat.io/rhacm2/node-exporter-rhel9@sha256:f708d779443acd185dc74d6dc47b281bfe55f19c0c339f1def8cfb09e7873846
+    image: registry.redhat.io/rhacm2/node-exporter-rhel9@sha256:58c69f52ed19e4eb2bf7843c5853435b966d18e55defb09141f4f651d4dabcfd
   - name: obo_prometheus_rhel9_operator
     image: registry.redhat.io/rhacm2/obo-prometheus-rhel9-operator@sha256:2dd273f2bf488cc8da249b150606543aff77956f83f836483bf2973950013fc5
   - name: observatorium
@@ -2150,7 +2151,7 @@ spec:
   - name: prometheus
     image: registry.redhat.io/rhacm2/prometheus-rhel9@sha256:215e5352d45fb13041844dbf7b858e2371f766f56d8aa40e5d285d0ecfd8aa4d
   - name: prometheus_alertmanager
-    image: registry.redhat.io/rhacm2/prometheus-alertmanager-rhel9@sha256:e90774eb585b22d819570db3829deb4ed7bee482d5c927eaa7e2865ddd19861e
+    image: registry.redhat.io/rhacm2/prometheus-alertmanager-rhel9@sha256:1c18375cb0f0e375f25b7b8893740c3ddeafdc444b3e9e3bd17e1b88ab18d1b2
   - name: prometheus_config_reloader
     image: registry.redhat.io/rhacm2/acm-prometheus-config-reloader-rhel9@sha256:e920222f502197be31f39be18213af5492dc996181899386e7504ec9a9a61bac
   - name: prometheus_operator
