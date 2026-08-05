@@ -1,0 +1,120 @@
+# Place a copy of this GitHub Actions workflow in the main and
+# each release branch of each bundle repo.
+
+name: Gen Bundle Contents When Triggered
+
+on:
+  workflow_dispatch: {}
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    branches:
+    - release-*
+    - backplane-*
+    paths:
+    - latest-snapshot.yaml
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  # GitHub Actions automatically gives us a token with permissions to this reponsitory
+  # as determined by the permissive/restrictivve token-access setting for the repository.
+  # We should use this (and not override by setting GITHUB_TOKEN as a secret) for all
+  # access to this repository itself.
+  #
+  # Ref: https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow
+  #
+  # Save this token as REPO_GH_TOKEN in case we have to switch between using the
+  # repository token and other tokens with different permissions for other repositories.
+  #
+  # Despite the ref to secrets.GITHUB_TOKEN, DO NOT create a secret by that name!
+  # This secret is automatically provided.
+
+  GH_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  process-triggering-pr:
+    runs-on: ubuntu-24.04
+    # FYI, the ubuntu-24.04 runner image includes Python 3.12
+
+    steps:
+    - name: Checkout triggered repo main branch
+
+      # Do sparse checkout  out the triggereed repo's main branch to get
+      # in-repo tools used by the workflow.
+
+      uses: actions/checkout@v4
+      with:
+        ref: main
+        path: workflow
+        sparse-checkout: |
+          .github
+          config
+          tools
+        show-progress: false
+
+    - name: Generate GitHub token to read release tools repo
+
+      # The release-tools repo (stolostron/release, or a dev fork of it) is not
+      # currently public, and in some dev scenarios at least is not under the
+      # same org as the triggered rep and thus won't be in some of the workflow
+      # token we generate next.  So generate a token specifically for reading
+      # the release-tools repo.
+
+      id: gen-tools-repo-token
+      uses: actions/create-github-app-token@v1
+      with:
+        # App id and key of a GitHub App that has been installed and given
+        # read-only acccess to the contants ot the release-tools repo.
+        app-id: ${{ vars.TOOLS_REPO_READER_APP_ID }}
+        private-key: ${{ secrets.TOOLS_REPO_READER_PRIVATE_KEY }}
+        owner: ${{ vars.TOOLS_REPO_OWNER }}
+        repositories: "release"
+
+    - name: Generate GitHub token for workflow actions
+      id: gen-workflow-token
+      uses: actions/create-github-app-token@v1
+      with:
+        # App id and key of a GitHub App that has been installed and given access
+        # to the repos neded to do the core logic of the workflow.
+        app-id: ${{ vars.WORKFLOW_BOT_APP_ID }}
+        private-key: ${{ secrets.WORKFLOW_BOT_PRIVATE_KEY }}
+        owner: ${{ github.repository_owner }}
+
+    - name: Process triggering PR
+      env:
+        GH_CONTEXT: ${{ toJson(github) }}
+        GIT_USER:  ${{ vars.WORKFLOW_BOT_GIT_USER }}
+
+        # Use the TOOLS_REPO_READER_TOKEN GitHub token when initially cloning
+        # the tools repo to obtain the common business logic there.
+        GH_TOOLS_REPO_READER_TOKEN: ${{ steps.gen-tools-repo-token.outputs.token }}
+
+        # Use the GH_WORKFLOW_TOKEN token witin workflow business logic.
+        GH_WORKFLOW_TOKEN: ${{ steps.gen-workflow-token.outputs.token }}
+
+      run: |
+        # Authenticate to needed image registries...
+
+        # Access to registry.redhat.io needed to resolve external image references (shipped images):
+        echo "Doing Docker login to registry.redhat.io"
+        echo "${{ secrets.REGISTRY_REDHAT_IO_RGY_PASSWORD }}" \
+           | docker login -u="${{ vars.REGISTRY_REDHAT_IO_RGY_USERNAME }}" --password-stdin registry.redhat.io
+
+        # Access to quay.iio/acm-d needed to resolve external image references (in-dev images):
+        echo "Doing Docker login to quay.io (for acm-d)"
+        echo "${{ secrets.QUAY_IO_ACMD_RGY_PASSWORD }}" \
+           | docker login -u="${{ vars.QUAY_IO_ACMD_RGY_USERNAME }}" --password-stdin quay.io
+
+        # Run the business-logic script
+
+        # Save GitHub context in env as compact JSON string rather than pretty-printed
+        export GH_CONTEXT=$(jq -c . <<< "$GH_CONTEXT")
+
+        # Use the workflow token by default.
+        export GITHUB_TOKEN="$GH_WORKFLOW_TOKEN"
+
+        # We start with current directoey being the top of the workflow repo clone
+        cd workflow
+        tools/run-script-from-tools-repo config/bundle-pr-config-vars
