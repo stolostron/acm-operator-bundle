@@ -18,8 +18,8 @@ defaults:
     shell: bash
 
 env:
-  # GitHub Actions automatically gives us a token with permissions to this reponsitory
-  # as determined by the permissive/restrictivve token-access setting for the repository.
+  # GitHub Actions automatically gives us a token with permissions to this repository
+  # as determined by the permissive/restrictive token-access setting for the repository.
   # We should use this (and not override by setting GITHUB_TOKEN as a secret) for all
   # access to this repository itself.
   #
@@ -41,7 +41,7 @@ jobs:
     steps:
     - name: Checkout triggered repo main branch
 
-      # Do sparse checkout  out the triggereed repo's main branch to get
+      # Do sparse checkout of the triggered repo's main branch to get
       # in-repo tools used by the workflow.
 
       uses: actions/checkout@v4
@@ -58,7 +58,7 @@ jobs:
 
       # The release-tools repo (stolostron/release, or a dev fork of it) is not
       # currently public, and in some dev scenarios at least is not under the
-      # same org as the triggered rep and thus won't be in some of the workflow
+      # same org as the triggered repo and thus won't be in some of the workflow
       # token we generate next.  So generate a token specifically for reading
       # the release-tools repo.
 
@@ -66,7 +66,7 @@ jobs:
       uses: actions/create-github-app-token@v1
       with:
         # App id and key of a GitHub App that has been installed and given
-        # read-only acccess to the contants ot the release-tools repo.
+        # read-only access to the contents of the release-tools repo.
         app-id: ${{ vars.TOOLS_REPO_READER_APP_ID }}
         private-key: ${{ secrets.TOOLS_REPO_READER_PRIVATE_KEY }}
         owner: ${{ vars.TOOLS_REPO_OWNER }}
@@ -77,7 +77,7 @@ jobs:
       uses: actions/create-github-app-token@v1
       with:
         # App id and key of a GitHub App that has been installed and given access
-        # to the repos neded to do the core logic of the workflow.
+        # to the repos needed to do the core logic of the workflow.
         app-id: ${{ vars.WORKFLOW_BOT_APP_ID }}
         private-key: ${{ secrets.WORKFLOW_BOT_PRIVATE_KEY }}
         owner: ${{ github.repository_owner }}
@@ -94,7 +94,7 @@ jobs:
         echo "${{ secrets.REGISTRY_STAGE_REDHAT_IO_RGY_PASSWORD }}" \
            | docker login -u="${{ vars.REGISTRY_STAGE_REDHAT_IO_RGY_USERNAME }}" --password-stdin registry.stage.redhat.io
 
-        # Access to quay.iio/acm-d needed to resolve external image references (in-dev images):
+        # Access to quay.io/acm-d needed to resolve external image references (in-dev images):
         echo "Doing Docker login to quay.io (for acm-d)"
         echo "${{ secrets.QUAY_IO_ACMD_RGY_PASSWORD }}" \
            | docker login -u="${{ vars.QUAY_IO_ACMD_RGY_USERNAME }}" --password-stdin quay.io
@@ -109,7 +109,7 @@ jobs:
         # the tools repo to obtain the common business logic there.
         GH_TOOLS_REPO_READER_TOKEN: ${{ steps.gen-tools-repo-token.outputs.token }}
 
-        # Use the GH_WORKFLOW_TOKEN token witin workflow business logic.
+        # Use the GH_WORKFLOW_TOKEN token within workflow business logic.
         GH_WORKFLOW_TOKEN: ${{ steps.gen-workflow-token.outputs.token }}
       with:
         max_attempts: 3
@@ -122,6 +122,6 @@ jobs:
           # Use the workflow token by default.
           export GITHUB_TOKEN="$GH_WORKFLOW_TOKEN"
 
-          # We start with current directoey being the top of the workflow repo clone
+          # We start with current directory being the top of the workflow repo clone
           cd workflow
           tools/run-script-from-tools-repo config/bundle-pr-config-vars

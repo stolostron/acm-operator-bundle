@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
 #
 # This script is the front end to the Konflux generate-bundle-contents process for
-# ACM and related operator bundles.  It is invoked as the businss logic for GitHub
+# ACM and related operator bundles.  It is invoked as the business logic for GitHub
 # actions triggered on PRs, etc.  Its job is to determine and clone the common tooling
-# repo at the right branch, and then imvoke the appropriate bundle-contents-generation
+# repo at the right branch, and then invoke the appropriate bundle-contents-generation
 # core logic that lives in that tools repo (so that it can be common across all of
 # our operator-bundle repos and branches).
 #
 # Ideally, this script will contain nothing that is specific to the particular bundle
 # (i.e. ACM, or MCE, or Stolostron, etc.) that is being built.  All of the necessary
-# per-product particulars are obtained ehter by ssourcing script fragment files with
-# fixed names, or by referring environment varibales passed into the  script. The goal
-# is that it should be the cast that this script is identical across all of our various
-# bundle-building repos and branches in those repos. Maintaining this goal  will make
-# any required maintanance easy (just drop identical copies everywhere). And hopefully,
-# this script is a sufficently "thin" shim that the there will be minimal need to update
-# those identical copies, as the real" logic livs in the single, common tools repo.
+# per-product particulars are obtained either by sourcing script fragment files with
+# fixed names, or by referring environment variables passed into the script. The goal
+# is that it should be the case that this script is identical across all of our various
+# bundle-building repos and branches in those repos. Maintaining this goal will make
+# any required maintenance easy (just drop identical copies everywhere). And hopefully,
+# this script is a sufficiently "thin" shim that there will be minimal need to update
+# those identical copies, as the real logic lives in the single, common tools repo.
 #
-# Inocation dependencies:
+# Invocation dependencies:
 #
 # This script assumes that when its run, the current working directory is the
 # top directory of the bundle-image repository.
@@ -39,7 +39,7 @@
 start_cwd="$PWD"
 
 # The config-vars sourceable script fragment sets some shell/environment variables
-# that we nedd to figure out how to clone the common tools and config repo and
+# that we need to figure out how to clone the common tools and config repo and
 # run the business logic script contained there.
 
 in_repo_config_file="${1:-./config/config-vars}"
@@ -67,10 +67,10 @@ if [[ -z "$target_script" ]]; then
 fi
 
 # We need access to the tools repo, which may be private. In order to allow for
-#a least-priviledge granting of permissions f desired, we will prefer to use a
+# a least-privilege granting of permissions if desired, we will prefer to use a
 # token specified in env var GH_TOOLS_REPO_READER_TOKEN so that a token that
 # provides only read-only access to the tools repo can be used while allowing
-# another tokens with more/different permisssion to be used by the target workflow
+# another token with more/different permission to be used by the target workflow
 # logic (GH_WORKFLOW_TOKEN). But for convenience, we'll fall back to using a
 # workflow-specific token from GH_WORKFLOW_TOKEN, or even a token found in the
 # commonly-defined GITHUB_TOKEN env var if nothing more specific is found.
@@ -105,14 +105,14 @@ if [[ ! -d "$tools_repo_clone_dir" ]]; then
 
    mkdir -p "$tools_repo_clone_dir"
    cd "$tools_repo_clone_dir"
-   tools_repo_clone_dir="$PWD"   # Ensuretools_repo_clone_dir an absolute pathname.
+   tools_repo_clone_dir="$PWD"   # Ensure tools_repo_clone_dir is an absolute pathname.
    git config --global init.defaultBranch master
    git config --global advice.detachedHead false
    git init
 
    # Rather than clone with an https URL that includes the token, instead clone
-   # generically and configure the git cline to add an Authenitcation header that
-   # specifies the endodedd "token:<TOKEN_VALUE>" auth info.
+   # generically and configure the git client to add an Authentication header that
+   # specifies the encoded "token:<TOKEN_VALUE>" auth info.
 
    git remote add origin "https://github.com/$tools_repo"
    git config credential.helper '!f() { echo "username=x-access-token"; echo "password='"$tools_repo_access_token"'"; }; f'
@@ -151,7 +151,7 @@ fi
 
 cd "$start_cwd"
 
-# The actual work of the budnle generation process is hanled by a script (possibly common
+# The actual work of the bundle generation process is handled by a script (possibly common
 # across the various product bundles we produce) found in the tools repo. The name of that
 # script is provided by Variable target_script.
 
@@ -160,7 +160,7 @@ if [[ ! -f "$target_script_path" ]]; then
    echo "ERROR: Target script $target_script does not exist."
    exit 2
 elif [[ ! -x "$target_script_path" ]]; then
-   echo "ERROR: Target script $target_script is not eecuable."
+   echo "ERROR: Target script $target_script is not executable."
    exit 2
 fi
 
