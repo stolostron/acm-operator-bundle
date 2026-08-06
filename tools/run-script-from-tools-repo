@@ -111,8 +111,8 @@ if [[ ! -d "$tools_repo_clone_dir" ]]; then
    git init
 
    # Rather than clone with an https URL that includes the token, instead clone
-   # generically and configure the git client to add an Authentication header that
-   # specifies the encoded "token:<TOKEN_VALUE>" auth info.
+   # generically and configure the git credential helper to provide the token
+   # as the password for authentication.
 
    git remote add origin "https://github.com/$tools_repo"
    git config credential.helper '!f() { echo "username=x-access-token"; echo "password='"$tools_repo_access_token"'"; }; f'
