@@ -2,117 +2,83 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/cluster-backup-operator?rev=8ceff95bf55e5f8e78de595a3677394b27f21a42
-    build.appstudio.redhat.com/commit_sha: 8ceff95bf55e5f8e78de595a3677394b27f21a42
-    build.appstudio.redhat.com/target_branch: release-2.17
-    pac.test.appstudio.openshift.io/branch: release-2.17
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/submariner-addon?rev=1b29009cff58caa937804aac6d2a6d58be72acdc
+    build.appstudio.redhat.com/commit_sha: 1b29009cff58caa937804aac6d2a6d58be72acdc
+    build.appstudio.redhat.com/target_branch: main
+    pac.test.appstudio.openshift.io/branch: main
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "92692969306"
+    pac.test.appstudio.openshift.io/check-run-id: "92859521811"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-evybge
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-bczlbh
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/cluster-backup-operator-acm-217-on-push-nlt6r
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/submariner-addon-acm-217-on-push-b27v2
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
-      == "release-2.17"
-    pac.test.appstudio.openshift.io/original-prname: cluster-backup-operator-acm-217-on-push
-    pac.test.appstudio.openshift.io/pull-request: "1687"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/cluster-backup-operator
-    pac.test.appstudio.openshift.io/repository: cluster-backup-operator-acm-210
+      == "main"
+    pac.test.appstudio.openshift.io/original-prname: submariner-addon-acm-217-on-push
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/submariner-addon
+    pac.test.appstudio.openshift.io/repository: submariner-addon-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
     pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
-    pac.test.appstudio.openshift.io/sha: 8ceff95bf55e5f8e78de595a3677394b27f21a42
+    pac.test.appstudio.openshift.io/sha: 1b29009cff58caa937804aac6d2a6d58be72acdc
     pac.test.appstudio.openshift.io/sha-title: |-
-      [release-2.17] Route ClusterInstance into the managed-clusters activation tier (#1687)
+      Bump k8s.io/apimachinery in /tools in the gomod group across 1 directory
 
-      * Route ClusterInstance into the managed-clusters activation tier
+      Bumps the gomod group with 1 update in the /tools directory: [k8s.io/apimachinery](https://github.com/kubernetes/apimachinery).
 
-      ClusterInstance (siteconfig.open-cluster-management.io), used to drive
-      Day-1 installs for ZTP/bare-metal managed clusters, previously matched
-      only the generic *.open-cluster-management.io backup rule and landed in
-      the unconditional Resources backup/restore. This meant it was restored
-      on every passive-sync cycle (VeleroManagedClustersBackupName: skip), not
-      just during an actual failover, causing the SiteConfig controller to
-      re-render Day-1 manifests against already-installed clusters and drive
-      their BareMetalHost objects into Inspecting with no failover intended.
 
-      Add siteconfig.open-cluster-management.io to
-      includedActivationAPIGroupsByName, the same mechanism already used for
-      agent-install.openshift.io. This routes ClusterInstance into the
-      managed-clusters activation backup/restore tier, which already fully
-      respects the skip/latest gate on VeleroManagedClustersBackupName.
+      Updates `k8s.io/apimachinery` from 0.36.0 to 0.36.3
+      - [Commits](https://github.com/kubernetes/apimachinery/compare/v0.36.0...v0.36.3)
 
-      This addresses the routine-passive-sync exposure described in
-      ACM-39330. The restore-ordering-during-a-genuine-failover half of that
-      ticket requires a fix in the SiteConfig Operator controller and is
-      tracked separately with that team.
+      ---
+      updated-dependencies:
+      - dependency-name: k8s.io/apimachinery
+        dependency-version: 0.35.4
+        dependency-type: direct:production
+        update-type: version-update:semver-patch
+        dependency-group: gomod
+      ...
 
-      Co-authored-by: Cursor <cursoragent@cursor.com>
-      Signed-off-by: sahare <sahare@redhat.com>
-
-      * Avoid mutating backupManagedClusterResources during discovery
-
-      processResourcesToBackup appended directly to the package-level
-      backupManagedClusterResources slice on every matched activation
-      resource. Routing siteconfig.open-cluster-management.io through this
-      same path means the mutation happens more often, so fix it now: work
-      on a local copy through discovery and commit it back to the package
-      variable once, after the loop completes. This avoids stale reads and
-      concurrent-mutation races across discovery calls, per the existing
-      backup.go coding guideline.
-
-      No functional change; getResourcesByBackupType and the restore-time
-      gating are unaffected.
-
-      Co-authored-by: Cursor <cursoragent@cursor.com>
-      Signed-off-by: sahare <sahare@redhat.com>
-
-      ---------
-
-      Signed-off-by: sahare <sahare@redhat.com>
-      Co-authored-by: sahare <sahare@redhat.com>
-      Co-authored-by: Cursor <cursoragent@cursor.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/cluster-backup-operator/commit/8ceff95bf55e5f8e78de595a3677394b27f21a42
-    pac.test.appstudio.openshift.io/source-branch: refs/heads/release-2.17
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/cluster-backup-operator
+      Signed-off-by: dependabot[bot] <support@github.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/submariner-addon/commit/1b29009cff58caa937804aac6d2a6d58be72acdc
+    pac.test.appstudio.openshift.io/source-branch: refs/heads/main
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/submariner-addon
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: cluster-backup-operator
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-08-06T18:10:26Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20260806-175950-000":{"lastUpdateTime":"2026-08-06T18:11:42.552796802Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: submariner-addon
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-08-07T12:16:52Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20260807-120200-000":{"lastUpdateTime":"2026-08-07T12:17:56.225376658Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1786039190000"
-    test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/result-chains-git-commit: 8ceff95bf55e5f8e78de595a3677394b27f21a42
-    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/cluster-backup-operator
-    test.appstudio.openshift.io/result-image-digest: sha256:0712e2b5f02916f2f866dafec7af0d89803258e4827b5466b4524e4204744c49
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-backup-operator-acm-217:8ceff95bf55e5f8e78de595a3677394b27f21a42
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/cluster-backup-operator
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"BuildPLRInProgress","lastUpdateTime":"2026-08-06T18:11:42.552796802Z","details":"Integration
-      test passed with warnings","startTime":"2026-08-06T18:10:26.703198481Z","completionTime":"2026-08-06T18:11:42.552796802Z","testPipelineRunName":"enterprise-contract-acm-217-q85gf"}]'
-  creationTimestamp: "2026-08-06T18:10:26Z"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1786104120000"
+    test.appstudio.openshift.io/result-chains-git-commit: 1b29009cff58caa937804aac6d2a6d58be72acdc
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/submariner-addon
+    test.appstudio.openshift.io/result-image-digest: sha256:6c4b5cd128c5909da347263f2f25a53a0090198c5af3be4852035450f90f5116
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-217:1b29009cff58caa937804aac6d2a6d58be72acdc
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/submariner-addon
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"BuildPLRInProgress","lastUpdateTime":"2026-08-07T12:17:56.225376658Z","details":"Integration
+      test passed with warnings","startTime":"2026-08-07T12:16:52.273430793Z","completionTime":"2026-08-07T12:17:56.225376658Z","testPipelineRunName":"enterprise-contract-acm-217-lczh4"}]'
+  creationTimestamp: "2026-08-07T12:16:52Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-217
-    appstudio.openshift.io/build-pipelinerun: cluster-backup-operator-acm-217-on-push-nlt6r
-    appstudio.openshift.io/component: cluster-backup-operator-acm-217
+    appstudio.openshift.io/build-pipelinerun: submariner-addon-acm-217-on-push-b27v2
+    appstudio.openshift.io/component: submariner-addon-acm-217
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "92692969306"
+    pac.test.appstudio.openshift.io/check-run-id: "92859521811"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: cluster-backup-operator-acm-217-on-push
-    pac.test.appstudio.openshift.io/pull-request: "1687"
-    pac.test.appstudio.openshift.io/repository: cluster-backup-operator-acm-210
-    pac.test.appstudio.openshift.io/sha: 8ceff95bf55e5f8e78de595a3677394b27f21a42
+    pac.test.appstudio.openshift.io/original-prname: submariner-addon-acm-217-on-push
+    pac.test.appstudio.openshift.io/repository: submariner-addon-acm-210
+    pac.test.appstudio.openshift.io/sha: 1b29009cff58caa937804aac6d2a6d58be72acdc
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: cluster-backup-operator
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1786039820"
+    pac.test.appstudio.openshift.io/url-repository: submariner-addon
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1786105006"
     test.appstudio.openshift.io/type: component
-  name: release-acm-217-20260806-175950-000
+  name: release-acm-217-20260807-120200-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -121,12 +87,36 @@ metadata:
     kind: Application
     name: release-acm-217
     uid: f6a47cb4-5edb-49df-b280-ca2ad71f1d6c
-  resourceVersion: "10424837279"
-  uid: 0fcf7a3c-0b57-45a2-9c79-014fbe58bea8
+  resourceVersion: "10440968237"
+  uid: b6a63498-b3ee-4e29-b29d-da1f01ceb5ff
 spec:
   application: release-acm-217
   artifacts: {}
   components:
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-217@sha256:61a40fea2ebb320c6bc284ba2d14e6d78db1ef0415737c984f536b28afee4b20
+    name: cert-policy-controller-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 16deb9fdb1374e5e1681c657c93027515540e2f3
+        url: https://github.com/stolostron/cert-policy-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-alertmanager-acm-217@sha256:3a2f3a0b5e8d63140671eebb139ebcc0129766f91a7cbf74cf6dd90fc642291b
+    name: prometheus-alertmanager-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 47b3ce857db88ec7b42d785b4e6840a166935123
+        url: https://github.com/stolostron/prometheus-alertmanager
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/endpoint-monitoring-operator-acm-217@sha256:34056da4365e516a888f8ad4284ff86bbdf5ec8bd58f3e7c97a77a529e2b7c25
+    name: endpoint-monitoring-operator-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: operators/endpointmetrics/Containerfile.operator
+        revision: 41b614528347096bfe96b60aae5c3d3c44a736fe
+        url: https://github.com/stolostron/multicluster-observability-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/volsync-addon-controller-acm-217@sha256:36fba43c49c01ff39ed321cdc27ec5dead50484e92e2b26a2aafbf5952256c9b
     name: volsync-addon-controller-acm-217
     source:
@@ -159,7 +149,7 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: 2eca960c03aabdf35f675c1ee1351e1f99f3ad98
         url: https://github.com/stolostron/insights-client
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/observatorium-operator-acm-217@sha256:15ba1316abacd70053bb6f1f72973b2ea5bb32a4d29cb4dfa365480542c3b82f
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/observatorium-operator-acm-217@sha256:9aea5cf39792fe472e1d5615013e00a465d3b6a93e72b098164ff9ea3bfb9603
     name: observatorium-operator-acm-217
     source:
       git:
@@ -260,6 +250,7 @@ spec:
     source:
       git:
         context: ./
+        dockerfileUrl: Dockerfile.rhtap
         revision: 8ceff95bf55e5f8e78de595a3677394b27f21a42
         url: https://github.com/stolostron/cluster-backup-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/must-gather-acm-217@sha256:98b0ba130fc28be851103b62a662ba90a6ae8507d90fdb31b4376c3c789e2ada
@@ -294,13 +285,12 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: 21c61cbb8cfd93ce11e1d8d83840d6b5f5ab4c45
         url: https://github.com/stolostron/observatorium
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-217@sha256:6eaff82c013fb46ef3a8b55b54c603b4e03060ec38f69452703b49d95091f54e
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-217@sha256:6c4b5cd128c5909da347263f2f25a53a0090198c5af3be4852035450f90f5116
     name: submariner-addon-acm-217
     source:
       git:
         context: ./
-        dockerfileUrl: Dockerfile.konflux
-        revision: 3aca21468cb8480d7ceb4596749fedfe531bad49
+        revision: 1b29009cff58caa937804aac6d2a6d58be72acdc
         url: https://github.com/stolostron/submariner-addon
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-cli-acm-217@sha256:27ef794b63bda66c54a4c658c9cddcedd1406e8e8787f467acdb3e0337c9b538
     name: acm-cli-acm-217
@@ -470,44 +460,20 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: eaad630ea31617430297026d3c505f09a6b39ae7
         url: https://github.com/stolostron/insights-metrics
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-217@sha256:61a40fea2ebb320c6bc284ba2d14e6d78db1ef0415737c984f536b28afee4b20
-    name: cert-policy-controller-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 16deb9fdb1374e5e1681c657c93027515540e2f3
-        url: https://github.com/stolostron/cert-policy-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-alertmanager-acm-217@sha256:3a2f3a0b5e8d63140671eebb139ebcc0129766f91a7cbf74cf6dd90fc642291b
-    name: prometheus-alertmanager-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 47b3ce857db88ec7b42d785b4e6840a166935123
-        url: https://github.com/stolostron/prometheus-alertmanager
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/endpoint-monitoring-operator-acm-217@sha256:34056da4365e516a888f8ad4284ff86bbdf5ec8bd58f3e7c97a77a529e2b7c25
-    name: endpoint-monitoring-operator-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: operators/endpointmetrics/Containerfile.operator
-        revision: 41b614528347096bfe96b60aae5c3d3c44a736fe
-        url: https://github.com/stolostron/multicluster-observability-operator
 status:
   conditions:
-  - lastTransitionTime: "2026-08-06T18:11:42Z"
+  - lastTransitionTime: "2026-08-07T12:17:56Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-08-06T18:11:42Z"
+  - lastTransitionTime: "2026-08-07T12:17:56Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-08-06T18:11:42Z"
+  - lastTransitionTime: "2026-08-07T12:17:56Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
