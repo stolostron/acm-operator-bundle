@@ -2,85 +2,72 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/grafana?rev=c5efe8896fdc8dd2891fb680f9031f950c9a1e9e
-    build.appstudio.redhat.com/commit_sha: c5efe8896fdc8dd2891fb680f9031f950c9a1e9e
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/multiclusterhub-operator?rev=e046dbac41933f9fee7da936e71578856388d7e6
+    build.appstudio.redhat.com/commit_sha: e046dbac41933f9fee7da936e71578856388d7e6
     build.appstudio.redhat.com/target_branch: release-2.16
     pac.test.appstudio.openshift.io/branch: release-2.16
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "92614593857"
+    pac.test.appstudio.openshift.io/check-run-id: "92685263655"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-dqixxo
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-adgbha
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/grafana-acm-216-on-push-wcrj2
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/multiclusterhub-operator-acm-216-on-push-7gcz2
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-2.16"
-    pac.test.appstudio.openshift.io/original-prname: grafana-acm-216-on-push
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/grafana
-    pac.test.appstudio.openshift.io/repository: grafana-acm-210
+    pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-216-on-push
+    pac.test.appstudio.openshift.io/pull-request: "4554"
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/multiclusterhub-operator
+    pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
     pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
-    pac.test.appstudio.openshift.io/sha: c5efe8896fdc8dd2891fb680f9031f950c9a1e9e
+    pac.test.appstudio.openshift.io/sha: e046dbac41933f9fee7da936e71578856388d7e6
     pac.test.appstudio.openshift.io/sha-title: |-
-      fix: update labels API usage for prometheus v0.305.3 compatibility
+      Update github.com/google/pprof digest to ef3492d (#4554)
 
-      Align with upstream grafana/grafana labels API patterns:
-
-      Production code (sender.go):
-      - Change `make(labels.Labels, ...)` to `make([]labels.Label, ...)`
-      - Return `labels.New(ls...)` instead of raw slice (matches upstream)
-
-      Test code:
-      - promql_compat_test.go: use `labels.FromStrings()` for Metric field
-      - sender_test.go: use `labels.New([]labels.Label{...}...)` for expected results
-
-      In prometheus v0.305.3, the default Labels type changed from []Label
-      (slice) to struct (stringlabels variant). Raw slice patterns and
-      make(labels.Labels) no longer compile. These changes are forward-
-      compatible — they work with both v0.303.1 and v0.305.3.
-
-      Related: ACM-36227
-
-      Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/grafana/commit/c5efe8896fdc8dd2891fb680f9031f950c9a1e9e
+      Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
+      Co-authored-by: red-hat-konflux[bot] <126015336+red-hat-konflux[bot]@users.noreply.github.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/multiclusterhub-operator/commit/e046dbac41933f9fee7da936e71578856388d7e6
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-2.16
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/grafana
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: grafana
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-08-06T13:53:36Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-216-release-acm-216-20260806-131104-000":{"lastUpdateTime":"2026-08-06T14:02:02.038828759Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-08-06T17:22:08Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-216-release-acm-216-20260806-171038-000":{"lastUpdateTime":"2026-08-06T17:23:08.608788321Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1786021864000"
-    test.appstudio.openshift.io/result-chains-git-commit: c5efe8896fdc8dd2891fb680f9031f950c9a1e9e
-    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/grafana
-    test.appstudio.openshift.io/result-image-digest: sha256:2d02c296ffb434585bf5c3cd6621c41c2d768017ab895c99696c075f47951a43
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-acm-216:c5efe8896fdc8dd2891fb680f9031f950c9a1e9e
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/grafana
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-216","status":"BuildPLRInProgress","lastUpdateTime":"2026-08-06T14:02:02.038828759Z","details":"Integration
-      test passed with warnings","startTime":"2026-08-06T13:53:37.174211645Z","completionTime":"2026-08-06T14:02:02.038828759Z","testPipelineRunName":"enterprise-contract-acm-216-9vnhc"}]'
-  creationTimestamp: "2026-08-06T13:53:37Z"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1786036238000"
+    test.appstudio.openshift.io/pr-status: merged
+    test.appstudio.openshift.io/result-chains-git-commit: e046dbac41933f9fee7da936e71578856388d7e6
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/multiclusterhub-operator
+    test.appstudio.openshift.io/result-image-digest: sha256:5e56b8f00117536aee60e773bfba79a50b5d375d4a3795ec3e5fd4abf895da26
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-216:e046dbac41933f9fee7da936e71578856388d7e6
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-216","status":"BuildPLRInProgress","lastUpdateTime":"2026-08-06T17:23:08.608788321Z","details":"Integration
+      test passed with warnings","startTime":"2026-08-06T17:22:08.923281329Z","completionTime":"2026-08-06T17:23:08.608788321Z","testPipelineRunName":"enterprise-contract-acm-216-wcnwc"}]'
+  creationTimestamp: "2026-08-06T17:22:08Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-216
-    appstudio.openshift.io/build-pipelinerun: grafana-acm-216-on-push-wcrj2
-    appstudio.openshift.io/component: grafana-acm-216
+    appstudio.openshift.io/build-pipelinerun: multiclusterhub-operator-acm-216-on-push-7gcz2
+    appstudio.openshift.io/component: multiclusterhub-operator-acm-216
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "92614593857"
+    pac.test.appstudio.openshift.io/check-run-id: "92685263655"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: grafana-acm-216-on-push
-    pac.test.appstudio.openshift.io/repository: grafana-acm-210
-    pac.test.appstudio.openshift.io/sha: c5efe8896fdc8dd2891fb680f9031f950c9a1e9e
+    pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-216-on-push
+    pac.test.appstudio.openshift.io/pull-request: "4554"
+    pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
+    pac.test.appstudio.openshift.io/sha: e046dbac41933f9fee7da936e71578856388d7e6
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: grafana
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1786024409"
+    pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1786036921"
     test.appstudio.openshift.io/type: component
-  name: release-acm-216-20260806-131104-000
+  name: release-acm-216-20260806-171038-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -89,12 +76,28 @@ metadata:
     kind: Application
     name: release-acm-216
     uid: 36e17c1d-3fe4-44ec-96e0-7fac572eda72
-  resourceVersion: "10419554775"
-  uid: 21147ce4-a409-47cc-993a-7ec8408d6ae2
+  resourceVersion: "10423897137"
+  uid: 44050f17-b8f2-4e2f-8a91-d3bc8e9d18b7
 spec:
   application: release-acm-216
   artifacts: {}
   components:
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/must-gather-acm-216@sha256:b88ea69c5d8cb96ebea9a206acb6de21d48bec58aa5673b51ea2eb53a663b789
+    name: must-gather-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 8bb44aa21ef6078cf080995f5be68eab28d5f3b0
+        url: https://github.com/stolostron/must-gather
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-operator-acm-216@sha256:af30c3d1ad82cb5eec298dd62c53f8c67de759d5e3a209e713168d2ce46fb897
+    name: search-v2-operator-acm-216
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 37a148fdbc5a4af4677b7def5546b7446ba1fe76
+        url: https://github.com/stolostron/search-v2-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-api-acm-216@sha256:eb91457dee5cc94c47ceffdd3987b86219a7884974a1e7632679e76119705af4
     name: search-v2-api-acm-216
     source:
@@ -327,13 +330,12 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: fb0690c70a09b357d5c79a186a58a5a21e0eb1c8
         url: https://github.com/stolostron/kube-rbac-proxy
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-216@sha256:138ed660b3bbeec163f7ded2e719493f22ce0a37388d7e97a9de4986b817527f
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-216@sha256:5e56b8f00117536aee60e773bfba79a50b5d375d4a3795ec3e5fd4abf895da26
     name: multiclusterhub-operator-acm-216
     source:
       git:
         context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: d11bc4b623ba04582a7f0f4c40194f6d8da62d62
+        revision: e046dbac41933f9fee7da936e71578856388d7e6
         url: https://github.com/stolostron/multiclusterhub-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-state-metrics-acm-216@sha256:fbcad8a56c7097bfb383be9a00d4d8db9a2a8f607eca50514d43cc4a93094234
     name: kube-state-metrics-acm-216
@@ -423,12 +425,13 @@ spec:
         dockerfileUrl: collectors/metrics/Containerfile.operator
         revision: cc8e6f90830509a49c5db9cfd769f505a0354b8f
         url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-acm-216@sha256:2d02c296ffb434585bf5c3cd6621c41c2d768017ab895c99696c075f47951a43
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-acm-216@sha256:53644a23462a33e5402b7a4cbf70c0c5807fe5ef226fbe44cc256b2b060305cb
     name: grafana-acm-216
     source:
       git:
         context: ./
-        revision: c5efe8896fdc8dd2891fb680f9031f950c9a1e9e
+        dockerfileUrl: Containerfile.operator
+        revision: f24df9dcb6234a05d829e0cbbd18bac1a3065958
         url: https://github.com/stolostron/grafana
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-216@sha256:1a453316fc8b6a9c74fcfa2e00cd60b5339c55aa56158242e6e03e77d7160086
     name: submariner-addon-acm-216
@@ -454,36 +457,20 @@ spec:
         dockerfileUrl: Dockerfile
         revision: 1f12a2455493cd29d0140ee45595b62ff4e86a6b
         url: https://github.com/stolostron/mtv-integrations
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/must-gather-acm-216@sha256:b88ea69c5d8cb96ebea9a206acb6de21d48bec58aa5673b51ea2eb53a663b789
-    name: must-gather-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 8bb44aa21ef6078cf080995f5be68eab28d5f3b0
-        url: https://github.com/stolostron/must-gather
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-operator-acm-216@sha256:af30c3d1ad82cb5eec298dd62c53f8c67de759d5e3a209e713168d2ce46fb897
-    name: search-v2-operator-acm-216
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 37a148fdbc5a4af4677b7def5546b7446ba1fe76
-        url: https://github.com/stolostron/search-v2-operator
 status:
   conditions:
-  - lastTransitionTime: "2026-08-06T14:02:14Z"
+  - lastTransitionTime: "2026-08-06T17:23:10Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-08-06T14:02:14Z"
+  - lastTransitionTime: "2026-08-06T17:23:10Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-08-06T14:02:14Z"
+  - lastTransitionTime: "2026-08-06T17:23:10Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
