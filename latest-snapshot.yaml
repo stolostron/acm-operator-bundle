@@ -2,74 +2,125 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/console?rev=4c28af26ee45942ed77f0ae95693aab45d7c550d
-    build.appstudio.redhat.com/commit_sha: 4c28af26ee45942ed77f0ae95693aab45d7c550d
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/mtv-integrations?rev=d688965b1af3545737482520b276f64796405c8a
+    build.appstudio.redhat.com/commit_sha: d688965b1af3545737482520b276f64796405c8a
     build.appstudio.redhat.com/target_branch: release-2.17
     pac.test.appstudio.openshift.io/branch: release-2.17
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "93802340801"
+    pac.test.appstudio.openshift.io/check-run-id: "93910567314"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-cydgcc
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-nqmonj
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/console-acm-217-on-push-cvvlq
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/mtv-integrations-acm-217-on-push-69qcg
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-2.17"
-    pac.test.appstudio.openshift.io/original-prname: console-acm-217-on-push
-    pac.test.appstudio.openshift.io/pull-request: "6672"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/console
-    pac.test.appstudio.openshift.io/repository: console
+    pac.test.appstudio.openshift.io/original-prname: mtv-integrations-acm-217-on-push
+    pac.test.appstudio.openshift.io/pull-request: "395"
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/mtv-integrations
+    pac.test.appstudio.openshift.io/repository: mtv-integrations-acm-215
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
-    pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
-    pac.test.appstudio.openshift.io/sha: 4c28af26ee45942ed77f0ae95693aab45d7c550d
+    pac.test.appstudio.openshift.io/sender: yiraeChristineKim
+    pac.test.appstudio.openshift.io/sha: d688965b1af3545737482520b276f64796405c8a
     pac.test.appstudio.openshift.io/sha-title: |-
-      fix: update postcss to 8.5.26 to fix CVE-2026-45623 [rhacm-2.17] (#6672)
+      fix(webhook): avoid shared mutable rest.Config across concurrent Plan admission requests (release-2.17) (#395)
 
-      Related: ACM-39357
+      * fix(webhook): avoid shared mutable rest.Config across concurrent Plan admission requests
 
-      Signed-off-by: Kate Barreiros <kbarreir@redhat.com>
+      The Plan validating webhook's admission handler closes over a single
+      rest.Config value and mutated its Impersonate field in place on every
+      request. Because controller-runtime invokes the handler concurrently
+      for different admission requests, this created a race: one request's
+      impersonation identity could be overwritten by another's before
+      dynamic.NewForConfig snapshotted it, letting an authorization check
+      run under the wrong user's identity.
+
+      Extract impersonatedConfig, which returns a fresh, independent copy of
+      the base config with Impersonate set for the current request's
+      UserInfo, so concurrent requests can no longer observe or clobber each
+      other's identity.
+
+      Add a concurrency regression test that exercises many goroutines under
+      -race and asserts the base config is never mutated by a call.
+
       Co-authored-by: Cursor <cursoragent@cursor.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/console/commit/4c28af26ee45942ed77f0ae95693aab45d7c550d
+
+      * fix(webhook): preserve UserInfo.Extra when building per-request impersonation config
+
+      impersonatedConfig dropped userInfo.Extra when building the
+      per-request rest.Config, so the authorization check ran with an
+      incomplete requester identity. Add copyExtra to translate
+      UserInfo.Extra (map[string]authenticationv1.ExtraValue) into the
+      map[string][]string shape rest.ImpersonationConfig.Extra expects,
+      copying value slices so the result never shares backing storage with
+      the admission request.
+
+      Extend the concurrency regression test to assert each goroutine's
+      Extra entry round-trips correctly, and add unit tests for copyExtra
+      covering nil/empty input and independence from the source map.
+
+      Addresses CodeRabbit review feedback on PR #394.
+
+      Co-authored-by: Cursor <cursoragent@cursor.com>
+
+      * test(webhook): assert full impersonated identity and add assertion messages
+
+      TestImpersonatedConfig_ConcurrentRequestsDoNotRace only checked
+      UserName and Extra, so a regression dropping Groups or UID would still
+      pass. Add checks for both.
+
+      Add descriptive failure messages to every Testify assertion in
+      TestCopyExtra so a failure explains what was expected and why it
+      matters.
+
+      Addresses further CodeRabbit review feedback on PR #394.
+
+      Co-authored-by: Cursor <cursoragent@cursor.com>
+
+      ---------
+
+      Co-authored-by: Cursor <cursoragent@cursor.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/mtv-integrations/commit/d688965b1af3545737482520b276f64796405c8a
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-2.17
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/mtv-integrations
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: console
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-08-11T14:11:42Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20260811-135327-000":{"lastUpdateTime":"2026-08-11T14:12:40.76316481Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: mtv-integrations
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-08-11T20:12:37Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20260811-200305-000":{"lastUpdateTime":"2026-08-11T20:13:35.885959691Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1786456407000"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1786478585000"
     test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/result-chains-git-commit: 4c28af26ee45942ed77f0ae95693aab45d7c550d
-    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/console
-    test.appstudio.openshift.io/result-image-digest: sha256:8f89442184045ae3500d74f7a915b5c0358aab8bfcc5e17b522bd980791768a1
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-217:4c28af26ee45942ed77f0ae95693aab45d7c550d
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"BuildPLRInProgress","lastUpdateTime":"2026-08-11T14:12:40.76316481Z","details":"Integration
-      test passed with warnings","startTime":"2026-08-11T14:11:42.361692811Z","completionTime":"2026-08-11T14:12:40.76316481Z","testPipelineRunName":"enterprise-contract-acm-217-kpp7h"}]'
-  creationTimestamp: "2026-08-11T14:11:42Z"
+    test.appstudio.openshift.io/result-chains-git-commit: d688965b1af3545737482520b276f64796405c8a
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/mtv-integrations
+    test.appstudio.openshift.io/result-image-digest: sha256:5e5b343ef2365f5bc69520599716d8cda19e4debdbb4a514958566e3ca1cde10
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-217:d688965b1af3545737482520b276f64796405c8a
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/mtv-integrations
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"BuildPLRInProgress","lastUpdateTime":"2026-08-11T20:13:35.885959691Z","details":"Integration
+      test passed with warnings","startTime":"2026-08-11T20:12:37.196513513Z","completionTime":"2026-08-11T20:13:35.885959691Z","testPipelineRunName":"enterprise-contract-acm-217-pv6k2"}]'
+  creationTimestamp: "2026-08-11T20:12:37Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-217
-    appstudio.openshift.io/build-pipelinerun: console-acm-217-on-push-cvvlq
-    appstudio.openshift.io/component: console-acm-217
+    appstudio.openshift.io/build-pipelinerun: mtv-integrations-acm-217-on-push-69qcg
+    appstudio.openshift.io/component: mtv-integrations-acm-217
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "93802340801"
+    pac.test.appstudio.openshift.io/check-run-id: "93910567314"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: console-acm-217-on-push
-    pac.test.appstudio.openshift.io/pull-request: "6672"
-    pac.test.appstudio.openshift.io/repository: console
-    pac.test.appstudio.openshift.io/sha: 4c28af26ee45942ed77f0ae95693aab45d7c550d
+    pac.test.appstudio.openshift.io/original-prname: mtv-integrations-acm-217-on-push
+    pac.test.appstudio.openshift.io/pull-request: "395"
+    pac.test.appstudio.openshift.io/repository: mtv-integrations-acm-215
+    pac.test.appstudio.openshift.io/sha: d688965b1af3545737482520b276f64796405c8a
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: console
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1786457495"
+    pac.test.appstudio.openshift.io/url-repository: mtv-integrations
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1786479151"
     test.appstudio.openshift.io/type: component
-  name: release-acm-217-20260811-135327-000
+  name: release-acm-217-20260811-200305-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -78,28 +129,12 @@ metadata:
     kind: Application
     name: release-acm-217
     uid: f6a47cb4-5edb-49df-b280-ca2ad71f1d6c
-  resourceVersion: "10514577701"
-  uid: 0cd4948c-364a-4096-bd2a-19631d6123dc
+  resourceVersion: "10520294178"
+  uid: 12444123-8cb7-4e90-9eaf-acc2762e9070
 spec:
   application: release-acm-217
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-217@sha256:61a40fea2ebb320c6bc284ba2d14e6d78db1ef0415737c984f536b28afee4b20
-    name: cert-policy-controller-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 16deb9fdb1374e5e1681c657c93027515540e2f3
-        url: https://github.com/stolostron/cert-policy-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-alertmanager-acm-217@sha256:3a2f3a0b5e8d63140671eebb139ebcc0129766f91a7cbf74cf6dd90fc642291b
-    name: prometheus-alertmanager-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 47b3ce857db88ec7b42d785b4e6840a166935123
-        url: https://github.com/stolostron/prometheus-alertmanager
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-state-metrics-acm-217@sha256:929fffedefa662616569b19a648d2b50fceee75bd58d92ef8f77c2a4dbeec4ef
     name: kube-state-metrics-acm-217
     source:
@@ -292,13 +327,13 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: c17c32c598edede03efd4ba9d0c4aa0e5f935ade
         url: https://github.com/stolostron/governance-policy-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-217@sha256:421fc776ff60dd410e0970956b838b4006175524f2ed264a6c79dc223f3abbef
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-217@sha256:f6622cb585c1d2043d5c26c4f853905b2243b270f323f6b248f7f57acc2ada4d
     name: multiclusterhub-operator-acm-217
     source:
       git:
         context: ./
         dockerfileUrl: build/Dockerfile.rhtap
-        revision: 01da5859c80f05d7e43ce060dd828fb3a800b17c
+        revision: aa7d6735116ee860d23659eeff653d35d6e426a7
         url: https://github.com/stolostron/multiclusterhub-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/volsync-addon-controller-acm-217@sha256:61d3827fc31a0d7df4ef6ec224c74318f4cf03d8f1e294373170496e11c3e8d4
     name: volsync-addon-controller-acm-217
@@ -380,13 +415,12 @@ spec:
         dockerfileUrl: loaders/dashboards/Containerfile.operator
         revision: 41b614528347096bfe96b60aae5c3d3c44a736fe
         url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-217@sha256:ed5ee6cbf4352348aea881f05bd552e90e041e6ddb9009451d0c4cdb548e0bd3
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-217@sha256:5e5b343ef2365f5bc69520599716d8cda19e4debdbb4a514958566e3ca1cde10
     name: mtv-integrations-acm-217
     source:
       git:
         context: ./
-        dockerfileUrl: Dockerfile
-        revision: 615f35dd257b16c3f639a4ba35e3b46b6f04bb99
+        revision: d688965b1af3545737482520b276f64796405c8a
         url: https://github.com/stolostron/mtv-integrations
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/thanos-receive-controller-acm-217@sha256:97cbfedc1084ebead37c222c4237b4051ac05163f31f8dd8afad1e657483986c
     name: thanos-receive-controller-acm-217
@@ -444,27 +478,44 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: e35556ad1573c57701e9353fe5b8972992ba1bef
         url: https://github.com/stolostron/kube-rbac-proxy
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-217@sha256:8f89442184045ae3500d74f7a915b5c0358aab8bfcc5e17b522bd980791768a1
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-217@sha256:63f7aa8c7e7dc1ab15e4ca6cd2b17958b2e38574c93f404f21d40c81a2ce9b17
     name: console-acm-217
     source:
       git:
         context: ./
-        revision: 4c28af26ee45942ed77f0ae95693aab45d7c550d
+        dockerfileUrl: Containerfile.acm.konflux
+        revision: 16ac39d6d650bb805274961883c28a1112317865
         url: https://github.com/stolostron/console
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-217@sha256:61a40fea2ebb320c6bc284ba2d14e6d78db1ef0415737c984f536b28afee4b20
+    name: cert-policy-controller-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 16deb9fdb1374e5e1681c657c93027515540e2f3
+        url: https://github.com/stolostron/cert-policy-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-alertmanager-acm-217@sha256:3a2f3a0b5e8d63140671eebb139ebcc0129766f91a7cbf74cf6dd90fc642291b
+    name: prometheus-alertmanager-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 47b3ce857db88ec7b42d785b4e6840a166935123
+        url: https://github.com/stolostron/prometheus-alertmanager
 status:
   conditions:
-  - lastTransitionTime: "2026-08-11T14:12:40Z"
+  - lastTransitionTime: "2026-08-11T20:13:35Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-08-11T14:12:40Z"
+  - lastTransitionTime: "2026-08-11T20:13:35Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-08-11T14:12:40Z"
+  - lastTransitionTime: "2026-08-11T20:13:36Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
