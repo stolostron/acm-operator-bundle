@@ -83,6 +83,8 @@ def aggregate_scan_results(json_dir):
                 'cve_id': cve_id,
                 'severity': severity,
                 'component': component_name,
+                'package': artifact.get('name', 'unknown'),
+                'package_type': artifact.get('type', 'unknown'),
                 'fixed_versions': vuln.get('fix', {}).get('versions', []),
                 'fixable': len(vuln.get('fix', {}).get('versions', [])) > 0
             })

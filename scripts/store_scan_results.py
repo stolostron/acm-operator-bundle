@@ -130,6 +130,7 @@ def extract_scan_summary_from_all(reports_dir):
                 'severity': severity,
                 'component': image_key,  # Now this is the image, not the package
                 'package': package_name,
+                'package_type': artifact.get('type', 'unknown'),
                 'fixed_versions': vuln.get('fix', {}).get('versions', []),
                 'fixable': len(vuln.get('fix', {}).get('versions', [])) > 0
             })

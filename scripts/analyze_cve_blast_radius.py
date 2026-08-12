@@ -25,6 +25,8 @@ def analyze_blast_radius(scan, top_n=10):
         fixable = detail.get('fixable', False)
         fixed_versions = detail.get('fixed_versions', [])
 
+        package_type = detail.get('package_type', 'unknown')
+
         if cve_id not in cve_map:
             cve_map[cve_id] = {
                 'cve_id': cve_id,
@@ -32,10 +34,12 @@ def analyze_blast_radius(scan, top_n=10):
                 'components': set(),
                 'fixable': fixable,
                 'fixed_versions': set(),
+                'package_types': set(),
                 'sample_detail': detail  # Keep one detail for description extraction
             }
 
         cve_map[cve_id]['components'].add(component)
+        cve_map[cve_id]['package_types'].add(package_type)
         # If ANY instance is fixable, mark as fixable
         if fixable:
             cve_map[cve_id]['fixable'] = True
@@ -65,6 +69,7 @@ def analyze_blast_radius(scan, top_n=10):
             'components': list(data['components']),
             'fixable': data['fixable'],
             'fix_display': fix_display,
+            'package_types': sorted(data['package_types']),
             'sample_detail': data['sample_detail']  # For description/CVSS extraction
         })
 
