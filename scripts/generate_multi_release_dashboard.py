@@ -792,6 +792,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 else if (cve.days_open > 30) daysOpenColor = '#f66a0a';
                 else if (cve.days_open > 7) daysOpenColor = '#fb8500';
 
+                const packageTypes = (cve.package_types || ['unknown']).join(', ');
+                const safePackageTypes = escapeHtml(packageTypes);
+
                 const row = document.createElement('tr');
                 row.className = `cve-row ${{fixableClass}}${{hiddenClass}}`;
                 row.dataset.cve = cve.cve_id;
@@ -800,12 +803,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 row.dataset.component = cve.component_count;
                 row.dataset.days = daysOpenValue;
                 row.dataset.fixable = cve.fixable ? '1' : '0';
+                row.dataset.source = packageTypes;
 
                 row.innerHTML = `
                     <td style="text-align: center; color: var(--text-secondary); font-size: 0.9em;">${{cve.index + 1}}</td>
                     <td>${{cveLink}}</td>
                     <td style="text-align: center;"><span class="severity-badge ${{severityClass}}">${{safeSeverity}}</span></td>
                     <td style="text-align: center; color: ${{cvssColor}}; font-weight: 600;">${{cvssDisplay}}</td>
+                    <td style="text-align: center; font-size: 0.85em; color: var(--text-secondary);"><code>${{safePackageTypes}}</code></td>
                     <td style="text-align: center;">${{cve.component_count}}</td>
                     <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{escapeHtml(cve.components.join(', '))}}">${{componentPreview}}</td>
                     <td style="text-align: center; color: ${{daysOpenColor}}; font-weight: 600;">${{daysOpen}}</td>
@@ -1353,8 +1358,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                             <th onclick="sortModalTable('${{tableId}}', 0, 'string')">CVE ID</th>
                             <th onclick="sortModalTable('${{tableId}}', 1, 'number')">Severity</th>
                             <th onclick="sortModalTable('${{tableId}}', 2, 'number')">CVSS</th>
-                            <th onclick="sortModalTable('${{tableId}}', 3, 'string')">Description</th>
-                            <th onclick="sortModalTable('${{tableId}}', 4, 'string')">Fix Available</th>
+                            <th onclick="sortModalTable('${{tableId}}', 3, 'string')">Source</th>
+                            <th onclick="sortModalTable('${{tableId}}', 4, 'string')">Description</th>
+                            <th onclick="sortModalTable('${{tableId}}', 5, 'string')">Fix Available</th>
                         </tr>
                     </thead>
                     <tbody>`;
@@ -1372,6 +1378,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 const safeCveId = escapeHtml(cve.cve_id);
                 const safeSeverity = escapeHtml(cve.severity);
                 const safeFixDisplay = escapeHtml(cve.fix_display);
+                const safePackageType = escapeHtml(cve.package_type || 'unknown');
 
                 let cveLink;
                 if (cve.cve_id.startsWith('CVE-')) {{
@@ -1383,10 +1390,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 }}
 
                 html += `
-                    <tr data-cve="${{safeCveId}}" data-severity="${{severityValue}}" data-cvss="${{cvssValue}}" data-description="${{description}}" data-fix="${{safeFixDisplay}}">
+                    <tr data-cve="${{safeCveId}}" data-severity="${{severityValue}}" data-cvss="${{cvssValue}}" data-description="${{description}}" data-fix="${{safeFixDisplay}}" data-packagetype="${{safePackageType}}">
                         <td>${{cveLink}}</td>
                         <td><span class="severity-badge ${{severityClass}}">${{safeSeverity}}</span></td>
                         <td style="text-align: center; color: ${{cvssColor}}; font-weight: 700;">${{cvssDisplay}}</td>
+                        <td style="font-size: 0.85em; color: var(--text-secondary);"><code>${{safePackageType}}</code></td>
                         <td style="font-size: 0.9em;">${{description}}</td>
                         <td style="text-align: center; font-size: 0.9em;">${{safeFixDisplay}}</td>
                     </tr>`;
@@ -1714,12 +1722,15 @@ def generate_component_cve_data_js(releases, cve_descriptions, output_dir):
             else:
                 fix_display = f"{fixed_versions[0]} (+{len(fixed_versions)-1} more)"
 
+            package_type = detail.get('package_type', 'unknown')
+
             comp_cve_map[component][cve_id] = {
                 'cve_id': cve_id,
                 'severity': severity,
                 'cvss_score': cvss_score,
                 'description': description,
-                'fix_display': fix_display
+                'fix_display': fix_display,
+                'package_type': package_type
             }
 
         # Store unique counts for each component
@@ -2075,6 +2086,8 @@ def extract_cve_table_data(latest_scan, cve_descriptions=None, history=None):
             now = datetime.now(timezone.utc)
             days_open = (now - first_seen).days
 
+        package_types = cve.get('package_types', ['unknown'])
+
         cve_data.append({
             'index': i,
             'cve_id': cve_id,
@@ -2084,7 +2097,8 @@ def extract_cve_table_data(latest_scan, cve_descriptions=None, history=None):
             'components': components,
             'fixable': fixable,
             'days_open': days_open,
-            'description': description
+            'description': description,
+            'package_types': package_types
         })
 
     return cve_data
@@ -2117,6 +2131,17 @@ def generate_combined_cve_table(latest_scan, tab_id, cve_descriptions=None, hist
                     </select>
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px;">
+                    <label for="sourceFilter-{tab_id}" style="font-weight: 600; font-size: 0.95em;">Source:</label>
+                    <select id="sourceFilter-{tab_id}" onchange="filterBySource{tab_id}(this.value)" style="padding: 10px 14px; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.95em; cursor: pointer; transition: border-color 0.2s; min-width: 160px;">
+                        <option value="">All Sources</option>
+                        <option value="rpm">RPM (Base Image)</option>
+                        <option value="go-module">Go Module</option>
+                        <option value="python">Python</option>
+                        <option value="java-archive">Java</option>
+                        <option value="npm">npm</option>
+                    </select>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
                     <label for="pageSize-{tab_id}" style="font-weight: 600; font-size: 0.95em;">Show:</label>
                     <select id="pageSize-{tab_id}" onchange="updatePageSize{tab_id}(this.value)" style="padding: 10px 14px; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.95em; cursor: pointer; transition: border-color 0.2s; min-width: 100px;">
                         <option value="10" selected>10</option>
@@ -2142,10 +2167,11 @@ def generate_combined_cve_table(latest_scan, tab_id, cve_descriptions=None, hist
                         <th onclick="sortCVETable{tab_id}(1, 'string')">CVE ID</th>
                         <th style="text-align: center;" onclick="sortCVETable{tab_id}(2, 'number')">Severity</th>
                         <th style="text-align: center;" onclick="sortCVETable{tab_id}(3, 'number')">CVSS</th>
-                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(4, 'number')">Components</th>
-                        <th onclick="sortCVETable{tab_id}(5, 'string')">Affected</th>
-                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(6, 'number')">Days Open</th>
-                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(7, 'number')">Fixable</th>
+                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(4, 'string')">Source</th>
+                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(5, 'number')">Components</th>
+                        <th onclick="sortCVETable{tab_id}(6, 'string')">Affected</th>
+                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(7, 'number')">Days Open</th>
+                        <th style="text-align: center;" onclick="sortCVETable{tab_id}(8, 'number')">Fixable</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -3003,29 +3029,30 @@ def generate_chart_data(release, history):
                 const pageSize = pageSizeSelect ? pageSizeSelect.value : '10';
                 const filterSelect = document.getElementById('fixableFilter-{tab_id}');
                 const activeFilter = filterSelect ? filterSelect.value : '';
+                const sourceSelect = document.getElementById('sourceFilter-{tab_id}');
+                const activeSource = sourceSelect ? sourceSelect.value : '';
                 const activeSeverity = window['activeCVESeverity_{tab_id}'] || null;
+
+                function passesAllFilters(row) {{
+                    const fixable = row.dataset.fixable === '1';
+                    const rowSeverity = row.querySelector('.severity-badge')?.textContent.trim();
+                    const rowSource = row.dataset.source || '';
+                    if (activeFilter === 'fixable' && !fixable) return false;
+                    if (activeFilter === 'unfixable' && fixable) return false;
+                    if (activeSeverity && rowSeverity !== activeSeverity) return false;
+                    if (activeSource && !rowSource.includes(activeSource)) return false;
+                    return true;
+                }}
 
                 // Count matching rows first
                 let matchingCount = 0;
                 cvesTable.querySelectorAll('tbody tr').forEach(row => {{
-                    const fixable = row.dataset.fixable === '1';
-                    const rowSeverity = row.querySelector('.severity-badge')?.textContent.trim();
-                    let passesFilter = true;
-                    if (activeFilter === 'fixable' && !fixable) passesFilter = false;
-                    if (activeFilter === 'unfixable' && fixable) passesFilter = false;
-                    if (activeSeverity && rowSeverity !== activeSeverity) passesFilter = false;
-                    if (passesFilter) matchingCount++;
+                    if (passesAllFilters(row)) matchingCount++;
                 }});
 
                 if (pageSize === 'all') {{
                     cvesTable.querySelectorAll('tbody tr').forEach(row => {{
-                        const fixable = row.dataset.fixable === '1';
-                        const rowSeverity = row.querySelector('.severity-badge')?.textContent.trim();
-                        let passesFilter = true;
-                        if (activeFilter === 'fixable' && !fixable) passesFilter = false;
-                        if (activeFilter === 'unfixable' && fixable) passesFilter = false;
-                        if (activeSeverity && rowSeverity !== activeSeverity) passesFilter = false;
-                        row.style.display = passesFilter ? 'table-row' : 'none';
+                        row.style.display = passesAllFilters(row) ? 'table-row' : 'none';
                     }});
                     updateCVECounter{tab_id}(matchingCount);
                     return;
@@ -3037,12 +3064,7 @@ def generate_chart_data(release, history):
 
                 let visibleIndex = 0;
                 cvesTable.querySelectorAll('tbody tr').forEach(row => {{
-                    const fixable = row.dataset.fixable === '1';
-                    const rowSeverity = row.querySelector('.severity-badge')?.textContent.trim();
-                    let passesFilter = true;
-                    if (activeFilter === 'fixable' && !fixable) passesFilter = false;
-                    if (activeFilter === 'unfixable' && fixable) passesFilter = false;
-                    if (activeSeverity && rowSeverity !== activeSeverity) passesFilter = false;
+                    const passesFilter = passesAllFilters(row);
 
                     if (passesFilter) {{
                         // Update # column
@@ -3117,10 +3139,12 @@ def generate_chart_data(release, history):
                 let matchIndex = 0;
                 cvesTable.querySelectorAll('tbody tr').forEach(row => {{
                     const cveId = row.dataset.cve.toLowerCase();
-                    const affectedCell = row.cells[5]; // Affected components column (adjusted for # column)
+                    const sourceCell = row.cells[4];
+                    const source = sourceCell ? sourceCell.textContent.toLowerCase() : '';
+                    const affectedCell = row.cells[6]; // Affected components column
                     const affected = affectedCell ? affectedCell.textContent.toLowerCase() : '';
 
-                    if (cveId.includes(searchTerm) || affected.includes(searchTerm)) {{
+                    if (cveId.includes(searchTerm) || affected.includes(searchTerm) || source.includes(searchTerm)) {{
                         matchIndex++;
                         const numberCell = row.cells[0];
                         if (numberCell) numberCell.textContent = matchIndex;
@@ -3142,6 +3166,12 @@ def generate_chart_data(release, history):
             // CVE fixable filter function
             window.filterByFixable{tab_id} = function(filter) {{
                 currentPageCVE{tab_id} = 1;  // Reset to page 1 when filter changes
+                applyPageCVE{tab_id}();
+            }};
+
+            // CVE source/package type filter function
+            window.filterBySource{tab_id} = function(filter) {{
+                currentPageCVE{tab_id} = 1;
                 applyPageCVE{tab_id}();
             }};
 
@@ -3168,7 +3198,7 @@ def generate_chart_data(release, history):
                     let aVal, bVal;
 
                     if (type === 'number') {{
-                        const dataAttr = ['', 'cve', 'severity', 'cvss', 'component', '', 'days', 'fixable'][columnIndex];
+                        const dataAttr = ['', 'cve', 'severity', 'cvss', 'source', 'component', '', 'days', 'fixable'][columnIndex];
                         aVal = parseFloat(a.dataset[dataAttr] || 0);
                         bVal = parseFloat(b.dataset[dataAttr] || 0);
                     }} else {{
@@ -3194,10 +3224,8 @@ def generate_chart_data(release, history):
                     // Re-apply search
                     searchCVEs{tab_id}(searchTerm);
                 }} else {{
-                    // Re-apply current filter/page size to maintain visibility
-                    const filterSelect = document.getElementById('fixableFilter-{tab_id}');
-                    const activeFilter = filterSelect ? filterSelect.value : '';
-                    filterByFixable{tab_id}(activeFilter);
+                    // Re-apply current filters/page size to maintain visibility
+                    applyPageCVE{tab_id}();
                 }}
             }};
 
