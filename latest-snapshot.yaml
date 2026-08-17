@@ -2,71 +2,94 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/siteconfig?rev=44811a2c976de8919983f0263085f6bc2ce7ed08
-    build.appstudio.redhat.com/commit_sha: 44811a2c976de8919983f0263085f6bc2ce7ed08
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/console?rev=559aa8a8538df755bed31af39bd84a1898a734a0
+    build.appstudio.redhat.com/commit_sha: 559aa8a8538df755bed31af39bd84a1898a734a0
     build.appstudio.redhat.com/target_branch: release-5.0
     pac.test.appstudio.openshift.io/branch: release-5.0
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "95301952369"
+    pac.test.appstudio.openshift.io/check-run-id: "95414097718"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-ymcnep
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-nwowmi
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/siteconfig-acm-50-on-push-mzrcm
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/console-acm-50-on-push-bj55g
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-5.0"
-    pac.test.appstudio.openshift.io/original-prname: siteconfig-acm-50-on-push
-    pac.test.appstudio.openshift.io/pull-request: "1258"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/siteconfig
-    pac.test.appstudio.openshift.io/repository: siteconfig-main
+    pac.test.appstudio.openshift.io/original-prname: console-acm-50-on-push
+    pac.test.appstudio.openshift.io/pull-request: "6695"
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/console
+    pac.test.appstudio.openshift.io/repository: console
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
     pac.test.appstudio.openshift.io/sender: acm-cicd-prow-bot
-    pac.test.appstudio.openshift.io/sha: 44811a2c976de8919983f0263085f6bc2ce7ed08
+    pac.test.appstudio.openshift.io/sha: 559aa8a8538df755bed31af39bd84a1898a734a0
     pac.test.appstudio.openshift.io/sha-title: |-
-      NO-ISSUE: Update module github.com/go-logr/logr to v1.4.4 (#1258)
+      ACM-40763: Fix whitespace-only cluster description rendering blank instead of dash (#6695)
 
-      Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/siteconfig/commit/44811a2c976de8919983f0263085f6bc2ce7ed08
+      * ACM-40763 Fix whitespace-only description rendering blank instead of dash
+
+      When the cluster description annotation contains only whitespace characters
+      (set via `oc annotate`), the overview page renders a blank value instead of
+      the expected "-" placeholder. Add `.trim()` to the truthiness check so
+      whitespace-only values fall through to the dash fallback.
+
+      Signed-off-by: Atif Shafi <ashafi@redhat.com>
+      Co-authored-by: Cursor <cursoragent@cursor.com>
+
+      * ACM-40763 Address review feedback: add a11y assertions and scope dash check
+
+      Add jest-axe accessibility assertions to both description tests (excluding
+      pre-existing violations in ClusterOverview). Scope the dash assertion
+      using within() on the description-list group instead of matching any
+      dash on the page.
+
+      Signed-off-by: Atif Shafi <ashafi@redhat.com>
+      Co-authored-by: Cursor <cursoragent@cursor.com>
+
+      ---------
+
+      Signed-off-by: Atif Shafi <ashafi@redhat.com>
+      Co-authored-by: Cursor <cursoragent@cursor.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/console/commit/559aa8a8538df755bed31af39bd84a1898a734a0
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-5.0
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/siteconfig
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: siteconfig
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-08-17T06:41:28Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-50-release-acm-50-20260817-062232-000":{"lastUpdateTime":"2026-08-17T06:42:26.668477708Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: console
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-08-17T14:41:05Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-50-release-acm-50-20260817-142052-000":{"lastUpdateTime":"2026-08-17T14:41:53.712649497Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1786947752000"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1786976452000"
     test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/result-chains-git-commit: 44811a2c976de8919983f0263085f6bc2ce7ed08
-    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/siteconfig
-    test.appstudio.openshift.io/result-image-digest: sha256:64e1bce2da3523d35e35f04c82c2784007b5744cbdb946a1b17a4e47b0f7c686
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/siteconfig-acm-50:44811a2c976de8919983f0263085f6bc2ce7ed08
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/siteconfig
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-50","status":"BuildPLRInProgress","lastUpdateTime":"2026-08-17T06:42:26.668477708Z","details":"Integration
-      test passed with warnings","startTime":"2026-08-17T06:41:28.742806692Z","completionTime":"2026-08-17T06:42:26.668477708Z","testPipelineRunName":"enterprise-contract-acm-50-qwf4k"}]'
-  creationTimestamp: "2026-08-17T06:41:28Z"
+    test.appstudio.openshift.io/result-chains-git-commit: 559aa8a8538df755bed31af39bd84a1898a734a0
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/console
+    test.appstudio.openshift.io/result-image-digest: sha256:988a16aae910bf82f7c73525312275fcd3e77b5336a22827b9c63ad05fc32a13
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-50:559aa8a8538df755bed31af39bd84a1898a734a0
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-50","status":"BuildPLRInProgress","lastUpdateTime":"2026-08-17T14:41:53.712649497Z","details":"Integration
+      test passed with warnings","startTime":"2026-08-17T14:41:06.263221869Z","completionTime":"2026-08-17T14:41:53.712649497Z","testPipelineRunName":"enterprise-contract-acm-50-ckvxc"}]'
+  creationTimestamp: "2026-08-17T14:41:05Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-50
-    appstudio.openshift.io/build-pipelinerun: siteconfig-acm-50-on-push-mzrcm
-    appstudio.openshift.io/component: siteconfig-acm-50
+    appstudio.openshift.io/build-pipelinerun: console-acm-50-on-push-bj55g
+    appstudio.openshift.io/component: console-acm-50
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "95301952369"
+    pac.test.appstudio.openshift.io/check-run-id: "95414097718"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: siteconfig-acm-50-on-push
-    pac.test.appstudio.openshift.io/pull-request: "1258"
-    pac.test.appstudio.openshift.io/repository: siteconfig-main
-    pac.test.appstudio.openshift.io/sha: 44811a2c976de8919983f0263085f6bc2ce7ed08
+    pac.test.appstudio.openshift.io/original-prname: console-acm-50-on-push
+    pac.test.appstudio.openshift.io/pull-request: "6695"
+    pac.test.appstudio.openshift.io/repository: console
+    pac.test.appstudio.openshift.io/sha: 559aa8a8538df755bed31af39bd84a1898a734a0
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: siteconfig
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1786948878"
+    pac.test.appstudio.openshift.io/url-repository: console
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1786977657"
     test.appstudio.openshift.io/type: component
-  name: release-acm-50-20260817-062232-000
+  name: release-acm-50-20260817-142052-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -75,27 +98,12 @@ metadata:
     kind: Application
     name: release-acm-50
     uid: 95420e61-ff03-40c3-a8b9-47011873be13
-  resourceVersion: "10613833192"
-  uid: 5489795b-2c92-4b13-bc83-a7191801efc9
+  resourceVersion: "10620612500"
+  uid: 7c31b5ae-e9db-40bd-a908-fba2c60eb55f
 spec:
   application: release-acm-50
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/siteconfig-acm-50@sha256:64e1bce2da3523d35e35f04c82c2784007b5744cbdb946a1b17a4e47b0f7c686
-    name: siteconfig-acm-50
-    source:
-      git:
-        context: ./
-        revision: 44811a2c976de8919983f0263085f6bc2ce7ed08
-        url: https://github.com/stolostron/siteconfig
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/rbac-query-proxy-acm-50@sha256:56d5f55152d3b70baaeafd8516a375d6a1923be0337c109bace3f09e510f1086
-    name: rbac-query-proxy-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: proxy/Containerfile.operator
-        revision: 785e3a49ebd8042bcbfaada304334394b29087aa
-        url: https://github.com/stolostron/multicluster-observability-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-50@sha256:3d0f7e1a9173c67269a2c90d11dc2eb82074feea9fee13b0d1b4fdbb810d7d3d
     name: klusterlet-addon-controller-acm-50
     source:
@@ -176,13 +184,12 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: f5ca3c2fc5b94d805802da0152efb5922415aa9e
         url: https://github.com/stolostron/cert-policy-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-50@sha256:85e50c8f4c1f5d135bb355f95eda047d539cbde15b03f30553ce014ffb230ee7
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-50@sha256:988a16aae910bf82f7c73525312275fcd3e77b5336a22827b9c63ad05fc32a13
     name: console-acm-50
     source:
       git:
         context: ./
-        dockerfileUrl: Containerfile.acm.konflux
-        revision: a44777df916a8442b83ab1a346dfe9ec74b8adcb
+        revision: 559aa8a8538df755bed31af39bd84a1898a734a0
         url: https://github.com/stolostron/console
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-acm-50@sha256:3eee6649b1db717292da74325b856fa4b41b72cab152879b5d9b94c96ebe4800
     name: grafana-acm-50
@@ -344,13 +351,13 @@ spec:
         dockerfileUrl: Dockerfile
         revision: 978af80c08645d54a89ceadf787d15582f87470b
         url: https://github.com/stolostron/mtv-integrations
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-addon-acm-50@sha256:0d6cf122978bad91a1064cebefe236fdb7cb469d7a89d4db118a1b3c44b5d46f
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-addon-acm-50@sha256:d1d62018dd455fe8712b17427c6e4f9891c27350c320b0b62f73f45377089dbe
     name: multicluster-observability-addon-acm-50
     source:
       git:
         context: ./
         dockerfileUrl: Dockerfile
-        revision: 19cd1a0896f60d1dada3bc2d7794e99e1202539a
+        revision: 042f9bc811813962cb589f3f580d5ba6db613389
         url: https://github.com/stolostron/multicluster-observability-addon
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/thanos-acm-50@sha256:c7072b51d63a23ea04eb2132d663b2c46f97f48050d41475fdae6e22f9b608b5
     name: thanos-acm-50
@@ -448,20 +455,36 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: 77cbb8341c6985a8c2067d7e45e971e3453ab140
         url: https://github.com/stolostron/kube-state-metrics
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/siteconfig-acm-50@sha256:64e1bce2da3523d35e35f04c82c2784007b5744cbdb946a1b17a4e47b0f7c686
+    name: siteconfig-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 44811a2c976de8919983f0263085f6bc2ce7ed08
+        url: https://github.com/stolostron/siteconfig
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/rbac-query-proxy-acm-50@sha256:56d5f55152d3b70baaeafd8516a375d6a1923be0337c109bace3f09e510f1086
+    name: rbac-query-proxy-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: proxy/Containerfile.operator
+        revision: 785e3a49ebd8042bcbfaada304334394b29087aa
+        url: https://github.com/stolostron/multicluster-observability-operator
 status:
   conditions:
-  - lastTransitionTime: "2026-08-17T06:42:26Z"
+  - lastTransitionTime: "2026-08-17T14:41:53Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-08-17T06:42:26Z"
+  - lastTransitionTime: "2026-08-17T14:41:53Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-08-17T06:42:26Z"
+  - lastTransitionTime: "2026-08-17T14:41:53Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
