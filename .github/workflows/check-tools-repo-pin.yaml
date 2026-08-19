@@ -1,0 +1,124 @@
+name: Check Tools Repo Pin
+
+# SECURITY NOTES:
+# 1. This workflow only reads the latest commit SHA from stolostron/release
+#    (via TOOLS_REPO_READER_APP_ID, a read-only-scoped token) and opens a PR
+#    if it differs from the currently pinned tools_repo_branch value.
+# 2. It never auto-merges: bumping the pin is a privileged supply-chain change
+#    (see tools/run-script-from-tools-repo) and must go through human review.
+# 3. Minimal GITHUB_TOKEN permissions (permissions: {}); PR creation uses a
+#    separate WORKFLOW_BOT_APP_ID token scoped to this repo only.
+
+on:
+  schedule:
+    - cron: '0 12 * * *'  # 8:00AM ET every day (UTC-4 during DST / UTC-5 otherwise)
+  workflow_dispatch: {}
+
+defaults:
+  run:
+    shell: bash
+
+permissions: {}
+
+jobs:
+  check-pin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Generate GitHub token to read release tools repo
+        id: gen-tools-repo-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.TOOLS_REPO_READER_APP_ID }}
+          private-key: ${{ secrets.TOOLS_REPO_READER_PRIVATE_KEY }}
+          owner: ${{ vars.TOOLS_REPO_OWNER }}
+          repositories: "release"
+
+      - name: Get latest release-tools commit
+        id: latest
+        env:
+          TOOLS_REPO_TOKEN: ${{ steps.gen-tools-repo-token.outputs.token }}
+          TOOLS_REPO_OWNER: ${{ vars.TOOLS_REPO_OWNER }}
+        run: |
+          LATEST_SHA=$(git ls-remote "https://x-access-token:${TOOLS_REPO_TOKEN}@github.com/${TOOLS_REPO_OWNER}/release.git" master | cut -f1)
+          if [[ ! "$LATEST_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "ERROR: Could not resolve a 40-hex commit SHA for ${TOOLS_REPO_OWNER}/release@master (got: '$LATEST_SHA')."
+            exit 1
+          fi
+          echo "sha=$LATEST_SHA" >> "$GITHUB_OUTPUT"
+          echo "Latest release-tools commit: $LATEST_SHA"
+
+      - name: Compare against pinned commit
+        id: compare
+        run: |
+          # Match the full line exactly (not just a leading prefix) so a malformed
+          # pin like "tools_repo_branch=<sha>garbage" can't be silently accepted as
+          # up to date when the shim/workflow would actually reject it.
+          mapfile -t pins < <(grep -xE 'tools_repo_branch=[0-9a-f]{40}' config/acm-bundle-pr-config-vars | cut -d= -f2)
+          if [[ "${#pins[@]}" -ne 1 ]]; then
+            echo "ERROR: config/acm-bundle-pr-config-vars must contain exactly one 'tools_repo_branch=<40-hex-sha>' line (found ${#pins[@]})."
+            exit 1
+          fi
+          CURRENT_SHA="${pins[0]}"
+          LATEST_SHA="${{ steps.latest.outputs.sha }}"
+
+          echo "Current pin: $CURRENT_SHA"
+          echo "Latest:      $LATEST_SHA"
+
+          if [[ "$CURRENT_SHA" == "$LATEST_SHA" ]]; then
+            echo "✓ Pin is already up to date"
+            echo "needs-update=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "needs-update=true" >> "$GITHUB_OUTPUT"
+            echo "current-sha=$CURRENT_SHA" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update pinned commit
+        if: steps.compare.outputs.needs-update == 'true'
+        run: |
+          sed -i "s/^tools_repo_branch=.*/tools_repo_branch=${{ steps.latest.outputs.sha }}/" config/acm-bundle-pr-config-vars
+
+      - name: Generate GitHub token for workflow actions
+        if: steps.compare.outputs.needs-update == 'true'
+        id: gen-workflow-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.WORKFLOW_BOT_APP_ID }}
+          private-key: ${{ secrets.WORKFLOW_BOT_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          # Scope the token to this repo only. Omitting 'repositories' while
+          # 'owner' is set grants access to every repo the app installation
+          # can see, which is broader than this PR-creation step needs.
+          repositories: ${{ github.event.repository.name }}
+
+      - name: Create Pull Request
+        if: steps.compare.outputs.needs-update == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          # Include the target SHA in the branch name rather than reusing a fixed
+          # branch: create-pull-request force-pushes/rebases a reused branch, which
+          # would silently rewrite an already-approved-but-unmerged PR's diff.
+          branch: "bump-tools-repo-pin-${{ steps.latest.outputs.sha }}"
+          base: "main"
+          delete-branch: true
+          title: "Bump pinned release-tools commit to ${{ steps.latest.outputs.sha }}"
+          body: |
+            The pinned `tools_repo_branch` commit in `config/acm-bundle-pr-config-vars` is
+            out of date with `stolostron/release@master`.
+
+            - **Previous pin:** `${{ steps.compare.outputs.current-sha }}`
+            - **New pin:** `${{ steps.latest.outputs.sha }}`
+            - **Compare:** https://github.com/stolostron/release/compare/${{ steps.compare.outputs.current-sha }}...${{ steps.latest.outputs.sha }}
+
+            This pin gates code that `tools/run-script-from-tools-repo` execs with this
+            repo's full build credentials. Please review the linked diff in
+            `stolostron/release` before merging.
+
+            This PR was opened automatically and requires manual review/merge — it is
+            never auto-merged.
+          author: ${{ vars.WORKFLOW_BOT_GIT_USER || 'github-actions[bot]' }} <${{ vars.WORKFLOW_BOT_GIT_USER || 'github-actions[bot]' }}@users.noreply.github.com>
+          token: ${{ steps.gen-workflow-token.outputs.token }}

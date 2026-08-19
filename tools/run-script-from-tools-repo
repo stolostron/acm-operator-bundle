@@ -56,6 +56,17 @@ if [[ -z "$tools_repo" ]] || [[ -z "$tools_repo_branch" ]]; then
   exit 3
 fi
 
+# SECURITY: Require tools_repo_branch to be a full 40-hex commit SHA. This shim
+# execs the fetched script with the workflow's full credential set inherited, so
+# a moving ref (branch/tag) would let any writer to that ref run arbitrary code
+# in this build. Pinning to a commit SHA gives content-addressed integrity over
+# the entire fetched tree. Bump the SHA in the config-vars file via reviewed PR.
+if [[ ! "$tools_repo_branch" =~ ^[0-9a-f]{40}$ ]]; then
+  echo "ERROR: Config variable tools_repo_branch must be a full 40-hex commit SHA"
+  echo "       (got '$tools_repo_branch'). Floating branch/tag refs are not allowed."
+  exit 3
+fi
+
 if [[ -z "$tools_repo_clone_dir" ]]; then
   echo "ERROR: Config variable tools_repo_clone_dir is not set."
   exit 3
@@ -142,6 +153,15 @@ if [[ ! -d "$tools_repo_clone_dir" ]]; then
    if [[ $git_checkout_rc -ne 0 ]]; then
       echo "ERROR: Could not checkout tools repo at FETCH_HEAD."
       exit 2
+  fi
+
+  # Verify the checked-out tree is exactly the pinned commit. This guards
+  # against the server resolving the requested SHA as a ref name and against
+  # any fetch-side substitution.
+  fetched_sha=$(git rev-parse HEAD)
+  if [[ "$fetched_sha" != "$tools_repo_branch" ]]; then
+     echo "ERROR: Tools repo HEAD ($fetched_sha) does not match pinned commit ($tools_repo_branch)."
+     exit 2
   fi
 else
    echo "In dev-test mode, using already-cloned tools repo (at $tools_repo_clone_dir)."

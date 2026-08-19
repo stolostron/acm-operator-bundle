@@ -1,6 +1,11 @@
 # Common tools repo and the branch we clone:
 tools_repo=stolostron/release # Assumed to be on GitHub.
-tools_repo_branch=master
+# Pinned to a specific commit SHA so that bundle-generation business logic
+# cannot be silently altered by a push to the tools repo's master branch.
+# Bump this pin deliberately (via PR to this repo) when picking up tools-repo
+# changes. run-script-from-tools-repo and mirror-external-images-workflow
+# both refuse mutable refs here.
+tools_repo_branch=9ee7a240a97f4033a82a9f9c6f05dd2957fbabd8
 
 # Spot where we clone tools. (clone spot should NOT be under work_dir)
 tools_repo_clone_dir="./release-tools"
