@@ -55,7 +55,15 @@ jobs:
       - name: Compare against pinned commit
         id: compare
         run: |
-          CURRENT_SHA=$(grep -oP '^tools_repo_branch=\K[0-9a-f]{40}' config/acm-bundle-pr-config-vars)
+          # Match the full line exactly (not just a leading prefix) so a malformed
+          # pin like "tools_repo_branch=<sha>garbage" can't be silently accepted as
+          # up to date when the shim/workflow would actually reject it.
+          mapfile -t pins < <(grep -xE 'tools_repo_branch=[0-9a-f]{40}' config/acm-bundle-pr-config-vars | cut -d= -f2)
+          if [[ "${#pins[@]}" -ne 1 ]]; then
+            echo "ERROR: config/acm-bundle-pr-config-vars must contain exactly one 'tools_repo_branch=<40-hex-sha>' line (found ${#pins[@]})."
+            exit 1
+          fi
+          CURRENT_SHA="${pins[0]}"
           LATEST_SHA="${{ steps.latest.outputs.sha }}"
 
           echo "Current pin: $CURRENT_SHA"
@@ -82,12 +90,19 @@ jobs:
           app-id: ${{ vars.WORKFLOW_BOT_APP_ID }}
           private-key: ${{ secrets.WORKFLOW_BOT_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
+          # Scope the token to this repo only. Omitting 'repositories' while
+          # 'owner' is set grants access to every repo the app installation
+          # can see, which is broader than this PR-creation step needs.
+          repositories: ${{ github.event.repository.name }}
 
       - name: Create Pull Request
         if: steps.compare.outputs.needs-update == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
-          branch: "bump-tools-repo-pin"
+          # Include the target SHA in the branch name rather than reusing a fixed
+          # branch: create-pull-request force-pushes/rebases a reused branch, which
+          # would silently rewrite an already-approved-but-unmerged PR's diff.
+          branch: "bump-tools-repo-pin-${{ steps.latest.outputs.sha }}"
           base: "main"
           delete-branch: true
           title: "Bump pinned release-tools commit to ${{ steps.latest.outputs.sha }}"

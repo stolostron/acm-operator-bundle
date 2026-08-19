@@ -125,15 +125,20 @@ jobs:
     - name: Read pinned release-tools commit
       id: tools-repo-pin
       run: |
-        # Source the same config that run-script-from-tools-repo uses so this
-        # workflow checks out release-tools at the exact same pinned commit.
-        # Refuse a mutable ref: a push to release@master must not be able to
-        # inject code that runs here with quay.io/acm-d push credentials.
-        source workflow/config/acm-bundle-pr-config-vars
-        if [[ ! "$tools_repo_branch" =~ ^[0-9a-f]{40}$ ]]; then
-          echo "ERROR: tools_repo_branch in config/acm-bundle-pr-config-vars must be a full 40-char commit SHA (got: $tools_repo_branch)."
+        # Parse (never `source`) the same config that run-script-from-tools-repo
+        # uses, so this workflow checks out release-tools at the exact same
+        # pinned commit. This step runs on workflow_run, where the config file
+        # comes from whatever branch triggered the upstream workflow; `source`-ing
+        # it would execute arbitrary shell from that branch before the SHA-format
+        # check below ever runs. Extract the single expected assignment as data
+        # instead, and refuse a mutable ref: a push to release@master must not be
+        # able to inject code that runs here with quay.io/acm-d push credentials.
+        mapfile -t tools_repo_pins < <(sed -nE 's/^tools_repo_branch=([0-9a-f]{40})$/\1/p' workflow/config/acm-bundle-pr-config-vars)
+        if [[ "${#tools_repo_pins[@]}" -ne 1 ]]; then
+          echo "ERROR: config/acm-bundle-pr-config-vars must contain exactly one 'tools_repo_branch=<40-hex-sha>' line (found ${#tools_repo_pins[@]})."
           exit 1
         fi
+        tools_repo_branch="${tools_repo_pins[0]}"
         echo "Release-tools repo pinned to commit: $tools_repo_branch"
         echo "sha=$tools_repo_branch" >> "$GITHUB_OUTPUT"
 
