@@ -122,6 +122,21 @@ jobs:
           config
         show-progress: false
 
+    - name: Read pinned release-tools commit
+      id: tools-repo-pin
+      run: |
+        # Source the same config that run-script-from-tools-repo uses so this
+        # workflow checks out release-tools at the exact same pinned commit.
+        # Refuse a mutable ref: a push to release@master must not be able to
+        # inject code that runs here with quay.io/acm-d push credentials.
+        source workflow/config/acm-bundle-pr-config-vars
+        if [[ ! "$tools_repo_branch" =~ ^[0-9a-f]{40}$ ]]; then
+          echo "ERROR: tools_repo_branch in config/acm-bundle-pr-config-vars must be a full 40-char commit SHA (got: $tools_repo_branch)."
+          exit 1
+        fi
+        echo "Release-tools repo pinned to commit: $tools_repo_branch"
+        echo "sha=$tools_repo_branch" >> "$GITHUB_OUTPUT"
+
     - name: Generate GitHub token to read release tools repo
       id: gen-tools-repo-token
       uses: actions/create-github-app-token@v1
@@ -135,7 +150,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: ${{ vars.TOOLS_REPO_OWNER }}/release
-        ref: master
+        ref: ${{ steps.tools-repo-pin.outputs.sha }}
         token: ${{ steps.gen-tools-repo-token.outputs.token }}
         path: release-tools
         sparse-checkout: |
