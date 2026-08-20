@@ -2,66 +2,266 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/observatorium-operator?rev=1282c4e8f536d2c3e862e92d616b87db8f220ecf
-    build.appstudio.redhat.com/commit_sha: 1282c4e8f536d2c3e862e92d616b87db8f220ecf
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/search-v2-operator?rev=042e988f2e7e28768872eb67fdb93fb78ee159c7
+    build.appstudio.redhat.com/commit_sha: 042e988f2e7e28768872eb67fdb93fb78ee159c7
     build.appstudio.redhat.com/target_branch: release-2.17
     pac.test.appstudio.openshift.io/branch: release-2.17
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "96427314612"
+    pac.test.appstudio.openshift.io/check-run-id: "96527105845"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
-    pac.test.appstudio.openshift.io/event-type: incoming
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-jlnqsm
+    pac.test.appstudio.openshift.io/event-type: push
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-gktgzo
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/observatorium-operator-acm-217-on-push-2qkjm
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/search-v2-operator-acm-217-on-push-dx5d4
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-2.17"
-    pac.test.appstudio.openshift.io/original-prname: observatorium-operator-acm-217-on-push
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/observatorium-operator
-    pac.test.appstudio.openshift.io/repository: observatorium-operator-acm-210
+    pac.test.appstudio.openshift.io/original-prname: search-v2-operator-acm-217-on-push
+    pac.test.appstudio.openshift.io/pull-request: "837"
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/search-v2-operator
+    pac.test.appstudio.openshift.io/repository: search-v2-operator-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
-    pac.test.appstudio.openshift.io/sender: incoming
-    pac.test.appstudio.openshift.io/sha: 1282c4e8f536d2c3e862e92d616b87db8f220ecf
-    pac.test.appstudio.openshift.io/sha-title: 'fix: regenerate deepcopy with current
-      controller-gen'
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/observatorium-operator/commit/1282c4e8f536d2c3e862e92d616b87db8f220ecf
-    pac.test.appstudio.openshift.io/source-branch: release-2.17
-    pac.test.appstudio.openshift.io/source-repo-url: ""
+    pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
+    pac.test.appstudio.openshift.io/sha: 042e988f2e7e28768872eb67fdb93fb78ee159c7
+    pac.test.appstudio.openshift.io/sha-title: |-
+      ACM-34432 Pre-provision search-api and search-collector ClusterRoles to remove impersonate from operator SA (#832) (#837)
+
+      * ACM-34432 Pre-provision search-api and search-collector ClusterRoles to remove impersonate from operator SA
+
+      The operator's manager-role carried 'impersonate' solely to satisfy Kubernetes
+      RBAC escalation prevention when creating the search-api ClusterRole at reconcile
+      time. Option B removes that coupling by pre-provisioning both the search-api and
+      search-collector ClusterRoles as static install-time manifests, letting the
+      operator hold only the narrower 'bind' verb to create the ClusterRoleBindings
+      that reference them.
+
+      Changes:
+      - Add config/rbac/search_api_clusterrole.yaml — the 'search-api' ClusterRole
+        (impersonate only, bound exclusively to search-api-serviceaccount) deployed as
+        a static manifest (bundle/manifests/search-api-clusterrole.yaml) by OLM or
+        via 'make install-operand-rbac' for development.
+      - Add config/rbac/search_collector_clusterrole.yaml — the 'search-collector'
+        ClusterRole (wildcard read + collectorconfigs/status patch + leases) deployed
+        as a static manifest (bundle/manifests/search-collector-clusterrole.yaml).
+      - Remove ClusterRole() / APIClusterRole() / CollectorClusterRole() methods and
+        getRules() / getAPIRules() / getCollectorRules() functions from
+        create_rolesbindings.go; operator no longer creates or updates these ClusterRoles.
+      - Remove SearchServiceAccount() and getServiceAccountName() — the shared
+        search-serviceaccount is no longer needed now that every deployment uses a
+        dedicated SA (search-api-sa, search-collector-sa, search-indexer-sa,
+        search-postgres-sa).
+      - Replace impersonate markers on the operator with a 'bind' marker scoped to
+        resourceNames=search-api;search-collector so the operator can create the
+        ClusterRoleBindings without holding any of the permissions those roles grant.
+      - Fix finalizer: stop deleting the pre-provisioned 'search-api' and
+        'search-collector' ClusterRoles on teardown (not operator-owned); add cleanup
+        for the search-api and search-collector ClusterRoleBindings.
+      - Fix deleteClusterRoleBinding: remove Namespace field — ClusterRoleBindings are
+        cluster-scoped; the fake client requires an empty namespace for correct lookup.
+      - Remove Watches(&rbacv1.ClusterRole{}) that watched only the now-removed shared
+        'search' ClusterRole for drift.
+      - Add make install-operand-rbac target for development clusters.
+      - Update tests: TestSearchAPIClusterRoleCarriesImpersonate reads the static YAML
+        files instead of calling the removed Go functions; TestSearch_controller asserts
+        on the APIClusterRoleBinding (not the now-pre-provisioned ClusterRole);
+        TestCreateUpdateRoles_UpdatesExistingClusterRole updated to use IndexerClusterRole.
+
+      | Capability | Before | After |
+      |---|---|---|
+      | 'impersonate' on operator SA | YES | NO — Removed |
+      | Create 'search-api' ClusterRole | YES (holds impersonate) | NO — Pre-provisioned |
+      | 'bind' on 'search-api' ClusterRole | — | YES scoped to resourceNames |
+
+      Jira: ACM-34432
+
+
+      * fix: resolve search-api and search-collector ClusterRole names at runtime
+
+      The ClusterRoleBinding RoleRef names and the 'bind' resourceNames were
+      hardcoded to "search-api" and "search-collector", which only works for OLM
+      and development installs. In Helm deployments (multiclusterhub-operator) the
+      bundle-automation prefixes every ClusterRole name with
+      "<org>:<chart>:" (e.g. "open-cluster-management:search-v2-operator:search-api"),
+      so the RoleRef would reference a ClusterRole that does not exist.
+
+      Fix: resolve the name at runtime by reading two env vars that the Helm chart
+      injects into the operator deployment:
+
+        OPERATOR_ORG   — e.g. "open-cluster-management"
+        OPERATOR_CHART — e.g. "search-v2-operator"
+
+      When both are set the operator builds the full prefixed name; when absent
+      (OLM, dev) it falls back to the plain "search-api" / "search-collector" names.
+      The multiclusterhub-operator Helm chart will be updated in a follow-up PR to
+      inject these two env vars.
+
+      Also remove the 'resourceNames' constraint from the 'bind' kubebuilder marker
+      and role.yaml for the same reason: the names are dynamic in the Helm path and
+      cannot be set statically in a generated manifest. The 'bind' verb is already
+      narrowly scoped — it only allows creating a ClusterRoleBinding that references
+      an existing role; it does not grant any of the permissions that role contains.
+
+
+
+      * fix: address CodeRabbit review comments
+
+      1. docs/RBAC.md — document complete search-api and search-collector
+         ClusterRole rules, including secrets/services permissions and the
+         uids/userextras resources that were missing from the RBAC docs.
+
+      2. controllers/common_test.go — replace raw YAML substring checks with
+         proper rbacv1.ClusterRole struct decoding. Introduce two shared
+         helpers (loadClusterRole, hasVerb) so both TestSearchAPIClusterRole-
+         CarriesImpersonate and TestCollectorClusterRoleMinimumPermissions
+         assert verb/resource associations correctly — substring matching
+         cannot associate a verb with a resource or detect that the wildcard
+         rule subsumes other resources.
+
+      3. controllers/search_controller.go — add a one-time migration in
+         cleanOnce.Do to remove legacy shared RBAC objects left on clusters
+         upgraded from pre-ACM-34432 releases: the shared 'search' ClusterRole
+         (which carried impersonate), its ClusterRoleBinding, and the
+         'search-serviceaccount' ServiceAccount. These objects are no longer
+         used and the lingering ClusterRole continued to grant impersonation
+         to an unmanaged ServiceAccount on upgraded clusters.
+
+
+
+      * docs: note Helm name override in bundle ClusterRole manifests
+
+      multiclusterhub-operator's bundle-automation renames every ClusterRole
+      it finds to '{{ .Values.org }}:{{ .Chart.Name }}:<name>'. Add a comment
+      to both bundle/manifests/search-api-clusterrole.yaml and
+      bundle/manifests/search-collector-clusterrole.yaml explaining this
+      rename and pointing to the OPERATOR_ORG / OPERATOR_CHART env var
+      mechanism the operator uses to resolve the full name at runtime.
+
+
+
+      * fix: delete and recreate ClusterRoleBinding when RoleRef changes
+
+      ClusterRoleBinding.roleRef is immutable in Kubernetes — an in-place
+      Update is rejected if roleRef differs. This matters because the RoleRef
+      name is now resolved at runtime from OPERATOR_ORG and OPERATOR_CHART
+      env vars, so it can differ between releases (e.g. a Helm chart rename).
+
+      Update createRoleBinding to:
+      1. Compare the existing RoleRef against the desired one.
+      2. If they differ: delete the stale binding and recreate with the new
+         RoleRef (preserving the current subject list from the desired object).
+      3. If RoleRef matches but Subjects differ: update in place as before.
+
+
+
+      * fix: address CodeRabbit security review comments
+
+      1. common_test.go — hasVerb: use exact API-group matching
+         Empty string ("") is the Kubernetes core API group, not a wildcard.
+         Remove the 'apiGroup == ""' short-circuit so the group is always
+         compared exactly. Add hasVerbAnyGroup() for prohibition checks where
+         the goal is to detect a grant regardless of API group.
+
+      2. common_test.go — TestCollectorClusterRoleMinimumPermissions: enforce
+         API groups for allowed write resources. Require collectorconfigs/status
+         writes to be in search.open-cluster-management.io and leases writes to
+         be in coordination.k8s.io only — a wildcard group is rejected.
+
+      3. search_controller.go — move legacy RBAC cleanup outside cleanOnce
+         so transient API errors trigger a reconcile retry rather than being
+         permanently skipped within the process lifetime. Returns an error to
+         the reconcile loop so the work is retried on the next pass.
+
+      4. create_rolesbindings.go — return non-NotFound Get errors from
+         createRoleBinding. A failed Get for any reason other than NotFound
+         previously fell through silently, reporting success while the binding
+         may have been missing or stale.
+
+
+
+      * fix: reject empty or wildcard APIGroups in collector write-verb test
+
+      The per-element loop allowed an empty APIGroups slice to pass both
+      the collectorconfigs/status and leases checks without error. Replace
+      with a single len==1 && value==expected assertion so empty slices,
+      wildcard groups, and multi-group rules are all rejected.
+
+
+
+      * fix: reduce search-api ClusterRole secrets/services access
+
+      The API pod only reads the named search-global Secret in each
+      managed-hub namespace (search-v2-api/pkg/federated/fedConfig.go).
+      It does not create, update, patch, list, watch, or delete Secrets or
+      Services — those operations are performed by the operator SA.
+
+      Remove the services rule and reduce secrets to get-only.
+      Update the comment and docs/RBAC.md to reflect the correct access pattern.
+
+
+
+      * fix: use known org/chart defaults when env vars are absent
+
+      Instead of falling back to plain 'search-api' / 'search-collector',
+      use the known defaults open-cluster-management and search-v2-operator
+      so the constructed name is always the fully-qualified prefixed form,
+      matching what multiclusterhub-operator creates in all install paths.
+
+      Also update the static YAML manifests (config/rbac/ and bundle/manifests/)
+      to use the same prefixed name so 'make install-operand-rbac' and the
+      OLM bundle apply the ClusterRole with the name the operator expects.
+
+
+
+      * Revert default names on clusterroles
+
+
+
+      ---------
+
+
+      (cherry picked from commit 2637c01266440ac4dfca2d8d25dd6491ae76199e)
+
+      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/search-v2-operator/commit/042e988f2e7e28768872eb67fdb93fb78ee159c7
+    pac.test.appstudio.openshift.io/source-branch: refs/heads/release-2.17
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/search-v2-operator
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: observatorium-operator
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-08-20T13:04:10Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20260820-124646-000":{"lastUpdateTime":"2026-08-20T13:33:17.218802477Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: search-v2-operator
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-08-20T18:07:07Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20260820-175650-000":{"lastUpdateTime":"2026-08-20T18:08:11.377514719Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1787230006000"
-    test.appstudio.openshift.io/result-chains-git-commit: 1282c4e8f536d2c3e862e92d616b87db8f220ecf
-    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/observatorium-operator
-    test.appstudio.openshift.io/result-image-digest: sha256:301d0aef32e1db8b63d9b6535aaed9c768bc1547694b86b54562c641e771905c
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/observatorium-operator-acm-217:1282c4e8f536d2c3e862e92d616b87db8f220ecf
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/observatorium-operator
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"BuildPLRInProgress","lastUpdateTime":"2026-08-20T13:33:17.218802477Z","details":"Integration
-      test passed with warnings","startTime":"2026-08-20T13:04:10.591368637Z","completionTime":"2026-08-20T13:33:17.218802477Z","testPipelineRunName":"enterprise-contract-acm-217-gjnk8"}]'
-  creationTimestamp: "2026-08-20T13:04:10Z"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1787248610000"
+    test.appstudio.openshift.io/pr-status: merged
+    test.appstudio.openshift.io/result-chains-git-commit: 042e988f2e7e28768872eb67fdb93fb78ee159c7
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/search-v2-operator
+    test.appstudio.openshift.io/result-image-digest: sha256:cc544968020efe10a5702ded9fb23db49b61b20200915a829b3ae11b08b880d0
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-operator-acm-217:042e988f2e7e28768872eb67fdb93fb78ee159c7
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/search-v2-operator
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"BuildPLRInProgress","lastUpdateTime":"2026-08-20T18:08:11.377514719Z","details":"Integration
+      test passed with warnings","startTime":"2026-08-20T18:07:07.828120459Z","completionTime":"2026-08-20T18:08:11.377514719Z","testPipelineRunName":"enterprise-contract-acm-217-8qpk9"}]'
+  creationTimestamp: "2026-08-20T18:07:07Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-217
-    appstudio.openshift.io/build-pipelinerun: observatorium-operator-acm-217-on-push-2qkjm
-    appstudio.openshift.io/component: observatorium-operator-acm-217
+    appstudio.openshift.io/build-pipelinerun: search-v2-operator-acm-217-on-push-dx5d4
+    appstudio.openshift.io/component: search-v2-operator-acm-217
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "96427314612"
-    pac.test.appstudio.openshift.io/event-type: incoming
-    pac.test.appstudio.openshift.io/original-prname: observatorium-operator-acm-217-on-push
-    pac.test.appstudio.openshift.io/repository: observatorium-operator-acm-210
-    pac.test.appstudio.openshift.io/sha: 1282c4e8f536d2c3e862e92d616b87db8f220ecf
+    pac.test.appstudio.openshift.io/check-run-id: "96527105845"
+    pac.test.appstudio.openshift.io/event-type: push
+    pac.test.appstudio.openshift.io/original-prname: search-v2-operator-acm-217-on-push
+    pac.test.appstudio.openshift.io/pull-request: "837"
+    pac.test.appstudio.openshift.io/repository: search-v2-operator-acm-210
+    pac.test.appstudio.openshift.io/sha: 042e988f2e7e28768872eb67fdb93fb78ee159c7
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: observatorium-operator
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1787231039"
+    pac.test.appstudio.openshift.io/url-repository: search-v2-operator
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1787249219"
     test.appstudio.openshift.io/type: component
-  name: release-acm-217-20260820-124646-000
+  name: release-acm-217-20260820-175650-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -70,28 +270,12 @@ metadata:
     kind: Application
     name: release-acm-217
     uid: f6a47cb4-5edb-49df-b280-ca2ad71f1d6c
-  resourceVersion: "10689895812"
-  uid: c2cd78e8-e92b-4c37-ad83-7b1fe35e433a
+  resourceVersion: "10695236560"
+  uid: 4975cd7f-570e-40b2-a525-58d1395ee111
 spec:
   application: release-acm-217
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-operator-acm-217@sha256:016817332f923ab84f5e7913daed1095334724cc3d550bb80f09d5fc52289b57
-    name: multicluster-observability-operator-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: operators/multiclusterobservability/Containerfile.operator
-        revision: abee03e4bd59366df634fd5978522cf5f16714d0
-        url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-rbac-proxy-acm-217@sha256:7380eb1864b5fbf6977fc4d9c91c73ba5062183cb8fcd41ab064540ba5bb757a
-    name: kube-rbac-proxy-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: cc2e4a9097f8e06fff2fd85409d969eec518ccb4
-        url: https://github.com/stolostron/kube-rbac-proxy
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/siteconfig-acm-217@sha256:fd327e1599984803b9345a0f38595befbce3fd2455b12508c25ee7dc87a211a2
     name: siteconfig-acm-217
     source:
@@ -100,13 +284,12 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: 5c166870bf95b7671c7aae392f4318a00fe0ef7b
         url: https://github.com/stolostron/siteconfig
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-operator-acm-217@sha256:e8fa046d6973cad2128712d10396d4a017cce842f1ab95b20914ace35c3ba143
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-operator-acm-217@sha256:cc544968020efe10a5702ded9fb23db49b61b20200915a829b3ae11b08b880d0
     name: search-v2-operator-acm-217
     source:
       git:
         context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 6048759eabb7a89f7f401ddc789e4004517183c1
+        revision: 042e988f2e7e28768872eb67fdb93fb78ee159c7
         url: https://github.com/stolostron/search-v2-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-backup-operator-acm-217@sha256:6037b84214ed5441df2f100d85c23d3cce92899d26013c207574827b6ee2cbd9
     name: cluster-backup-operator-acm-217
@@ -124,13 +307,13 @@ spec:
         dockerfileUrl: Dockerfile.konflux
         revision: 44c05ead3711660c23e0cc501e6901ec33cbee9c
         url: https://github.com/stolostron/submariner-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-217@sha256:6d6c42878d9fb2e8baccaf25d79f28a2ce5976ec4a666365ebd39a8e1f6d4915
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-217@sha256:dd76d9cc5ed17907b00be20c8c6e50cff18d57dffaf3328eff465b27027a1c21
     name: multicluster-operators-application-acm-217
     source:
       git:
         context: ./
         dockerfileUrl: build/Dockerfile.rhtap
-        revision: 4ac94b113fe685a3ab0663dcd6b72ddc043bd60d
+        revision: fbb5126cb94f289f4f248c059a7d99b6005ba87c
         url: https://github.com/stolostron/multicloud-operators-application
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-217@sha256:2be7f70e780e5bced31ca6a624e33b22f7c573e622af7d5ec251dc882934b336
     name: cert-policy-controller-acm-217
@@ -164,13 +347,13 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: b120ca6f6147825543f885c83e9004491e5b816d
         url: https://github.com/stolostron/klusterlet-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-channel-acm-217@sha256:9cdc29d46add4663cc1ceabd2caf3eff88dbdad4350c310d0c5d41ee4cb6f47f
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-channel-acm-217@sha256:b9c7fef17e33f1c5908b45459dbbe65ef1d60912079a60f08ef707763e5ee1a4
     name: multicluster-operators-channel-acm-217
     source:
       git:
         context: ./
         dockerfileUrl: build/Dockerfile.rhtap
-        revision: 3bb4cf6f16c6694efa30b8f49b4ab80ecfe4c09e
+        revision: 42beeec949fa3d4efd16626855acf3251e7a86d5
         url: https://github.com/stolostron/multicloud-operators-channel
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-propagator-acm-217@sha256:a987ddd339a9797599a3708a7c56501035f52fc37b02563b12c6f180e6666dad
     name: governance-policy-propagator-acm-217
@@ -180,21 +363,21 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: 960dcb147de2c88f74b1a91796657aabd2ac78a5
         url: https://github.com/stolostron/governance-policy-propagator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicloud-integrations-acm-217@sha256:0264f476a739667eb0fa7ba41896b8a059f8f204937ac41a91af7a0fd9633417
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicloud-integrations-acm-217@sha256:c8fbe02cab10b414050d7c9a053e87738d11b573bd0f1c9e322d67be6bb6e038
     name: multicloud-integrations-acm-217
     source:
       git:
         context: ./
         dockerfileUrl: build/Dockerfile.rhtap
-        revision: 7145daaac71957b83c1617c55eb239653903e2e3
+        revision: 3afb18962bcee0dde2198144101c1ec2331fcb34
         url: https://github.com/stolostron/multicloud-integrations
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-subscription-acm-217@sha256:d16ecd349257d5cdd1118d4b4626afc656d53b38df6d89b3d8606dc3356c7dac
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-subscription-acm-217@sha256:5a86e9ab61ea67f2aeb9f1f6f0422d3cf13eed5539d93c2ecb63366eb9e79fe6
     name: multicluster-operators-subscription-acm-217
     source:
       git:
         context: ./
         dockerfileUrl: build/Dockerfile.rhtap
-        revision: 12143f9788332ba12958f60eab1bcfbe582e6d0d
+        revision: 65fb1974802267b5d6e56001f411d08acdf42abf
         url: https://github.com/stolostron/multicloud-operators-subscription
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-collector-acm-217@sha256:62557ec454e0992490ab458e1fcc0b41cc78bdce1d50a329ad6e950a17c4d626
     name: search-collector-acm-217
@@ -281,6 +464,7 @@ spec:
     source:
       git:
         context: ./
+        dockerfileUrl: Containerfile.operator
         revision: 1282c4e8f536d2c3e862e92d616b87db8f220ecf
         url: https://github.com/stolostron/observatorium-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/insights-metrics-acm-217@sha256:b2e3c454e7ac980d221744326a1e0440f86057cdfd30276f78832b77322501b7
@@ -323,13 +507,13 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: 1b6b121c5a91abeddd08c24e0153f8a03ed1fa74
         url: https://github.com/stolostron/must-gather
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-217@sha256:f15242083e5b243bd5490d9195ac348c35b4bd6f3845efbce923c07db9cc1f0a
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-217@sha256:5514c589b771fa81193531aa52082b891e58d3d1fd13562cc63e4a75331dd04f
     name: search-indexer-acm-217
     source:
       git:
         context: ./
         dockerfileUrl: Dockerfile.rhtap
-        revision: 0b4f79c27e4ada7e1162a505f1a840de61479179
+        revision: e34d36381be848a4814a7b74869d71ee831c8a13
         url: https://github.com/stolostron/search-indexer
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-config-reloader-acm-217@sha256:30c7027e02bf4493a76de9ea55e265fae93de4ff8612fc49e58662185fde6876
     name: prometheus-config-reloader-acm-217
@@ -363,7 +547,7 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: ba583f774fc046cf9fd45cad6c76c41c1ddfaf58
         url: https://github.com/stolostron/insights-client
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-acm-217@sha256:b38cc4d9463eb967154c8dc732c39b226ae7867c7785a645699938b4d3ad299d
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-acm-217@sha256:77a84719b5b40207261833b6b5b9a6bdf8926faf73825c2cc3d696d7cfab170a
     name: grafana-acm-217
     source:
       git:
@@ -411,15 +595,15 @@ spec:
         dockerfileUrl: Containerfile.prom-operator
         revision: beee7c8ec768b31ca0268305a4d103974f348d58
         url: https://github.com/stolostron/obo-prometheus-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-217@sha256:e8b16dafe54636561934fcc27c9b364d7d862917a582ae1be58ed06a4757628e
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-217@sha256:5e5eae862e8d871ccec290de518be98bce7f85fa2381f456c9c55f589e971f20
     name: multiclusterhub-operator-acm-217
     source:
       git:
         context: ./
         dockerfileUrl: build/Dockerfile.rhtap
-        revision: 260407d75a0e7a0900e8f4c7ad14bfae3e64253e
+        revision: db20e8e1b7f4739d56938acd3cc8d53a1e01a6d3
         url: https://github.com/stolostron/multiclusterhub-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-acm-217@sha256:1c16b16a37b10fd27b790aa98bc11f02d33b550e2f9f83a5c1b0040c024d88ba
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-acm-217@sha256:ea7cb550fc5b5ab0c3b4f6f018495357ce2c6ab5fd08862c2c992cfdb0966a91
     name: prometheus-acm-217
     source:
       git:
@@ -427,7 +611,7 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: db583c04644b085e6121951c986aac0b63618568
         url: https://github.com/stolostron/prometheus
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/node-exporter-acm-217@sha256:0ec1d368408526af5b1166df453a6668663312d1dc19be0762ba4281033347e1
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/node-exporter-acm-217@sha256:b31a2ac1a1b8f409f6cbf27ca721d4b2a5a3c6c8c7a7a3c849df75f30b74673d
     name: node-exporter-acm-217
     source:
       git:
@@ -443,20 +627,36 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: 21c61cbb8cfd93ce11e1d8d83840d6b5f5ab4c45
         url: https://github.com/stolostron/observatorium
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-operator-acm-217@sha256:016817332f923ab84f5e7913daed1095334724cc3d550bb80f09d5fc52289b57
+    name: multicluster-observability-operator-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: operators/multiclusterobservability/Containerfile.operator
+        revision: abee03e4bd59366df634fd5978522cf5f16714d0
+        url: https://github.com/stolostron/multicluster-observability-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-rbac-proxy-acm-217@sha256:7380eb1864b5fbf6977fc4d9c91c73ba5062183cb8fcd41ab064540ba5bb757a
+    name: kube-rbac-proxy-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: cc2e4a9097f8e06fff2fd85409d969eec518ccb4
+        url: https://github.com/stolostron/kube-rbac-proxy
 status:
   conditions:
-  - lastTransitionTime: "2026-08-20T13:33:17Z"
+  - lastTransitionTime: "2026-08-20T18:08:11Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-08-20T13:33:17Z"
+  - lastTransitionTime: "2026-08-20T18:08:11Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-08-20T13:33:17Z"
+  - lastTransitionTime: "2026-08-20T18:08:11Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
