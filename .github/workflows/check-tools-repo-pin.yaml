@@ -41,10 +41,10 @@ jobs:
       - name: Get latest release-tools commit
         id: latest
         env:
-          TOOLS_REPO_TOKEN: ${{ steps.gen-tools-repo-token.outputs.token }}
+          GH_TOKEN: ${{ steps.gen-tools-repo-token.outputs.token }}
           TOOLS_REPO_OWNER: ${{ vars.TOOLS_REPO_OWNER }}
         run: |
-          LATEST_SHA=$(git ls-remote "https://x-access-token:${TOOLS_REPO_TOKEN}@github.com/${TOOLS_REPO_OWNER}/release.git" master | cut -f1)
+          LATEST_SHA=$(gh api "repos/${TOOLS_REPO_OWNER}/release/commits/master" --jq '.sha')
           if [[ ! "$LATEST_SHA" =~ ^[0-9a-f]{40}$ ]]; then
             echo "ERROR: Could not resolve a 40-hex commit SHA for ${TOOLS_REPO_OWNER}/release@master (got: '$LATEST_SHA')."
             exit 1
