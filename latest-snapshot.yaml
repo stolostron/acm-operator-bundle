@@ -2,72 +2,73 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/multiclusterhub-operator?rev=889b759b9a404ffe9f3b919ba6e9a5c772fb8207
-    build.appstudio.redhat.com/commit_sha: 889b759b9a404ffe9f3b919ba6e9a5c772fb8207
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/submariner-addon?rev=c9fcf6ce1b4ef0c17b9cf9e74044b2efc60bbe3b
+    build.appstudio.redhat.com/commit_sha: c9fcf6ce1b4ef0c17b9cf9e74044b2efc60bbe3b
     build.appstudio.redhat.com/target_branch: release-2.15
     pac.test.appstudio.openshift.io/branch: release-2.15
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "96801921815"
+    pac.test.appstudio.openshift.io/check-run-id: "96959018498"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-hdybhl
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-japdkn
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/multiclusterhub-operator-acm-215-on-push-f9hgc
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/submariner-addon-acm-215-on-push-25zcf
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-2.15"
-    pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-215-on-push
-    pac.test.appstudio.openshift.io/pull-request: "4653"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/multiclusterhub-operator
-    pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
+    pac.test.appstudio.openshift.io/original-prname: submariner-addon-acm-215-on-push
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/submariner-addon
+    pac.test.appstudio.openshift.io/repository: submariner-addon-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
-    pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
-    pac.test.appstudio.openshift.io/sha: 889b759b9a404ffe9f3b919ba6e9a5c772fb8207
+    pac.test.appstudio.openshift.io/sender: tpantelis
+    pac.test.appstudio.openshift.io/sha: c9fcf6ce1b4ef0c17b9cf9e74044b2efc60bbe3b
     pac.test.appstudio.openshift.io/sha-title: |-
-      [create-pull-request] automated change (#4653)
+      Deploy webhook resources as standalone OLM bundle manifests
 
-      Signed-off-by: GitHub <noreply@github.com>
-      Co-authored-by: openshift-merge-bot <openshift-merge-bot@users.noreply.github.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/multiclusterhub-operator/commit/889b759b9a404ffe9f3b919ba6e9a5c772fb8207
+      Move webhook Service and ValidatingWebhookConfiguration directly into
+      the OLM bundle manifests directory. operator-sdk doesn't include these
+      resources in bundles, so they need to be hand-maintained alongside
+      the generated CSV and CRDs.
+
+      Signed-off-by: Tom Pantelis <tompantelis@gmail.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/submariner-addon/commit/c9fcf6ce1b4ef0c17b9cf9e74044b2efc60bbe3b
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-2.15
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/submariner-addon
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-08-21T14:35:39Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-215-release-acm-215-20260821-142600-000":{"lastUpdateTime":"2026-08-21T14:36:24.430618411Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: submariner-addon
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-08-22T01:50:50Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-215-release-acm-215-20260822-013658-000":{"lastUpdateTime":"2026-08-22T01:51:38.443352841Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1787322360000"
-    test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/result-chains-git-commit: 889b759b9a404ffe9f3b919ba6e9a5c772fb8207
-    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/multiclusterhub-operator
-    test.appstudio.openshift.io/result-image-digest: sha256:8691a86e0993b61b8644b47f78ea08663c84631edee8dd7d78509c5e9053a1f6
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-215:889b759b9a404ffe9f3b919ba6e9a5c772fb8207
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-215","status":"BuildPLRInProgress","lastUpdateTime":"2026-08-21T14:36:24.430618411Z","details":"Integration
-      test passed with warnings","startTime":"2026-08-21T14:35:39.789996121Z","completionTime":"2026-08-21T14:36:24.430618411Z","testPipelineRunName":"enterprise-contract-acm-215-vnn5p"}]'
-  creationTimestamp: "2026-08-21T14:35:39Z"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1787362618000"
+    test.appstudio.openshift.io/result-chains-git-commit: c9fcf6ce1b4ef0c17b9cf9e74044b2efc60bbe3b
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/submariner-addon
+    test.appstudio.openshift.io/result-image-digest: sha256:f3e0c038c1a0e421692d657ff6ec9490bfcc6a1a07a33ee0ce647ba89a8c5dc5
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-215:c9fcf6ce1b4ef0c17b9cf9e74044b2efc60bbe3b
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/submariner-addon
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-215","status":"BuildPLRInProgress","lastUpdateTime":"2026-08-22T01:51:38.443352841Z","details":"Integration
+      test passed with warnings","startTime":"2026-08-22T01:50:50.721848003Z","completionTime":"2026-08-22T01:51:38.443352841Z","testPipelineRunName":"enterprise-contract-acm-215-ffdk4"}]'
+  creationTimestamp: "2026-08-22T01:50:50Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-215
-    appstudio.openshift.io/build-pipelinerun: multiclusterhub-operator-acm-215-on-push-f9hgc
-    appstudio.openshift.io/component: multiclusterhub-operator-acm-215
+    appstudio.openshift.io/build-pipelinerun: submariner-addon-acm-215-on-push-25zcf
+    appstudio.openshift.io/component: submariner-addon-acm-215
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "96801921815"
+    pac.test.appstudio.openshift.io/check-run-id: "96959018498"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-215-on-push
-    pac.test.appstudio.openshift.io/pull-request: "4653"
-    pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
-    pac.test.appstudio.openshift.io/sha: 889b759b9a404ffe9f3b919ba6e9a5c772fb8207
+    pac.test.appstudio.openshift.io/original-prname: submariner-addon-acm-215-on-push
+    pac.test.appstudio.openshift.io/repository: submariner-addon-acm-210
+    pac.test.appstudio.openshift.io/sha: c9fcf6ce1b4ef0c17b9cf9e74044b2efc60bbe3b
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1787322933"
+    pac.test.appstudio.openshift.io/url-repository: submariner-addon
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1787363443"
     test.appstudio.openshift.io/type: component
-  name: release-acm-215-20260821-142600-000
+  name: release-acm-215-20260822-013658-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -76,12 +77,131 @@ metadata:
     kind: Application
     name: release-acm-215
     uid: 100ebaae-96cc-48d3-9c2d-540e1b991216
-  resourceVersion: "10716778616"
-  uid: ed710a7c-d57f-4764-8537-603e79e20dda
+  resourceVersion: "10726849947"
+  uid: e144923e-daee-4b48-83ca-3b401e10306b
 spec:
   application: release-acm-215
   artifacts: {}
   components:
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-215@sha256:05d824ce48200c4220c45411f7cd5a5b857ad4349c2fcc6d0d67d61e6c1f6a1a
+    name: search-indexer-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: f77f448d747a359cfc8b488b5c8d2fb141b7d5f4
+        url: https://github.com/stolostron/search-indexer
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-permission-acm-215@sha256:4175bdf3c24796ccb4afe995cb2e63963dccb83d02c5b693ae1728e9004faf7d
+    name: cluster-permission-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: bc88144c82b4e3cdb677c211dd3851c1af36b4ee
+        url: https://github.com/stolostron/cluster-permission
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/rbac-query-proxy-acm-215@sha256:ff40d744ff6a210da6cbe965ff291ca000e2626b495b6690fde7838f80b85c21
+    name: rbac-query-proxy-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: proxy/Containerfile.operator
+        revision: 0c57d56244ecae5d3c4c37d762169720f8e3c5d5
+        url: https://github.com/stolostron/multicluster-observability-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-215@sha256:359932e83559c22c877b12b4753bee8e967a7fa9cda19fc20568b5956469411c
+    name: klusterlet-addon-controller-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 5db4725f79eb0e5a39d1e1da70e79c19e0f8b8a4
+        url: https://github.com/stolostron/klusterlet-addon-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-role-assignment-acm-215@sha256:eb3788a5f29cb701f6fa4f319c4253d3251f7cecbc474ee3be57e37576ab8767
+    name: multicluster-role-assignment-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile
+        revision: 2a1c2751aaa1366f2094628b47ec1979801e6942
+        url: https://github.com/stolostron/multicluster-role-assignment
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-215@sha256:3a04b3d231e6874704f29ee201171af382525fa6122790d7b9d5c6afaaeff250
+    name: cert-policy-controller-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: ab0515105d3682d33abc0327f795f513463ac178
+        url: https://github.com/stolostron/cert-policy-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-215@sha256:9b8917c0574a48181ddba4fd79b25c84823ed7da8f037ad0bf529c4a9ad256e0
+    name: mtv-integrations-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile
+        revision: d4ba4cffbca5574bedf7a2766a76fae8b8908308
+        url: https://github.com/stolostron/mtv-integrations
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-state-metrics-acm-215@sha256:ccd361f4c0bb4f64a83ec7bd38993588b18f4d38b5f0d6ea64a5b10e59c41417
+    name: kube-state-metrics-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 5a96dcd3ba0c42b8332f955dd31e084344cdebaf
+        url: https://github.com/stolostron/kube-state-metrics
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/memcached-exporter-acm-215@sha256:d7416027acf7c37c3edd3c0af09ef7e45be427cf0843c6de2c17fc0d590b2bf6
+    name: memcached-exporter-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 4276249ae7c5e7c517c4f2f838b7d8f898cc9eb6
+        url: https://github.com/stolostron/memcached_exporter
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-acm-215@sha256:e3dec77fca87ed2951e082763ebdc650ce77062f9101a1bb6bc58c9a9a450f3f
+    name: prometheus-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: dc14a5b696d3317cb104ce2b33cb23d778e839bd
+        url: https://github.com/stolostron/prometheus
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-215@sha256:f3e0c038c1a0e421692d657ff6ec9490bfcc6a1a07a33ee0ce647ba89a8c5dc5
+    name: submariner-addon-acm-215
+    source:
+      git:
+        context: ./
+        revision: c9fcf6ce1b4ef0c17b9cf9e74044b2efc60bbe3b
+        url: https://github.com/stolostron/submariner-addon
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-addon-acm-215@sha256:e8903bc7512f7586f015651a5bd4c8767706ae5d8e8c3016ee1bff181b7addf7
+    name: multicluster-observability-addon-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile
+        revision: ee9cce30759f5a958f8181d73eeef4217314a1ea
+        url: https://github.com/stolostron/multicluster-observability-addon
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-subscription-acm-215@sha256:f29d9edf4df17d940644665fa2cec3a742612cd95db6a9ae6b5f29ddc242a810
+    name: multicluster-operators-subscription-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 693624d66fa8ca281babe5246609b3718c44d99c
+        url: https://github.com/stolostron/multicloud-operators-subscription
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-cli-acm-215@sha256:3bfe7a516e36f03f1522f0071029299d1b33c3571243edc191bf17ff312e73a9
+    name: acm-cli-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: c861cdf876952b8341af763a2f31dc7c0f7b384a
+        url: https://github.com/stolostron/acm-cli
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-alertmanager-acm-215@sha256:bf71b443ad9a3ded3e22b86b02da581b9fc4a42518ca53326461215516f3713a
+    name: prometheus-alertmanager-acm-215
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 03afdcd88b3731bbb3ad9c7ffa3ccdb650eef51e
+        url: https://github.com/stolostron/prometheus-alertmanager
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-backup-operator-acm-215@sha256:dbf09212c2b9f64837375d5bbfb7fcadca1884bad3f30b2b3ed2b78a848232e7
     name: cluster-backup-operator-acm-215
     source:
@@ -146,13 +266,13 @@ spec:
         dockerfileUrl: operators/multiclusterobservability/Containerfile.operator
         revision: 0c57d56244ecae5d3c4c37d762169720f8e3c5d5
         url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-215@sha256:b39a1a07a807d058a70f961f4948341ddda37e744e69f18ba40ed371f2f47a17
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-215@sha256:ec3c285cd3011adb1f43cfcbe79479ea8e03a869430153a4c61fef8b0d1dde72
     name: console-acm-215
     source:
       git:
         context: ./
         dockerfileUrl: Containerfile.acm.konflux
-        revision: 16b9882ec8f48b616e3452de1b96524ef6b8ea3c
+        revision: 4011586c4be57802840f63f2d269df280c785cd6
         url: https://github.com/stolostron/console
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-config-reloader-acm-215@sha256:3fe6c6bfdf93b73bbd0e11bb73c437e1a0859d9a276d2ecddc46ffed895073cc
     name: prometheus-config-reloader-acm-215
@@ -231,6 +351,7 @@ spec:
     source:
       git:
         context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
         revision: 889b759b9a404ffe9f3b919ba6e9a5c772fb8207
         url: https://github.com/stolostron/multiclusterhub-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/siteconfig-acm-215@sha256:9d953b2f21b0c2a70868ad1b185449ddf0e6bd39b838ce0b7a61d53d537cafb3
@@ -329,140 +450,20 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: cf8dd573c9b2a45e517a07e4a7c3d59011a6ee2e
         url: https://github.com/stolostron/search-v2-api
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-215@sha256:05d824ce48200c4220c45411f7cd5a5b857ad4349c2fcc6d0d67d61e6c1f6a1a
-    name: search-indexer-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: f77f448d747a359cfc8b488b5c8d2fb141b7d5f4
-        url: https://github.com/stolostron/search-indexer
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-permission-acm-215@sha256:4175bdf3c24796ccb4afe995cb2e63963dccb83d02c5b693ae1728e9004faf7d
-    name: cluster-permission-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: bc88144c82b4e3cdb677c211dd3851c1af36b4ee
-        url: https://github.com/stolostron/cluster-permission
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/rbac-query-proxy-acm-215@sha256:ff40d744ff6a210da6cbe965ff291ca000e2626b495b6690fde7838f80b85c21
-    name: rbac-query-proxy-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: proxy/Containerfile.operator
-        revision: 0c57d56244ecae5d3c4c37d762169720f8e3c5d5
-        url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-215@sha256:359932e83559c22c877b12b4753bee8e967a7fa9cda19fc20568b5956469411c
-    name: klusterlet-addon-controller-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 5db4725f79eb0e5a39d1e1da70e79c19e0f8b8a4
-        url: https://github.com/stolostron/klusterlet-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-role-assignment-acm-215@sha256:eb3788a5f29cb701f6fa4f319c4253d3251f7cecbc474ee3be57e37576ab8767
-    name: multicluster-role-assignment-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile
-        revision: 2a1c2751aaa1366f2094628b47ec1979801e6942
-        url: https://github.com/stolostron/multicluster-role-assignment
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-215@sha256:3a04b3d231e6874704f29ee201171af382525fa6122790d7b9d5c6afaaeff250
-    name: cert-policy-controller-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: ab0515105d3682d33abc0327f795f513463ac178
-        url: https://github.com/stolostron/cert-policy-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-215@sha256:9b8917c0574a48181ddba4fd79b25c84823ed7da8f037ad0bf529c4a9ad256e0
-    name: mtv-integrations-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile
-        revision: d4ba4cffbca5574bedf7a2766a76fae8b8908308
-        url: https://github.com/stolostron/mtv-integrations
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-state-metrics-acm-215@sha256:ccd361f4c0bb4f64a83ec7bd38993588b18f4d38b5f0d6ea64a5b10e59c41417
-    name: kube-state-metrics-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 5a96dcd3ba0c42b8332f955dd31e084344cdebaf
-        url: https://github.com/stolostron/kube-state-metrics
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/memcached-exporter-acm-215@sha256:d7416027acf7c37c3edd3c0af09ef7e45be427cf0843c6de2c17fc0d590b2bf6
-    name: memcached-exporter-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 4276249ae7c5e7c517c4f2f838b7d8f898cc9eb6
-        url: https://github.com/stolostron/memcached_exporter
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-acm-215@sha256:e3dec77fca87ed2951e082763ebdc650ce77062f9101a1bb6bc58c9a9a450f3f
-    name: prometheus-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: dc14a5b696d3317cb104ce2b33cb23d778e839bd
-        url: https://github.com/stolostron/prometheus
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-215@sha256:ece81eb6fa3f7b36a91a0cc1885e835782a3033555fdd40a5ee718cc81b7fe28
-    name: submariner-addon-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.konflux
-        revision: 6fa89846dee054266b6c9023e4ec875b34c67ed3
-        url: https://github.com/stolostron/submariner-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-addon-acm-215@sha256:e8903bc7512f7586f015651a5bd4c8767706ae5d8e8c3016ee1bff181b7addf7
-    name: multicluster-observability-addon-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile
-        revision: ee9cce30759f5a958f8181d73eeef4217314a1ea
-        url: https://github.com/stolostron/multicluster-observability-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-subscription-acm-215@sha256:f29d9edf4df17d940644665fa2cec3a742612cd95db6a9ae6b5f29ddc242a810
-    name: multicluster-operators-subscription-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 693624d66fa8ca281babe5246609b3718c44d99c
-        url: https://github.com/stolostron/multicloud-operators-subscription
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-cli-acm-215@sha256:3bfe7a516e36f03f1522f0071029299d1b33c3571243edc191bf17ff312e73a9
-    name: acm-cli-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: c861cdf876952b8341af763a2f31dc7c0f7b384a
-        url: https://github.com/stolostron/acm-cli
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-alertmanager-acm-215@sha256:bf71b443ad9a3ded3e22b86b02da581b9fc4a42518ca53326461215516f3713a
-    name: prometheus-alertmanager-acm-215
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 03afdcd88b3731bbb3ad9c7ffa3ccdb650eef51e
-        url: https://github.com/stolostron/prometheus-alertmanager
 status:
   conditions:
-  - lastTransitionTime: "2026-08-21T14:36:24Z"
+  - lastTransitionTime: "2026-08-22T01:51:38Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-08-21T14:36:24Z"
+  - lastTransitionTime: "2026-08-22T01:51:38Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-08-21T14:36:24Z"
+  - lastTransitionTime: "2026-08-22T01:51:38Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
