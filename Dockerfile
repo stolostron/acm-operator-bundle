@@ -28,4 +28,4 @@ LABEL com.redhat.component="acm-operator-bundle-container" \
       url="https://github.com/stolostron/acm-operator-bundle" \
       release="5.2.0-7" \
       distribution-scope="public" \
-      cpe="cpe:/a:redhat:acm:5.1::el9"
+      cpe="cpe:/a:redhat:acm:5.2::el9"
