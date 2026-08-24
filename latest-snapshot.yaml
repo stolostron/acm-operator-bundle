@@ -2,19 +2,19 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/submariner-addon?rev=12da336dbbe7d6e2182fb07e577a31db2c9fe11e
-    build.appstudio.redhat.com/commit_sha: 12da336dbbe7d6e2182fb07e577a31db2c9fe11e
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/submariner-addon?rev=c57a26ff77875c337d61a450ad5be76288492e2b
+    build.appstudio.redhat.com/commit_sha: c57a26ff77875c337d61a450ad5be76288492e2b
     build.appstudio.redhat.com/target_branch: main
     pac.test.appstudio.openshift.io/branch: main
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "96967498999"
+    pac.test.appstudio.openshift.io/check-run-id: "97417467962"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-xeoaul
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-wphrwz
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/submariner-addon-acm-52-on-push-hpkfb
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/submariner-addon-acm-52-on-push-2g9k2
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "main"
@@ -23,28 +23,23 @@ metadata:
     pac.test.appstudio.openshift.io/repository: submariner-addon-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
-    pac.test.appstudio.openshift.io/sender: tpantelis
-    pac.test.appstudio.openshift.io/sha: 12da336dbbe7d6e2182fb07e577a31db2c9fe11e
+    pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
+    pac.test.appstudio.openshift.io/sha: c57a26ff77875c337d61a450ad5be76288492e2b
     pac.test.appstudio.openshift.io/sha-title: |-
-      Deploy webhook resources as standalone OLM bundle manifests
+      Remove 5.0 files from tekton
 
-      Move webhook Service and ValidatingWebhookConfiguration directly into
-      the OLM bundle manifests directory. operator-sdk doesn't include these
-      resources in bundles, so they need to be hand-maintained alongside
-      the generated CSV and CRDs.
+      Remove 5.0 tekton files from main as it is no longer built off main
+      branch.
 
-      Signed-off-by: Tom Pantelis <tompantelis@gmail.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/submariner-addon/commit/12da336dbbe7d6e2182fb07e577a31db2c9fe11e
+      Signed-off-by: Vishal Thapar <5137689+vthapar@users.noreply.github.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/submariner-addon/commit/c57a26ff77875c337d61a450ad5be76288492e2b
     pac.test.appstudio.openshift.io/source-branch: refs/heads/main
     pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/submariner-addon
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
     pac.test.appstudio.openshift.io/url-repository: submariner-addon
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-08-22T03:00:55Z"}'
-    test.appstudio.openshift.io/create-snapshot-status: Component(s) 'grafana-acm-52,
-      cert-policy-controller-acm-52, observatorium-operator-acm-52, must-gather-acm-52,
-      cluster-backup-operator-acm-52, dynamic-scoring-controller-acm-52, thanos-receive-controller-acm-52,
-      search-v2-operator-acm-52, kube-rbac-proxy-acm-52, cluster-permission-acm-52,
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-08-24T11:51:55Z"}'
+    test.appstudio.openshift.io/create-snapshot-status: Component(s) 'cluster-permission-acm-52,
       search-v2-api-acm-52, observatorium-acm-52, node-exporter-acm-52, search-indexer-acm-52,
       klusterlet-addon-controller-acm-52, grafana-dashboard-loader-acm-52, search-collector-acm-52,
       governance-policy-propagator-acm-52, prometheus-acm-52, config-policy-controller-acm-52,
@@ -53,37 +48,40 @@ metadata:
       thanos-acm-52, memcached-exporter-acm-52, siteconfig-acm-52, multicluster-observability-addon-acm-52,
       prometheus-alertmanager-acm-52, kube-state-metrics-acm-52, multicluster-observability-operator-acm-52,
       governance-policy-addon-controller-acm-52, dynamic-scoring-addon-acm-52, prometheus-operator-acm-52,
-      obo-prometheus-operator-acm-52, rbac-query-proxy-acm-52, acm-cli-acm-52, insights-client-acm-52'
+      obo-prometheus-operator-acm-52, rbac-query-proxy-acm-52, acm-cli-acm-52, insights-client-acm-52,
+      grafana-acm-52, cert-policy-controller-acm-52, observatorium-operator-acm-52,
+      must-gather-acm-52, cluster-backup-operator-acm-52, dynamic-scoring-controller-acm-52,
+      thanos-receive-controller-acm-52, search-v2-operator-acm-52, kube-rbac-proxy-acm-52'
       is(are) not included in snapshot due to missing valid containerImage or git
       source
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-52-release-acm-52-20260822-024546-000":{"lastUpdateTime":"2026-08-22T03:01:45.754415411Z"}}}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-52-release-acm-52-20260824-113658-000-46":{"lastUpdateTime":"2026-08-24T11:52:56.475152534Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1787366746000"
-    test.appstudio.openshift.io/result-chains-git-commit: 12da336dbbe7d6e2182fb07e577a31db2c9fe11e
+    test.appstudio.openshift.io/pipelinerunstarttime: "1787571418000"
+    test.appstudio.openshift.io/result-chains-git-commit: c57a26ff77875c337d61a450ad5be76288492e2b
     test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/submariner-addon
-    test.appstudio.openshift.io/result-image-digest: sha256:896c2f91c0974c8674fc3a967efc2566b6fbae11647488cc35acf22a4238592c
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-52:12da336dbbe7d6e2182fb07e577a31db2c9fe11e
+    test.appstudio.openshift.io/result-image-digest: sha256:f3a9ecf93b23b4eb1ad9fde907db19d8c8b0b35e3b594e710a9a688e51ba3629
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-52:c57a26ff77875c337d61a450ad5be76288492e2b
     test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/submariner-addon
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-52","status":"BuildPLRInProgress","lastUpdateTime":"2026-08-22T03:01:45.754415411Z","details":"Integration
-      test passed with warnings","startTime":"2026-08-22T03:00:55.762292816Z","completionTime":"2026-08-22T03:01:45.754415411Z","testPipelineRunName":"enterprise-contract-acm-52-68wgc"}]'
-  creationTimestamp: "2026-08-22T03:00:55Z"
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-52","status":"BuildPLRInProgress","lastUpdateTime":"2026-08-24T11:52:56.475152534Z","details":"Integration
+      test passed with warnings","startTime":"2026-08-24T11:51:55.916983307Z","completionTime":"2026-08-24T11:52:56.475152534Z","testPipelineRunName":"enterprise-contract-acm-52-2bbgq"}]'
+  creationTimestamp: "2026-08-24T11:51:55Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-52
-    appstudio.openshift.io/build-pipelinerun: submariner-addon-acm-52-on-push-hpkfb
+    appstudio.openshift.io/build-pipelinerun: submariner-addon-acm-52-on-push-2g9k2
     appstudio.openshift.io/component: submariner-addon-acm-52
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "96967498999"
+    pac.test.appstudio.openshift.io/check-run-id: "97417467962"
     pac.test.appstudio.openshift.io/event-type: push
     pac.test.appstudio.openshift.io/original-prname: submariner-addon-acm-52-on-push
     pac.test.appstudio.openshift.io/repository: submariner-addon-acm-210
-    pac.test.appstudio.openshift.io/sha: 12da336dbbe7d6e2182fb07e577a31db2c9fe11e
+    pac.test.appstudio.openshift.io/sha: c57a26ff77875c337d61a450ad5be76288492e2b
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
     pac.test.appstudio.openshift.io/url-repository: submariner-addon
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1787367647"
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1787572306"
     test.appstudio.openshift.io/type: component
-  name: release-acm-52-20260822-024546-000
+  name: release-acm-52-20260824-113658-000-46
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -92,28 +90,12 @@ metadata:
     kind: Application
     name: release-acm-52
     uid: cfc033ef-9dfc-426e-9763-dbb135f75288
-  resourceVersion: "10728090440"
-  uid: 7fbb3ad3-2f90-46da-a189-024fc59984f5
+  resourceVersion: "10758985872"
+  uid: 9b9a062d-cdd1-4cf1-b843-b2ae27b858ed
 spec:
   application: release-acm-52
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-subscription-acm-52@sha256:bb0c9a34077fc183c2399eca658490c3946819acdc66f3b0be2a8e635d5b3a5e
-    name: multicluster-operators-subscription-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 16ef3af3b9753b5fb544bf87ea33a68156c47a1b
-        url: https://github.com/stolostron/multicloud-operators-subscription
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-52@sha256:42e8a639e71e0e084d09f43c01b70ed99a20d53b220d087c907089b247f8fdc9
-    name: console-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.acm.konflux
-        revision: e8cd2463b1715cd03c11327adce34b8cfbbd9a65
-        url: https://github.com/stolostron/console
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-52@sha256:d6a538b789e013a942314dc32093aed89e51603eb4e25874473d01819dc35f95
     name: multicluster-operators-application-acm-52
     source:
@@ -146,12 +128,12 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: b16ef72027bf702be7dc001406be2cf735299000
         url: https://github.com/stolostron/multicloud-integrations
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-52@sha256:896c2f91c0974c8674fc3a967efc2566b6fbae11647488cc35acf22a4238592c
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-52@sha256:f3a9ecf93b23b4eb1ad9fde907db19d8c8b0b35e3b594e710a9a688e51ba3629
     name: submariner-addon-acm-52
     source:
       git:
         context: ./
-        revision: 12da336dbbe7d6e2182fb07e577a31db2c9fe11e
+        revision: c57a26ff77875c337d61a450ad5be76288492e2b
         url: https://github.com/stolostron/submariner-addon
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-52@sha256:3cecfc3db478f5994888a2327f8071414bdaba62cb176141870a643b368a4952
     name: multiclusterhub-operator-acm-52
@@ -169,20 +151,36 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: dcaf8352a506705bee6db3b3a170696992a3dcad
         url: https://github.com/stolostron/multicloud-operators-channel
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-subscription-acm-52@sha256:bb0c9a34077fc183c2399eca658490c3946819acdc66f3b0be2a8e635d5b3a5e
+    name: multicluster-operators-subscription-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 16ef3af3b9753b5fb544bf87ea33a68156c47a1b
+        url: https://github.com/stolostron/multicloud-operators-subscription
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-52@sha256:42e8a639e71e0e084d09f43c01b70ed99a20d53b220d087c907089b247f8fdc9
+    name: console-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.acm.konflux
+        revision: e8cd2463b1715cd03c11327adce34b8cfbbd9a65
+        url: https://github.com/stolostron/console
 status:
   conditions:
-  - lastTransitionTime: "2026-08-22T03:01:45Z"
+  - lastTransitionTime: "2026-08-24T11:53:05Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-08-22T03:01:45Z"
+  - lastTransitionTime: "2026-08-24T11:53:05Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-08-22T03:01:45Z"
+  - lastTransitionTime: "2026-08-24T11:53:05Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
