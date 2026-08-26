@@ -2,71 +2,148 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/prometheus-alertmanager?rev=b90e182ac8da3b36c976ccbb61c35d193b26716e
-    build.appstudio.redhat.com/commit_sha: b90e182ac8da3b36c976ccbb61c35d193b26716e
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/multiclusterhub-operator?rev=3a98d51a6035ec6a87e425b18990848f017bc10f
+    build.appstudio.redhat.com/commit_sha: 3a98d51a6035ec6a87e425b18990848f017bc10f
     build.appstudio.redhat.com/target_branch: release-5.0
     pac.test.appstudio.openshift.io/branch: release-5.0
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "98183931748"
+    pac.test.appstudio.openshift.io/check-run-id: "98316312852"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-fleyef
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-vbduvj
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/prometheus-alertmanager-acm-50-on-push-btczx
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/multiclusterhub-operator-acm-50-on-push-dnkwf
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-5.0"
-    pac.test.appstudio.openshift.io/original-prname: prometheus-alertmanager-acm-50-on-push
-    pac.test.appstudio.openshift.io/pull-request: "278"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/prometheus-alertmanager
-    pac.test.appstudio.openshift.io/repository: prometheus-alertmanager-acm-210
+    pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-50-on-push
+    pac.test.appstudio.openshift.io/pull-request: "4692"
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/multiclusterhub-operator
+    pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
-    pac.test.appstudio.openshift.io/sender: coleenquadros
-    pac.test.appstudio.openshift.io/sha: b90e182ac8da3b36c976ccbb61c35d193b26716e
+    pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
+    pac.test.appstudio.openshift.io/sha: 3a98d51a6035ec6a87e425b18990848f017bc10f
     pac.test.appstudio.openshift.io/sha-title: |-
-      Merge pull request #278 from stolostron/fix/cve-2026-41178-opentelemetry-go-release-5.0-attempt-1
+      [release-5.0][ACM-42783] Detect container port changes to avoid duplicate port name errors (#4692)
 
-      Security: Fix CVE-2026-41178 (opentelemetry-go)
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/prometheus-alertmanager/commit/b90e182ac8da3b36c976ccbb61c35d193b26716e
+      * ACM-42783: Detect container port changes to avoid duplicate port name errors
+
+      Strategic merge patches merge a container's ports list by name instead
+      of replacing it. Renaming or renumbering a port (e.g. acm-cli-downloads
+      8443 "downloads" -> 8080 "downloads" between 2.17 and 5.0) results in
+      two ports with the same name, which fails Deployment validation:
+
+        spec.template.spec.containers[0].ports[1].name: Duplicate value: "downloads"
+
+      Extend detectContainerChanges to also compare each container's ports
+      between the existing and desired Deployment, in addition to the
+      existing add/remove detection. When ports differ, Update is used
+      instead of a server-side apply Patch, which replaces the full
+      container spec cleanly and avoids the duplicate-name merge.
+
+      This is the release-5.0 backport of the same fix applied to main.
+
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+
+      * ACM-42783: Compare only containerPort numbers to avoid false positives
+
+      Refine detectContainerChanges to compare only the containerPort
+      numbers between existing and desired container specs, ignoring
+      protocol/name/other port metadata that Kubernetes and strategic
+      merge patches already reconcile correctly on their own.
+
+      The previous full reflect.DeepEqual(ports) comparison produced a
+      false positive for multicluster-operators-hub-subscription: its
+      container port omits an explicit protocol in the desired template,
+      but Kubernetes defaults the existing cluster object's port to
+      protocol "TCP". That metadata-only difference was incorrectly
+      triggering Update on every reconcile even though the port number
+      (8443) never changed.
+
+      Add containerPortNumbers() helper to extract and sort the
+      containerPort values from a ports list, coercing numeric types
+      since unstructured content may decode numbers as float64, int64,
+      or int depending on source. Update detectContainerChanges to use
+      this helper instead of comparing full port specs.
+
+      Also add protocol: TCP to the multicluster-operators-hub-subscription
+      template for consistency with all other Deployment templates, which
+      already declare protocol explicitly.
+
+      Update/add tests:
+      - Rename port-name-only and protocol-only diff tests to reflect they
+        should NOT trigger Update (want: false)
+      - Add regression test for the multicluster-operators-hub-subscription
+        scenario: existing port has protocol "TCP", desired port omits it
+
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+      (cherry picked from commit 2041563c785f28cb32556bd9e67ff71588182d09)
+
+      * ACM-42783: Fix nil vs empty-slice mismatch in containerPortNumbers
+
+      multicluster-role-assignment-controller's 'manager' container declares
+      ports: [] explicitly in its chart template, which decodes to a present
+      but empty slice. The live Deployment, however, omits the 'ports' key
+      entirely once fetched from the API, since corev1.Container.Ports has
+      json:"ports,omitempty" and drops zero-length slices during
+      serialization.
+
+      containerPortNumbers() returned a bare nil when the ports field was
+      absent, but []int64{} when present-but-empty, so reflect.DeepEqual in
+      detectContainerChanges saw nil != []int64{} for containers with zero
+      ports on both sides, and incorrectly triggered Update on every
+      reconcile.
+
+      Make containerPortNumbers always return a non-nil slice so both cases
+      normalize to the same value. Add a regression test modeling the
+      multicluster-role-assignment-controller scenario.
+
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+      (cherry picked from commit 0f46d9cb7dd4eb2fd2cf58a791d77cf2475627f9)
+
+      ---------
+
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/multiclusterhub-operator/commit/3a98d51a6035ec6a87e425b18990848f017bc10f
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-5.0
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/prometheus-alertmanager
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: prometheus-alertmanager
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-08-26T13:02:05Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-50-release-acm-50-20260826-125122-000":{"lastUpdateTime":"2026-08-26T13:03:32.106416506Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-08-26T20:41:30Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-50-release-acm-50-20260826-203121-000":{"lastUpdateTime":"2026-08-26T20:42:15.710267398Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1787748682000"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1787776281000"
     test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/result-chains-git-commit: b90e182ac8da3b36c976ccbb61c35d193b26716e
-    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/prometheus-alertmanager
-    test.appstudio.openshift.io/result-image-digest: sha256:a1ae6a62c188b3c597412cf1800b2d1ad0908bba8ad190a558cbe143578efdaf
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-alertmanager-acm-50:b90e182ac8da3b36c976ccbb61c35d193b26716e
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/prometheus-alertmanager
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-50","status":"BuildPLRInProgress","lastUpdateTime":"2026-08-26T13:03:32.106416506Z","details":"Integration
-      test passed with warnings","startTime":"2026-08-26T13:02:06.434648553Z","completionTime":"2026-08-26T13:03:32.106416506Z","testPipelineRunName":"enterprise-contract-acm-50-5g5cl"}]'
-  creationTimestamp: "2026-08-26T13:02:06Z"
+    test.appstudio.openshift.io/result-chains-git-commit: 3a98d51a6035ec6a87e425b18990848f017bc10f
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/multiclusterhub-operator
+    test.appstudio.openshift.io/result-image-digest: sha256:3d25c1c72b006319c8538573f230db2ac73a447702c8b8ef1f6da3773b9340d5
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-50:3a98d51a6035ec6a87e425b18990848f017bc10f
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-50","status":"BuildPLRInProgress","lastUpdateTime":"2026-08-26T20:42:15.710267398Z","details":"Integration
+      test passed with warnings","startTime":"2026-08-26T20:41:30.176497406Z","completionTime":"2026-08-26T20:42:15.710267398Z","testPipelineRunName":"enterprise-contract-acm-50-5n5kh"}]'
+  creationTimestamp: "2026-08-26T20:41:30Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-50
-    appstudio.openshift.io/build-pipelinerun: prometheus-alertmanager-acm-50-on-push-btczx
-    appstudio.openshift.io/component: prometheus-alertmanager-acm-50
+    appstudio.openshift.io/build-pipelinerun: multiclusterhub-operator-acm-50-on-push-dnkwf
+    appstudio.openshift.io/component: multiclusterhub-operator-acm-50
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "98183931748"
+    pac.test.appstudio.openshift.io/check-run-id: "98316312852"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: prometheus-alertmanager-acm-50-on-push
-    pac.test.appstudio.openshift.io/pull-request: "278"
-    pac.test.appstudio.openshift.io/repository: prometheus-alertmanager-acm-210
-    pac.test.appstudio.openshift.io/sha: b90e182ac8da3b36c976ccbb61c35d193b26716e
+    pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-50-on-push
+    pac.test.appstudio.openshift.io/pull-request: "4692"
+    pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
+    pac.test.appstudio.openshift.io/sha: 3a98d51a6035ec6a87e425b18990848f017bc10f
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: prometheus-alertmanager
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1787749293"
+    pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1787776883"
     test.appstudio.openshift.io/type: component
-  name: release-acm-50-20260826-125122-000
+  name: release-acm-50-20260826-203121-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -75,243 +152,12 @@ metadata:
     kind: Application
     name: release-acm-50
     uid: 95420e61-ff03-40c3-a8b9-47011873be13
-  resourceVersion: "10811059182"
-  uid: 9f80b7ba-eb64-42c1-bfca-729e54b4d4f6
+  resourceVersion: "10819084897"
+  uid: 65935319-9400-400a-b285-8867fb58e0e6
 spec:
   application: release-acm-50
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-50@sha256:fc22bbfa5ec7658e6688f7b79579d8a4115b2e669a81065febaa5bc2cd4fb47b
-    name: mtv-integrations-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile
-        revision: abe8ff63f7bddb774f3c5dc9d9fc484c60f71c34
-        url: https://github.com/stolostron/mtv-integrations
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-50@sha256:4a94c91f8a461d92b246fb44b0a089b4128876e54f761c0b76fcbe87dc73ec56
-    name: cert-policy-controller-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 2c0fd7bad00f202cde1388032e40a80ecc23b40b
-        url: https://github.com/stolostron/cert-policy-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-operator-acm-50@sha256:69e35da72b112449014dc8eccf5f4fc374be89204a5f422f17b347881e5a1d52
-    name: multicluster-observability-operator-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: operators/multiclusterobservability/Containerfile.operator
-        revision: c645873f74a6ff7ecb42bb53d34dd00cfb847a72
-        url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-50@sha256:25f02f7ec6c17bd982fc7414ae6a0b4b894a4a2aaf46efcf24694bd26e53a266
-    name: multicluster-operators-application-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: d2e4f912b578e584a9b4d77b1732cc641b60697e
-        url: https://github.com/stolostron/multicloud-operators-application
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-50@sha256:ff1d51f6fc6a1c998677037c48e62efc411e3fe8c9c10f146373039afd2fd640
-    name: submariner-addon-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.konflux
-        revision: 71b8baff4b4124adffc4d6af2ffaf73f61a8d1f8
-        url: https://github.com/stolostron/submariner-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-alertmanager-acm-50@sha256:a1ae6a62c188b3c597412cf1800b2d1ad0908bba8ad190a558cbe143578efdaf
-    name: prometheus-alertmanager-acm-50
-    source:
-      git:
-        context: ./
-        revision: b90e182ac8da3b36c976ccbb61c35d193b26716e
-        url: https://github.com/stolostron/prometheus-alertmanager
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/must-gather-acm-50@sha256:531e1e30f48cb3e47f60342fd1efc10ec668085fedb2bd4239b28a6426318b66
-    name: must-gather-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 6b9b8dda50730bf63c5e5f2bb48d5beab4238a8b
-        url: https://github.com/stolostron/must-gather
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-rbac-proxy-acm-50@sha256:f89d6a2a9f53a679fad8dea909fb22684a05a19c69ca5303c3adb58664ea62c4
-    name: kube-rbac-proxy-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 4216879cb519c60205380adf7631d9b8ba47581a
-        url: https://github.com/stolostron/kube-rbac-proxy
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-50@sha256:5aceb816b7430a39a9e6c184f2c83fb9f5040a9892e229697948c9cd41db1f4d
-    name: klusterlet-addon-controller-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: da6a5441ca6e1d66ee55afdcd27f75eaebf40ef8
-        url: https://github.com/stolostron/klusterlet-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/siteconfig-acm-50@sha256:717ded346a1b7b1f07875de264769db555a6894c439e6c7aa963399226c534c0
-    name: siteconfig-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: f0ac97423504b45d39360f75cba7e1a7e805219b
-        url: https://github.com/stolostron/siteconfig
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-config-reloader-acm-50@sha256:3de92564d853d553490b5dc1fe96c866a85e02af711b70b62a6717ff35faa142
-    name: prometheus-config-reloader-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: cmd/prometheus-config-reloader/Containerfile.operator
-        revision: c84aee614cbc41a316d7af84c73df35f36336408
-        url: https://github.com/stolostron/prometheus-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-api-acm-50@sha256:56a98bbfb6ee7c5b113f3b8978945154d87fe300144ba06cfb2d0b2ae5895a78
-    name: search-v2-api-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 4d4f84822e5af0bf06f55a59fc3505c39f01af0e
-        url: https://github.com/stolostron/search-v2-api
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-operator-acm-50@sha256:b760d1b088b0db6301b40a804a22be811ad689301a9917a264ce61145a0e917b
-    name: search-v2-operator-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: efd7447c8bb7d7434685a53ae3c4849263aa0252
-        url: https://github.com/stolostron/search-v2-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-backup-operator-acm-50@sha256:da2db0075a4396122cfe8ddf30ade2e3dc58789a679e912799f54e65aae6d6c1
-    name: cluster-backup-operator-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 35518a97e75fb2ff6d3db398e6b2de5fc9a7a91f
-        url: https://github.com/stolostron/cluster-backup-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicloud-integrations-acm-50@sha256:33e150d6abc4638c1c5d3399e66e90f8a64fdd44f20d0cc49a8ead3723bcca83
-    name: multicloud-integrations-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: b16ef72027bf702be7dc001406be2cf735299000
-        url: https://github.com/stolostron/multicloud-integrations
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-50@sha256:a9b83af9a5bdbdd09a7e74a91ee334bd03538cd87515742d3b399425029ca988
-    name: multiclusterhub-operator-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 3d665c362b3a90fa9f2ff85a3ec8f9caeafb9279
-        url: https://github.com/stolostron/multiclusterhub-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-operator-acm-50@sha256:cafc058bb03f563dafeac99981b259059f938be14128ed0be5534d14c5e7a178
-    name: prometheus-operator-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: c84aee614cbc41a316d7af84c73df35f36336408
-        url: https://github.com/stolostron/prometheus-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/memcached-exporter-acm-50@sha256:ffbed244cb3f26329a00385fa36e3defe69a6ee4263f0f41554d610c5d2f56f0
-    name: memcached-exporter-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 7c91d08b7c90b76f228935584a0e4439510ac058
-        url: https://github.com/stolostron/memcached_exporter
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/volsync-addon-controller-acm-50@sha256:6bd5b5ced1ede000a72826cbeb4354d8bf8842d89d23970b24bf7a0b7800ca68
-    name: volsync-addon-controller-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: e39f0d92a881a5af186ae5924df2c13babf7a5e0
-        url: https://github.com/stolostron/volsync-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/observatorium-operator-acm-50@sha256:b4a0fe3a611d8170448491db667d138eca6873d4f1903fbf60bfc723b2ea7646
-    name: observatorium-operator-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 668b1817def78be746948af4e5c12c1be56cbafd
-        url: https://github.com/stolostron/observatorium-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-addon-acm-50@sha256:1d8c977959331214acbe783b4c0c2dc52a3bcf7e79876cbf04c9e15cda30836f
-    name: multicluster-observability-addon-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile
-        revision: 5306f9284439995d2454411c24136d0c055e96da
-        url: https://github.com/stolostron/multicluster-observability-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/rbac-query-proxy-acm-50@sha256:840cd0a58b7f75876819f8bc192441683e2810991e4386082187ee8146dac193
-    name: rbac-query-proxy-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: proxy/Containerfile.operator
-        revision: c645873f74a6ff7ecb42bb53d34dd00cfb847a72
-        url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/endpoint-monitoring-operator-acm-50@sha256:b54924fd247eb3b8ed1cbcbefeb7b1b83a7cee2be4a32fde9abad48228676568
-    name: endpoint-monitoring-operator-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: operators/endpointmetrics/Containerfile.operator
-        revision: c645873f74a6ff7ecb42bb53d34dd00cfb847a72
-        url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-role-assignment-acm-50@sha256:d73ba2795ae9e55f0e579298f1c3430946bd2c08f66f32caae8f517ffef7249b
-    name: multicluster-role-assignment-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile
-        revision: 655cb6b61c3d2238d18c15625746ca21e2dbca58
-        url: https://github.com/stolostron/multicluster-role-assignment
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-channel-acm-50@sha256:bd922f24d615eb1fb42f333ac4f7a57eeed4398fb619e7b884ae4842ec1e7b97
-    name: multicluster-operators-channel-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: dcaf8352a506705bee6db3b3a170696992a3dcad
-        url: https://github.com/stolostron/multicloud-operators-channel
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-acm-50@sha256:8f179376f90efc7dd269b78406fbb1348983cfbbafd2ad43bfadb177996de0e4
-    name: prometheus-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 85afe8b7106d9f79959c18072e5e284761b95812
-        url: https://github.com/stolostron/prometheus
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-propagator-acm-50@sha256:17950b0d6c5a8615d6897be1ae107dcc67540dfecb5d4b179580399687789666
-    name: governance-policy-propagator-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: ad592a1dbbe759447b4017e8206f33481a567c1d
-        url: https://github.com/stolostron/governance-policy-propagator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/insights-metrics-acm-50@sha256:7144f8b29240fc562d36d3a51b266166b495bf1054260a418e3eb6038ab66dfe
-    name: insights-metrics-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 847f8a8eb5dd1056ffa7edc4c566ed0f7bca20c9
-        url: https://github.com/stolostron/insights-metrics
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/obo-prometheus-operator-acm-50@sha256:e25b77803d9c85c485b51c164c3f5cb627f1f28fdc6d55e545db6d792bc26c71
-    name: obo-prometheus-operator-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.prom-operator
-        revision: 08489b75192a286c5cd4a19dc01e239e4ceee7e6
-        url: https://github.com/stolostron/obo-prometheus-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-50@sha256:68ff53e4320a16aea84722d44ae4147f15c530ce6777018d8375e22c71c79b89
     name: search-indexer-acm-50
     source:
@@ -448,20 +294,251 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: 16daa349dbb1e64c0d5e396a8d23f6c2f09ae0d1
         url: https://github.com/stolostron/governance-policy-framework-addon
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-50@sha256:fc22bbfa5ec7658e6688f7b79579d8a4115b2e669a81065febaa5bc2cd4fb47b
+    name: mtv-integrations-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile
+        revision: abe8ff63f7bddb774f3c5dc9d9fc484c60f71c34
+        url: https://github.com/stolostron/mtv-integrations
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-50@sha256:4a94c91f8a461d92b246fb44b0a089b4128876e54f761c0b76fcbe87dc73ec56
+    name: cert-policy-controller-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 2c0fd7bad00f202cde1388032e40a80ecc23b40b
+        url: https://github.com/stolostron/cert-policy-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-operator-acm-50@sha256:69e35da72b112449014dc8eccf5f4fc374be89204a5f422f17b347881e5a1d52
+    name: multicluster-observability-operator-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: operators/multiclusterobservability/Containerfile.operator
+        revision: c645873f74a6ff7ecb42bb53d34dd00cfb847a72
+        url: https://github.com/stolostron/multicluster-observability-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-50@sha256:25f02f7ec6c17bd982fc7414ae6a0b4b894a4a2aaf46efcf24694bd26e53a266
+    name: multicluster-operators-application-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: d2e4f912b578e584a9b4d77b1732cc641b60697e
+        url: https://github.com/stolostron/multicloud-operators-application
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-50@sha256:ff1d51f6fc6a1c998677037c48e62efc411e3fe8c9c10f146373039afd2fd640
+    name: submariner-addon-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.konflux
+        revision: 71b8baff4b4124adffc4d6af2ffaf73f61a8d1f8
+        url: https://github.com/stolostron/submariner-addon
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-alertmanager-acm-50@sha256:a1ae6a62c188b3c597412cf1800b2d1ad0908bba8ad190a558cbe143578efdaf
+    name: prometheus-alertmanager-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: b90e182ac8da3b36c976ccbb61c35d193b26716e
+        url: https://github.com/stolostron/prometheus-alertmanager
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/must-gather-acm-50@sha256:531e1e30f48cb3e47f60342fd1efc10ec668085fedb2bd4239b28a6426318b66
+    name: must-gather-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 6b9b8dda50730bf63c5e5f2bb48d5beab4238a8b
+        url: https://github.com/stolostron/must-gather
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-rbac-proxy-acm-50@sha256:f89d6a2a9f53a679fad8dea909fb22684a05a19c69ca5303c3adb58664ea62c4
+    name: kube-rbac-proxy-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 4216879cb519c60205380adf7631d9b8ba47581a
+        url: https://github.com/stolostron/kube-rbac-proxy
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-50@sha256:5aceb816b7430a39a9e6c184f2c83fb9f5040a9892e229697948c9cd41db1f4d
+    name: klusterlet-addon-controller-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: da6a5441ca6e1d66ee55afdcd27f75eaebf40ef8
+        url: https://github.com/stolostron/klusterlet-addon-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/siteconfig-acm-50@sha256:717ded346a1b7b1f07875de264769db555a6894c439e6c7aa963399226c534c0
+    name: siteconfig-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: f0ac97423504b45d39360f75cba7e1a7e805219b
+        url: https://github.com/stolostron/siteconfig
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-config-reloader-acm-50@sha256:3de92564d853d553490b5dc1fe96c866a85e02af711b70b62a6717ff35faa142
+    name: prometheus-config-reloader-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: cmd/prometheus-config-reloader/Containerfile.operator
+        revision: c84aee614cbc41a316d7af84c73df35f36336408
+        url: https://github.com/stolostron/prometheus-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-api-acm-50@sha256:56a98bbfb6ee7c5b113f3b8978945154d87fe300144ba06cfb2d0b2ae5895a78
+    name: search-v2-api-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 4d4f84822e5af0bf06f55a59fc3505c39f01af0e
+        url: https://github.com/stolostron/search-v2-api
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-operator-acm-50@sha256:b760d1b088b0db6301b40a804a22be811ad689301a9917a264ce61145a0e917b
+    name: search-v2-operator-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: efd7447c8bb7d7434685a53ae3c4849263aa0252
+        url: https://github.com/stolostron/search-v2-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-backup-operator-acm-50@sha256:da2db0075a4396122cfe8ddf30ade2e3dc58789a679e912799f54e65aae6d6c1
+    name: cluster-backup-operator-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 35518a97e75fb2ff6d3db398e6b2de5fc9a7a91f
+        url: https://github.com/stolostron/cluster-backup-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicloud-integrations-acm-50@sha256:33e150d6abc4638c1c5d3399e66e90f8a64fdd44f20d0cc49a8ead3723bcca83
+    name: multicloud-integrations-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: b16ef72027bf702be7dc001406be2cf735299000
+        url: https://github.com/stolostron/multicloud-integrations
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-50@sha256:3d25c1c72b006319c8538573f230db2ac73a447702c8b8ef1f6da3773b9340d5
+    name: multiclusterhub-operator-acm-50
+    source:
+      git:
+        context: ./
+        revision: 3a98d51a6035ec6a87e425b18990848f017bc10f
+        url: https://github.com/stolostron/multiclusterhub-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-operator-acm-50@sha256:cafc058bb03f563dafeac99981b259059f938be14128ed0be5534d14c5e7a178
+    name: prometheus-operator-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: c84aee614cbc41a316d7af84c73df35f36336408
+        url: https://github.com/stolostron/prometheus-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/memcached-exporter-acm-50@sha256:ffbed244cb3f26329a00385fa36e3defe69a6ee4263f0f41554d610c5d2f56f0
+    name: memcached-exporter-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 7c91d08b7c90b76f228935584a0e4439510ac058
+        url: https://github.com/stolostron/memcached_exporter
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/volsync-addon-controller-acm-50@sha256:20aac783bad00ad7c38b39fdef3acefc0f80d5889a4c9da03adbfaf59c8dff01
+    name: volsync-addon-controller-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 62809cdf9f2dc215bd40fe61544a97ad8b296433
+        url: https://github.com/stolostron/volsync-addon-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/observatorium-operator-acm-50@sha256:b4a0fe3a611d8170448491db667d138eca6873d4f1903fbf60bfc723b2ea7646
+    name: observatorium-operator-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 668b1817def78be746948af4e5c12c1be56cbafd
+        url: https://github.com/stolostron/observatorium-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-addon-acm-50@sha256:1d8c977959331214acbe783b4c0c2dc52a3bcf7e79876cbf04c9e15cda30836f
+    name: multicluster-observability-addon-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile
+        revision: 5306f9284439995d2454411c24136d0c055e96da
+        url: https://github.com/stolostron/multicluster-observability-addon
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/rbac-query-proxy-acm-50@sha256:840cd0a58b7f75876819f8bc192441683e2810991e4386082187ee8146dac193
+    name: rbac-query-proxy-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: proxy/Containerfile.operator
+        revision: c645873f74a6ff7ecb42bb53d34dd00cfb847a72
+        url: https://github.com/stolostron/multicluster-observability-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/endpoint-monitoring-operator-acm-50@sha256:b54924fd247eb3b8ed1cbcbefeb7b1b83a7cee2be4a32fde9abad48228676568
+    name: endpoint-monitoring-operator-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: operators/endpointmetrics/Containerfile.operator
+        revision: c645873f74a6ff7ecb42bb53d34dd00cfb847a72
+        url: https://github.com/stolostron/multicluster-observability-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-role-assignment-acm-50@sha256:d73ba2795ae9e55f0e579298f1c3430946bd2c08f66f32caae8f517ffef7249b
+    name: multicluster-role-assignment-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile
+        revision: 655cb6b61c3d2238d18c15625746ca21e2dbca58
+        url: https://github.com/stolostron/multicluster-role-assignment
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-channel-acm-50@sha256:bd922f24d615eb1fb42f333ac4f7a57eeed4398fb619e7b884ae4842ec1e7b97
+    name: multicluster-operators-channel-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: dcaf8352a506705bee6db3b3a170696992a3dcad
+        url: https://github.com/stolostron/multicloud-operators-channel
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-acm-50@sha256:8f179376f90efc7dd269b78406fbb1348983cfbbafd2ad43bfadb177996de0e4
+    name: prometheus-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 85afe8b7106d9f79959c18072e5e284761b95812
+        url: https://github.com/stolostron/prometheus
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-propagator-acm-50@sha256:17d5e149246f2990eb6eb4a23b9710b9bad1bdb50c169f80403db644be59722f
+    name: governance-policy-propagator-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: b55c1a1a48028ce19caa7b0c9e68d936b8228376
+        url: https://github.com/stolostron/governance-policy-propagator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/insights-metrics-acm-50@sha256:7144f8b29240fc562d36d3a51b266166b495bf1054260a418e3eb6038ab66dfe
+    name: insights-metrics-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 847f8a8eb5dd1056ffa7edc4c566ed0f7bca20c9
+        url: https://github.com/stolostron/insights-metrics
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/obo-prometheus-operator-acm-50@sha256:e25b77803d9c85c485b51c164c3f5cb627f1f28fdc6d55e545db6d792bc26c71
+    name: obo-prometheus-operator-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.prom-operator
+        revision: 08489b75192a286c5cd4a19dc01e239e4ceee7e6
+        url: https://github.com/stolostron/obo-prometheus-operator
 status:
   conditions:
-  - lastTransitionTime: "2026-08-26T13:03:32Z"
+  - lastTransitionTime: "2026-08-26T20:42:16Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-08-26T13:03:32Z"
+  - lastTransitionTime: "2026-08-26T20:42:16Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-08-26T13:03:32Z"
+  - lastTransitionTime: "2026-08-26T20:42:16Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
