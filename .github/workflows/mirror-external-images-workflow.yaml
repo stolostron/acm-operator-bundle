@@ -122,19 +122,17 @@ jobs:
           config
         show-progress: false
 
-    - name: Checkout config from main branch
-      uses: actions/checkout@v4
-      with:
-        # Always pull tooling config (acm-bundle-pr-config-vars) from main branch
-        # to ensure consistency across all release branches
-        ref: main
-        path: workflow
-        sparse-checkout: |
-          config/acm-bundle-pr-config-vars
-        # Cone mode (the actions/checkout default) only supports directory
-        # patterns; a single file path like this needs non-cone mode.
-        sparse-checkout-cone-mode: false
-        show-progress: false
+    - name: Get tools-repo pin config from main branch
+      run: |
+        # Always pull tooling config (acm-bundle-pr-config-vars) from main
+        # branch to ensure consistency across all release branches, without
+        # disturbing other files under config/ (e.g. acm-manifest-gen-config.json,
+        # which lives only on release branches and must be preserved).
+        # A second full `actions/checkout` with path: workflow would overwrite
+        # the whole config/ directory instead of just this one file, so use
+        # `git show` to fetch only the single file we need.
+        git -C workflow fetch --depth=1 origin main
+        git -C workflow show origin/main:config/acm-bundle-pr-config-vars > workflow/config/acm-bundle-pr-config-vars
 
     - name: Read pinned release-tools commit
       id: tools-repo-pin
