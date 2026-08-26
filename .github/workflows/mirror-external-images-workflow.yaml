@@ -131,6 +131,9 @@ jobs:
         path: workflow
         sparse-checkout: |
           config/acm-bundle-pr-config-vars
+        # Cone mode (the actions/checkout default) only supports directory
+        # patterns; a single file path like this needs non-cone mode.
+        sparse-checkout-cone-mode: false
         show-progress: false
 
     - name: Read pinned release-tools commit
@@ -241,6 +244,13 @@ jobs:
           SUMMARY="Mirror script did not complete successfully"
           DETAILS=""
           HAS_FAILURE=true
+          # No results file means the script never ran (e.g. an earlier step
+          # failed). Default the counts so the jq --argjson calls below still
+          # get valid JSON instead of empty strings.
+          MIRRORED=0
+          SKIPPED=0
+          FAILED=0
+          FAILURES_JSON="[]"
         else
           # Parse the JSON results
           MIRRORED=$(jq -r '.mirrored' workflow/mirror-results.json)
