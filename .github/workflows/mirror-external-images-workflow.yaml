@@ -122,6 +122,17 @@ jobs:
           config
         show-progress: false
 
+    - name: Checkout config from main branch
+      uses: actions/checkout@v4
+      with:
+        # Always pull tooling config (acm-bundle-pr-config-vars) from main branch
+        # to ensure consistency across all release branches
+        ref: main
+        path: workflow
+        sparse-checkout: |
+          config/acm-bundle-pr-config-vars
+        show-progress: false
+
     - name: Read pinned release-tools commit
       id: tools-repo-pin
       run: |
