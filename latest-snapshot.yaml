@@ -2,111 +2,87 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/console?rev=61cb84e2dc93d56bf77e8a7940f5ffbb20f18f91
-    build.appstudio.redhat.com/commit_sha: 61cb84e2dc93d56bf77e8a7940f5ffbb20f18f91
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/console?rev=8d42d4336bcb9933cc106498bb67e3d1b71026db
+    build.appstudio.redhat.com/commit_sha: 8d42d4336bcb9933cc106498bb67e3d1b71026db
     build.appstudio.redhat.com/target_branch: release-5.1
     pac.test.appstudio.openshift.io/branch: release-5.1
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "102826472115"
+    pac.test.appstudio.openshift.io/check-run-id: "102946179587"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-diofrd
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-bamsfq
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/console-acm-51-on-push-9zq2d
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/console-acm-51-on-push-2mqv8
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-5.1"
     pac.test.appstudio.openshift.io/original-prname: console-acm-51-on-push
-    pac.test.appstudio.openshift.io/pull-request: "6764"
+    pac.test.appstudio.openshift.io/pull-request: "6584"
     pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/console
     pac.test.appstudio.openshift.io/repository: console
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
     pac.test.appstudio.openshift.io/sender: acm-cicd-prow-bot
-    pac.test.appstudio.openshift.io/sha: 61cb84e2dc93d56bf77e8a7940f5ffbb20f18f91
+    pac.test.appstudio.openshift.io/sha: 8d42d4336bcb9933cc106498bb67e3d1b71026db
     pac.test.appstudio.openshift.io/sha-title: |-
-      ACM-42794: Ensure typeahead inputs disable browser autocomplete (#6764)
+      ACM-5264 Require meaningful aria-labels on AcmTable (#6584)
 
-      * ACM-42794: Ensure typeahead inputs disable browser autocomplete
+      * fix(AcmTable): require meaningful aria-labels on tables (ACM-5264)
 
-      Both AcmSelectBase and react-form-wizard's InputSelect already attempted
-      to disable native autocomplete by passing autoComplete="off" directly
-      to PatternFly's TextInputGroupMain, but that component only forwards a
-      fixed allowlist of props (plus inputProps) to the underlying <input> -
-      everything else lands on the wrapping <div> instead. As a result the
-      real <input> never received the attribute, so Chrome kept suggesting
-      and obscuring previously typed values in typeahead/combobox fields
-      (e.g. release image selection, automation template dropdown).
+      Replace the hardcoded "Simple Table" accessible name with a required
+      per-table aria-label so each AcmTable has a unique, meaningful name.
 
-      Route autoComplete through inputProps/resolvedInputProps, which is
-      the mechanism TextInputGroupMain actually spreads onto the input.
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
 
-      Signed-off-by: Randy Bruno Piverger <21374229+Randy424@users.noreply.github.com>
-      Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+      * fix(search): make Search AcmTable aria-labels unique per kind
 
-      * ACM-42794: Add regression test for typeahead autocomplete attribute
+      Address CodeRabbit review: include resource kind in Search table
+      accessible names, and use ~/ import alias in ClustersTable.
 
-      Verifies the AcmSelectBase typeahead variant renders its <input> with
-      autocomplete="off", so Chrome's autofill/autocomplete UI cannot mask
-      ACM's own dropdown options.
-
-      Signed-off-by: Randy Bruno Piverger <21374229+Randy424@users.noreply.github.com>
-      Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
-
-      * ACM-42794: Update snapshots for corrected autocomplete attribute placement
-
-      ControlPanelMultiSelect and ControlPanelSingleSelect snapshots
-      previously captured autoComplete="off" on the TextInputGroupMain
-      wrapper div (the prior no-op placement). Update them to reflect the
-      attribute now landing on the real <input> element.
-
-      Signed-off-by: Randy Bruno Piverger <21374229+Randy424@users.noreply.github.com>
-      Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
 
       ---------
 
-      Signed-off-by: Randy Bruno Piverger <21374229+Randy424@users.noreply.github.com>
-      Co-authored-by: Randy Bruno Piverger <21374229+Randy424@users.noreply.github.com>
-      Co-authored-by: Claude Sonnet 5 <noreply@anthropic.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/console/commit/61cb84e2dc93d56bf77e8a7940f5ffbb20f18f91
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/console/commit/8d42d4336bcb9933cc106498bb67e3d1b71026db
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-5.1
     pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
     pac.test.appstudio.openshift.io/url-repository: console
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-09-10T10:18:29Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-51-release-acm-51-20260910-095721-000":{"lastUpdateTime":"2026-09-10T10:19:21.44468891Z"}}}'
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-09-10T16:23:16Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-51-release-acm-51-20260910-160126-000":{"lastUpdateTime":"2026-09-10T16:24:09.675497165Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1789034241000"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1789056086000"
     test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/result-chains-git-commit: 61cb84e2dc93d56bf77e8a7940f5ffbb20f18f91
+    test.appstudio.openshift.io/result-chains-git-commit: 8d42d4336bcb9933cc106498bb67e3d1b71026db
     test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/console
-    test.appstudio.openshift.io/result-image-digest: sha256:e0f5c1d2c9ffebdaba6275c57f65dd84c70882a3abd0e8e973f8bfb0edb52edb
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-51:61cb84e2dc93d56bf77e8a7940f5ffbb20f18f91
+    test.appstudio.openshift.io/result-image-digest: sha256:0b497361c2a3c3a70901ad1d4ba3ae78faec5427c32a08cf7ad58bb06de1f06c
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-51:8d42d4336bcb9933cc106498bb67e3d1b71026db
     test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-51","status":"BuildPLRInProgress","lastUpdateTime":"2026-09-10T10:19:21.44468891Z","details":"Integration
-      test passed with warnings","startTime":"2026-09-10T10:18:29.319970573Z","completionTime":"2026-09-10T10:19:21.44468891Z","testPipelineRunName":"enterprise-contract-acm-51-lj5cj"}]'
-  creationTimestamp: "2026-09-10T10:18:29Z"
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-51","status":"BuildPLRInProgress","lastUpdateTime":"2026-09-10T16:24:09.675497165Z","details":"Integration
+      test passed with warnings","startTime":"2026-09-10T16:23:16.730150423Z","completionTime":"2026-09-10T16:24:09.675497165Z","testPipelineRunName":"enterprise-contract-acm-51-65pf5"}]'
+  creationTimestamp: "2026-09-10T16:23:16Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-51
-    appstudio.openshift.io/build-pipelinerun: console-acm-51-on-push-9zq2d
+    appstudio.openshift.io/build-pipelinerun: console-acm-51-on-push-2mqv8
     appstudio.openshift.io/component: console-acm-51
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "102826472115"
+    pac.test.appstudio.openshift.io/check-run-id: "102946179587"
     pac.test.appstudio.openshift.io/event-type: push
     pac.test.appstudio.openshift.io/original-prname: console-acm-51-on-push
-    pac.test.appstudio.openshift.io/pull-request: "6764"
+    pac.test.appstudio.openshift.io/pull-request: "6584"
     pac.test.appstudio.openshift.io/repository: console
-    pac.test.appstudio.openshift.io/sha: 61cb84e2dc93d56bf77e8a7940f5ffbb20f18f91
+    pac.test.appstudio.openshift.io/sha: 8d42d4336bcb9933cc106498bb67e3d1b71026db
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
     pac.test.appstudio.openshift.io/url-repository: console
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1789035502"
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1789057385"
     test.appstudio.openshift.io/type: component
-  name: release-acm-51-20260910-095721-000
+  name: release-acm-51-20260910-160126-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -115,60 +91,12 @@ metadata:
     kind: Application
     name: release-acm-51
     uid: ec6e13f5-affe-47ff-9636-8502a9217f2e
-  resourceVersion: "11098350344"
-  uid: 2a3e353e-53f7-4b3b-92e5-db162d91df03
+  resourceVersion: "11104504311"
+  uid: 7dab2744-d5c0-472f-b14e-742f0d7a272f
 spec:
   application: release-acm-51
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-api-acm-51@sha256:b151edb2b4ae45b1d07316978f16951c15517306ce26bda741091e1cb4ddee0d
-    name: search-v2-api-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 50f9bee703c60d685bb7f4b2fc8597a0337e6e04
-        url: https://github.com/stolostron/search-v2-api
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-subscription-acm-51@sha256:bdf3c1486801ca9a39d1781fb0aec7aa6dae14ced2467f3d13d53c7d69c5db02
-    name: multicluster-operators-subscription-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 6913f9e3c008f4330e7ffe8f46bb1029ee16ccab
-        url: https://github.com/stolostron/multicloud-operators-subscription
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/obo-prometheus-operator-acm-51@sha256:04a9a7626628e605de900ffe9e3b556364c923acba39ddaa2c41601e5f44ad2f
-    name: obo-prometheus-operator-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.prom-operator
-        revision: 4f675bbd9c97f61ef4ad2dcd8838eaac3174c205
-        url: https://github.com/stolostron/obo-prometheus-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/dynamic-scoring-controller-acm-51@sha256:a6415e84f458bd918b0dd6c0a3b126382cb9859022c8f662dd26c254285aa005
-    name: dynamic-scoring-controller-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 736d2bdd390a02e35cfa73ed648909c8c08aed51
-        url: https://github.com/stolostron/dynamic-scoring-framework
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-51@sha256:51b57db04a554764c4411cc0933e0202645081c8ba8b3642900f13c27e0f52c4
-    name: mtv-integrations-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile
-        revision: 3595ff4bb5048837d27d95f7bc07f415bbcb97e7
-        url: https://github.com/stolostron/mtv-integrations
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-operator-acm-51@sha256:5acd16b22babed42cb7a14837247c6a76731b15243ef5c258e63d373779effad
-    name: prometheus-operator-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: a1518b203ff3796043bdb2646d4042b60d289247
-        url: https://github.com/stolostron/prometheus-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-addon-acm-51@sha256:af7a852be79426fd58a46050adc204bb951e944981e86504e3b205ae43f67d93
     name: multicluster-observability-addon-acm-51
     source:
@@ -385,12 +313,12 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: f3c7e2363b36fe84a67e4b05673e1cc9b694dcb4
         url: https://github.com/stolostron/search-indexer
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-51@sha256:e0f5c1d2c9ffebdaba6275c57f65dd84c70882a3abd0e8e973f8bfb0edb52edb
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-51@sha256:0b497361c2a3c3a70901ad1d4ba3ae78faec5427c32a08cf7ad58bb06de1f06c
     name: console-acm-51
     source:
       git:
         context: ./
-        revision: 61cb84e2dc93d56bf77e8a7940f5ffbb20f18f91
+        revision: 8d42d4336bcb9933cc106498bb67e3d1b71026db
         url: https://github.com/stolostron/console
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-51@sha256:bddef196c2087da18097d75181965d0e455168960a1792300ae70b7b025c563b
     name: multicluster-operators-application-acm-51
@@ -504,20 +432,68 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: 42962d325a27549f94a3e7416c4361662bf437b8
         url: https://github.com/stolostron/prometheus-alertmanager
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-api-acm-51@sha256:b151edb2b4ae45b1d07316978f16951c15517306ce26bda741091e1cb4ddee0d
+    name: search-v2-api-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 50f9bee703c60d685bb7f4b2fc8597a0337e6e04
+        url: https://github.com/stolostron/search-v2-api
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-subscription-acm-51@sha256:bdf3c1486801ca9a39d1781fb0aec7aa6dae14ced2467f3d13d53c7d69c5db02
+    name: multicluster-operators-subscription-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 6913f9e3c008f4330e7ffe8f46bb1029ee16ccab
+        url: https://github.com/stolostron/multicloud-operators-subscription
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/obo-prometheus-operator-acm-51@sha256:04a9a7626628e605de900ffe9e3b556364c923acba39ddaa2c41601e5f44ad2f
+    name: obo-prometheus-operator-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.prom-operator
+        revision: 4f675bbd9c97f61ef4ad2dcd8838eaac3174c205
+        url: https://github.com/stolostron/obo-prometheus-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/dynamic-scoring-controller-acm-51@sha256:a6415e84f458bd918b0dd6c0a3b126382cb9859022c8f662dd26c254285aa005
+    name: dynamic-scoring-controller-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 736d2bdd390a02e35cfa73ed648909c8c08aed51
+        url: https://github.com/stolostron/dynamic-scoring-framework
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-51@sha256:51b57db04a554764c4411cc0933e0202645081c8ba8b3642900f13c27e0f52c4
+    name: mtv-integrations-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile
+        revision: 3595ff4bb5048837d27d95f7bc07f415bbcb97e7
+        url: https://github.com/stolostron/mtv-integrations
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-operator-acm-51@sha256:5acd16b22babed42cb7a14837247c6a76731b15243ef5c258e63d373779effad
+    name: prometheus-operator-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: a1518b203ff3796043bdb2646d4042b60d289247
+        url: https://github.com/stolostron/prometheus-operator
 status:
   conditions:
-  - lastTransitionTime: "2026-09-10T10:19:21Z"
+  - lastTransitionTime: "2026-09-10T16:24:09Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-09-10T10:19:21Z"
+  - lastTransitionTime: "2026-09-10T16:24:09Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-09-10T10:19:21Z"
+  - lastTransitionTime: "2026-09-10T16:24:09Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
