@@ -2,82 +2,262 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/volsync-addon-controller?rev=cf99913f248389c61cbc03b91cbcd7e27def5515
-    build.appstudio.redhat.com/commit_sha: cf99913f248389c61cbc03b91cbcd7e27def5515
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/multiclusterhub-operator?rev=f1cc290291f3ed790d01f08ebfa968310e9dc162
+    build.appstudio.redhat.com/commit_sha: f1cc290291f3ed790d01f08ebfa968310e9dc162
     build.appstudio.redhat.com/target_branch: release-5.2
     pac.test.appstudio.openshift.io/branch: release-5.2
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "103294933064"
+    pac.test.appstudio.openshift.io/check-run-id: "103408529628"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-xzemdr
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-vhfvdq
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/volsync-addon-controller-acm-52-on-push-hrx7w
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/multiclusterhub-operator-acm-52-on-push-xknll
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-5.2"
-    pac.test.appstudio.openshift.io/original-prname: volsync-addon-controller-acm-52-on-push
-    pac.test.appstudio.openshift.io/pull-request: "1486"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/volsync-addon-controller
-    pac.test.appstudio.openshift.io/repository: volsync-addon-controller-acm-210
+    pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-52-on-push
+    pac.test.appstudio.openshift.io/pull-request: "4757"
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/multiclusterhub-operator
+    pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
     pac.test.appstudio.openshift.io/sender: acm-cicd-prow-bot
-    pac.test.appstudio.openshift.io/sha: cf99913f248389c61cbc03b91cbcd7e27def5515
+    pac.test.appstudio.openshift.io/sha: f1cc290291f3ed790d01f08ebfa968310e9dc162
     pac.test.appstudio.openshift.io/sha-title: |-
-      automatic update in main of VolSync release-0.17 helm charts (#1486)
+      Surface blocking resource in MCH status conditions (#4757)
 
-      Signed-off-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-      Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/volsync-addon-controller/commit/cf99913f248389c61cbc03b91cbcd7e27def5515
+      * Surface blocking resources in setup and MCE readiness tracking
+
+      Add resourceIdentifier() helper to format kind/namespace/name in condition
+      messages. Update ensure*() functions (namespace, operator group, service
+      account, cluster role binding, unstructured resource) to set Progressing
+      conditions naming the specific resource being created, instead of generic
+      "Created new resource" messages.
+
+      Add RequirementsNotMet condition for multiple OperatorGroup conflict
+      (terminal misconfiguration, no requeue) and for invalid MCE subscription/
+      ClusterExtension override annotations.
+
+      Change waitForMCEReady() to accept the hub so it can set Progressing/
+      WaitingForMCE conditions describing what's blocking MCE readiness: not
+      yet present, no version reported (enriched with MCE's own latest
+      condition via latestMCECondition()), or version too low. Surface the
+      same for MCE CRD not yet available and MCE creation failures in
+      ensureMultiClusterEngineCR.
+
+      Retry Subscription/ClusterExtension update conflicts with OLM's own
+      status writes quietly (empty result) instead of an explicit requeue, so
+      concurrent OLM updates don't starve ensureMultiClusterEngineCR from
+      running in the same reconcile.
+
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+
+      * Propagate reconcile context through finalization cleanup
+
+      Add ctx context.Context parameter to cleanupClusterRoles,
+      cleanupClusterRoleBindings, and cleanupMultiClusterEngine instead of
+      creating ad-hoc context.Background()/context.TODO() calls. Enables
+      proper request tracing and deadline propagation during finalization,
+      and lets these functions surface Terminating conditions naming the
+      specific resource still blocking cleanup.
+
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+
+      * Propagate reconcile context through console notification cleanup
+
+      Add ctx context.Context parameter to cleanupConsoleNotifications instead
+      of context.TODO(), consistent with the cleanup pattern in finalizers.go.
+
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+
+      * Surface finalization blocking resource and fix CRD/resource render reason
+
+      Replace the anonymous cleanup-function slice with a named cleanupStep
+      struct so finalization failures log which named step (Namespaces,
+      ClusterRoles, ClusterRoleBindings, MultiClusterEngine, OrphanMCE,
+      ConsoleNotifications) didn't complete, instead of an opaque function
+      reference.
+
+      Set a Terminating condition naming the specific component still being
+      removed when ensureNoComponent errors or requires a requeue, instead of
+      silently retrying with no status visibility.
+
+      Fix deployResources returning CRDRenderReason for what is actually
+      ClusterRole rendering failures (this call site renders RBAC resources,
+      not CRDs) — use ResourceRenderReason instead.
+
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+
+      * Surface WaitingForNamespace condition in KlusterletAddonConfig setup
+
+      Set a Progressing/WaitingForNamespace condition naming the ManagedCluster
+      namespace when ensureKlusterletAddonConfig is waiting for it to be
+      created, and clear it once the namespace exists.
+
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+
+      * Surface reconciler-path blocking conditions and persist finalization retries
+
+      Set Progressing/RequirementsNotMet conditions for reconciler-path
+      failures that were previously only logged: missing image overrides,
+      image/template override configmap lookup failures, setDefaults failure,
+      SetDefaultStorageClassName failure, namespace label failure, and image
+      manifest configmap failure.
+
+      Persist the status update on the finalization retry path: SetHubCondition
+      was updating the in-memory struct, but nothing called
+      r.Client.Status().Update()/Patch() before returning, so condition updates
+      set during an incomplete finalizeHub() were lost every loop. Snapshot the
+      object before setting the Terminating condition so the merge patch
+      actually includes it.
+
+      Fix broken r.Log.Error calls using %s format verbs (logr doesn't support
+      printf-style formatting) by switching to structured key/value pairs.
+
+      Update waitForMCEReady() call site to pass the hub so it can set its own
+      WaitingForMCE conditions. Rename the misleading "Install CRDs" comment
+      on the deployResources call, which deploys ClusterRoles, not CRDs.
+
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+
+      * Integrate blocking-resource status changes with MCE upgrade-wait logic
+
+      Add a deletion-timestamp early exit to calculateStatus() that preserves
+      existing status and just reports the Uninstalling phase, instead of
+      recomputing install-oriented component/version tracking against
+      resources that are intentionally being torn down (which produced
+      misleading messages like "component is now available" for something
+      mid-termination).
+
+      Always surface a Complete:False condition once the hub is no longer
+      successful and not paused, rather than only when one already existed,
+      so consumers have a stable Complete condition from the first reconcile.
+
+      Add the latestMCECondition() helper (used by waitForMCEReady to enrich
+      its wait message with MCE's own latest condition) and fix a
+      reflect.DeepEqual bug in syncHubStatus comparing m.Status against
+      *original (a pointer) instead of the dereferenced value, which made the
+      "status hasn't changed" shortcut never trigger. Treat a NotFound error
+      from the status Update call as benign (the object's last finalizer was
+      likely just removed, triggering immediate garbage collection).
+
+      Add WaitingForMCEReason, WaitingForNamespaceReason, and
+      ComponentNotReadyReason constants for the intermediate MCE/namespace
+      readiness phases surfaced by common.go and managedcluster.go, distinct
+      from WaitingForMCEUpgradeReason (MCE present but below the required
+      version). Remove unused reason constants (AwaitingCRDCreationReason,
+      ResourceBlockReason, CertManagerReason, ManagedClusterTerminatingReason,
+      NamespaceTerminatingReason).
+
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+
+      * Add tests for blocking resource conditions in setup and finalization
+
+      Cover the condition-setting behavior added across common.go,
+      finalizers.go, and managedcluster.go: OperatorGroup conflicts, MCE CRD/
+      creation/readiness waits, invalid subscription/ClusterExtension override
+      annotations, Subscription/ClusterExtension update conflicts (and that
+      they don't starve MCE CR creation), named resource creation messages,
+      finalization step naming, and the WaitingForNamespace condition in
+      KlusterletAddonConfig setup.
+
+      One MCE-ready fixture derives its compliant version from
+      version.RequiredMCEVersion instead of a hardcoded literal, matching the
+      pattern already used in status_test.go, so a future required-version
+      bump doesn't silently break it again.
+
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+
+      * Add tests for deletion handling, Complete condition, and NotFound status updates
+
+      Cover calculateStatus()'s deletion-timestamp early exit (skips component
+      tracking, strips stale Progressing/Complete, preserves the existing
+      Terminating condition), the always-present Complete:False condition on
+      a fresh install (skipped while paused), and that a specific Progressing
+      reason set by an earlier stage isn't downgraded to a generic reconciling
+      message. The two calculateStatus tests seed a version-compliant MCE so
+      the MCE-upgrade-wait branch (ACM-8659) doesn't take priority and mask
+      the behavior under test.
+
+      Also cover syncHubStatus treating a NotFound status-update error as
+      benign, the message-refinement regression for SetHubCondition on a
+      reused Reason (e.g. Terminating/DeletionTimestampPresent as finalization
+      narrows in on what's blocking), and the reflect.DeepEqual pointer-vs-
+      value bug that made the "status hasn't changed" shortcut never trigger.
+
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+
+      * Fix syncHubStatus comparing the wrong operand in its no-op shortcut
+
+      The "status hasn't changed" shortcut compared m.Status against *original
+      instead of the freshly computed newStatus against *original. Since
+      calculateStatus() returns a new value without mutating m.Status, and
+      almost all condition-setting in this codebase happens by mutating
+      m.Status directly during Reconcile() (guarded by error/waiting
+      branches), m.Status equals original in the common, error-free case.
+      That made the shortcut trigger and silently skip persisting newStatus
+      even when it legitimately differed from original — e.g. a component's
+      availability changing or the overall phase advancing from Installing to
+      Running — effectively freezing the hub's status in the steady-state
+      case where no blocking condition ever fires.
+
+      Compare newStatus against *original instead, so the shortcut only skips
+      the update when the two are actually equal.
+
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+
+      ---------
+
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/multiclusterhub-operator/commit/f1cc290291f3ed790d01f08ebfa968310e9dc162
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-5.2
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/volsync-addon-controller
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: volsync-addon-controller
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-09-11T14:29:02Z"}'
-    test.appstudio.openshift.io/create-snapshot-status: Component(s) 'thanos-receive-controller-acm-52,
-      kube-rbac-proxy-acm-52, cluster-permission-acm-52, grafana-acm-52, rbac-query-proxy-acm-52,
-      memcached-exporter-acm-52, dynamic-scoring-addon-acm-52, obo-prometheus-operator-acm-52,
-      grafana-dashboard-loader-acm-52, dynamic-scoring-controller-acm-52, node-exporter-acm-52,
-      prometheus-config-reloader-acm-52, thanos-acm-52, metrics-collector-acm-52,
+    pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-09-11T20:26:35Z"}'
+    test.appstudio.openshift.io/create-snapshot-status: Component(s) 'prometheus-acm-52,
+      prometheus-alertmanager-acm-52, kube-state-metrics-acm-52, endpoint-monitoring-operator-acm-52,
+      thanos-receive-controller-acm-52, kube-rbac-proxy-acm-52, cluster-permission-acm-52,
+      grafana-acm-52, rbac-query-proxy-acm-52, memcached-exporter-acm-52, dynamic-scoring-addon-acm-52,
+      obo-prometheus-operator-acm-52, grafana-dashboard-loader-acm-52, dynamic-scoring-controller-acm-52,
+      node-exporter-acm-52, prometheus-config-reloader-acm-52, thanos-acm-52, metrics-collector-acm-52,
       observatorium-acm-52, prometheus-operator-acm-52, multicluster-observability-addon-acm-52,
-      observatorium-operator-acm-52, multicluster-observability-operator-acm-52, prometheus-acm-52,
-      prometheus-alertmanager-acm-52, kube-state-metrics-acm-52, endpoint-monitoring-operator-acm-52'
-      is(are) not included in snapshot due to missing valid containerImage or git
-      source
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-52-release-acm-52-20260911-141627-000":{"lastUpdateTime":"2026-09-11T14:29:47.773582558Z"}}}'
+      observatorium-operator-acm-52, multicluster-observability-operator-acm-52' is(are)
+      not included in snapshot due to missing valid containerImage or git source
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-52-release-acm-52-20260911-201757-000":{"lastUpdateTime":"2026-09-11T20:27:14.178892381Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1789136187000"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1789157877000"
     test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/result-chains-git-commit: cf99913f248389c61cbc03b91cbcd7e27def5515
-    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/volsync-addon-controller
-    test.appstudio.openshift.io/result-image-digest: sha256:6b2ec76746cfedbefb71176ac3cbca1c2bec7beaa5c6a2e702b7c8b16d6b70fd
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/volsync-addon-controller-acm-52:cf99913f248389c61cbc03b91cbcd7e27def5515
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/volsync-addon-controller
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-52","status":"BuildPLRInProgress","lastUpdateTime":"2026-09-11T14:29:47.773582558Z","details":"Integration
-      test passed with warnings","startTime":"2026-09-11T14:29:02.996206342Z","completionTime":"2026-09-11T14:29:47.773582558Z","testPipelineRunName":"enterprise-contract-acm-52-7vsf9"}]'
-  creationTimestamp: "2026-09-11T14:29:02Z"
+    test.appstudio.openshift.io/result-chains-git-commit: f1cc290291f3ed790d01f08ebfa968310e9dc162
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/multiclusterhub-operator
+    test.appstudio.openshift.io/result-image-digest: sha256:823ae3f8b998f3eaa4997595d33b18e6fe36f8b70f12842c5a10f0fd2d9e0fc2
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-52:f1cc290291f3ed790d01f08ebfa968310e9dc162
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-52","status":"BuildPLRInProgress","lastUpdateTime":"2026-09-11T20:27:14.178892381Z","details":"Integration
+      test passed with warnings","startTime":"2026-09-11T20:26:35.350326604Z","completionTime":"2026-09-11T20:27:14.178892381Z","testPipelineRunName":"enterprise-contract-acm-52-87882"}]'
+  creationTimestamp: "2026-09-11T20:26:35Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-52
-    appstudio.openshift.io/build-pipelinerun: volsync-addon-controller-acm-52-on-push-hrx7w
-    appstudio.openshift.io/component: volsync-addon-controller-acm-52
+    appstudio.openshift.io/build-pipelinerun: multiclusterhub-operator-acm-52-on-push-xknll
+    appstudio.openshift.io/component: multiclusterhub-operator-acm-52
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "103294933064"
+    pac.test.appstudio.openshift.io/check-run-id: "103408529628"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: volsync-addon-controller-acm-52-on-push
-    pac.test.appstudio.openshift.io/pull-request: "1486"
-    pac.test.appstudio.openshift.io/repository: volsync-addon-controller-acm-210
-    pac.test.appstudio.openshift.io/sha: cf99913f248389c61cbc03b91cbcd7e27def5515
+    pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-52-on-push
+    pac.test.appstudio.openshift.io/pull-request: "4757"
+    pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
+    pac.test.appstudio.openshift.io/sha: f1cc290291f3ed790d01f08ebfa968310e9dc162
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: volsync-addon-controller
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1789136904"
+    pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1789158388"
     test.appstudio.openshift.io/type: component
-  name: release-acm-52-20260911-141627-000
+  name: release-acm-52-20260911-201757-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -86,12 +266,44 @@ metadata:
     kind: Application
     name: release-acm-52
     uid: cfc033ef-9dfc-426e-9763-dbb135f75288
-  resourceVersion: "11123179696"
-  uid: 1a609dde-60cd-4150-8aa6-bfa48abf700e
+  resourceVersion: "11127679904"
+  uid: dcbfc639-ebc9-4407-80b9-707e55ba6df4
 spec:
   application: release-acm-52
   artifacts: {}
   components:
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-52@sha256:1a41f9a963a39feed21d57d300930e6de8e916057b53f294630844f4ae2021d4
+    name: search-indexer-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 34e2e63eec68ec6900689d94f5a93775eedb9bfb
+        url: https://github.com/stolostron/search-indexer
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-52@sha256:81802e71357e07dad1309e3511a918d7d58457cca2d1884e55597ef44536c58a
+    name: klusterlet-addon-controller-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 5341d7699a6da19b5cae586faa0a4829d5cfdb48
+        url: https://github.com/stolostron/klusterlet-addon-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-operator-acm-52@sha256:067dd9dd60f7e0862e7ac7347f40971a2f0aeb0a2296e6459a21d82aef7f5027
+    name: search-v2-operator-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: b9240a7a786259df5aa22474579a1f2e21e99101
+        url: https://github.com/stolostron/search-v2-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-52@sha256:083f115e0102e696fb0d73fa77107c82a3755194d7bf390ff6a4aba89eac93ea
+    name: multicluster-operators-application-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: d3c5defb1cbe986b28dbfbd2e4eb5d66736faaf0
+        url: https://github.com/stolostron/multicloud-operators-application
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-api-acm-52@sha256:eb3727e2b579c520a00d7e0f830d3fe8e77c84af29d65345ef238624a94ed3d9
     name: search-v2-api-acm-52
     source:
@@ -196,13 +408,12 @@ spec:
         dockerfileUrl: Dockerfile
         revision: 3595ff4bb5048837d27d95f7bc07f415bbcb97e7
         url: https://github.com/stolostron/mtv-integrations
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-52@sha256:c5dfa1d026d3d5c7c06bcccc6fc612c2d395101c0b501c9e6ad9f820e8741f42
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-52@sha256:823ae3f8b998f3eaa4997595d33b18e6fe36f8b70f12842c5a10f0fd2d9e0fc2
     name: multiclusterhub-operator-acm-52
     source:
       git:
         context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: e113e6c88f1f02aa50bbc06ff1d17b3b7719b8d3
+        revision: f1cc290291f3ed790d01f08ebfa968310e9dc162
         url: https://github.com/stolostron/multiclusterhub-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/config-policy-controller-acm-52@sha256:085d3b7e48ece7b5f317b7021d3dabeec2f0bdd7bdbc19442d1b31771f8ef4be
     name: config-policy-controller-acm-52
@@ -225,6 +436,7 @@ spec:
     source:
       git:
         context: ./
+        dockerfileUrl: Dockerfile.rhtap
         revision: cf99913f248389c61cbc03b91cbcd7e27def5515
         url: https://github.com/stolostron/volsync-addon-controller
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-propagator-acm-52@sha256:eea210046c067fc81f510deb8d23fa996337d36e8d1b4ca01e27546b72d53d24
@@ -267,52 +479,20 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: f51f70efd8177c8dc3d8c6b6514784580b8623ca
         url: https://github.com/stolostron/governance-policy-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-52@sha256:1a41f9a963a39feed21d57d300930e6de8e916057b53f294630844f4ae2021d4
-    name: search-indexer-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 34e2e63eec68ec6900689d94f5a93775eedb9bfb
-        url: https://github.com/stolostron/search-indexer
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-52@sha256:81802e71357e07dad1309e3511a918d7d58457cca2d1884e55597ef44536c58a
-    name: klusterlet-addon-controller-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 5341d7699a6da19b5cae586faa0a4829d5cfdb48
-        url: https://github.com/stolostron/klusterlet-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-operator-acm-52@sha256:067dd9dd60f7e0862e7ac7347f40971a2f0aeb0a2296e6459a21d82aef7f5027
-    name: search-v2-operator-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: b9240a7a786259df5aa22474579a1f2e21e99101
-        url: https://github.com/stolostron/search-v2-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-52@sha256:083f115e0102e696fb0d73fa77107c82a3755194d7bf390ff6a4aba89eac93ea
-    name: multicluster-operators-application-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: d3c5defb1cbe986b28dbfbd2e4eb5d66736faaf0
-        url: https://github.com/stolostron/multicloud-operators-application
 status:
   conditions:
-  - lastTransitionTime: "2026-09-11T14:29:49Z"
+  - lastTransitionTime: "2026-09-11T20:27:14Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-09-11T14:29:50Z"
+  - lastTransitionTime: "2026-09-11T20:27:14Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-09-11T14:29:50Z"
+  - lastTransitionTime: "2026-09-11T20:27:14Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
