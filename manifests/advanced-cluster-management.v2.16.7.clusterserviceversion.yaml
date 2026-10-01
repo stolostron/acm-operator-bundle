@@ -8,7 +8,7 @@ metadata:
     categories: Integration & Delivery
     certified: 'true'
     support: Red Hat
-    createdAt: '2026-09-30T18:04:57Z'
+    createdAt: '2026-10-01T18:05:12Z'
     description: Advanced provisioning and management of OpenShift and Kubernetes clusters
     operatorframework.io/suggested-namespace: open-cluster-management
     operatorframework.io/initialization-resource: '{"apiVersion":"operator.open-cluster-management.io/v1",
@@ -29,9 +29,9 @@ metadata:
     features.operators.openshift.io/token-auth-azure: 'false'
     features.operators.openshift.io/token-auth-gcp: 'false'
     olm.properties: '[{"type": "olm.maxOpenShiftVersion", "value": "4.22"}]'
-    olm.skipRange: '>=2.15.0 <2.16.6'
+    olm.skipRange: '>=2.15.0 <2.16.7'
     operators.openshift.io/must-gather-image: registry.redhat.io/rhacm2/acm-must-gather-rhel9@sha256:a0c9dcb9f963c3814cadfbceb75594c8779f4dce9f7bfbcea7de02263ab67801
-  name: advanced-cluster-management.v2.16.6
+  name: advanced-cluster-management.v2.16.7
   namespace: placeholder
   labels:
     operatorframework.io/arch.amd64: supported
@@ -41,7 +41,7 @@ metadata:
     operatorframework.io/os.linux: supported
 spec:
   displayName: Advanced Cluster Management for Kubernetes
-  version: 2.16.6
+  version: 2.16.7
   provider:
     name: Red Hat
   maintainers:
@@ -1970,7 +1970,7 @@ spec:
                 - name: OPERAND_IMAGE_OBSERVATORIUM_OPERATOR
                   value: registry.redhat.io/rhacm2/observatorium-rhel9-operator@sha256:8e48676f85850d5fffb91bfaa9816afad0ecb22bce1a53bf1a872836c061db25
                 - name: OPERAND_IMAGE_PROMETHEUS
-                  value: registry.redhat.io/rhacm2/prometheus-rhel9@sha256:6ede9f1b8319aff9c37882f41eb9e7825cf3a7ef84e52cf8822e11a6741f4a1d
+                  value: registry.redhat.io/rhacm2/prometheus-rhel9@sha256:b5a4cbce047258813365ab66f7dfbfa7561b36785b6ed4818335338b97a617c2
                 - name: OPERAND_IMAGE_PROMETHEUS_ALERTMANAGER
                   value: registry.redhat.io/rhacm2/prometheus-alertmanager-rhel9@sha256:a658ee69c1cc3bd07dff52cbe7194e4d17c011c9cc11b09fad7e67e51b97e604
                 - name: OPERAND_IMAGE_PROMETHEUS_CONFIG_RELOADER
@@ -2034,12 +2034,12 @@ spec:
                 - name: OPERAND_IMAGE_VOLSYNC
                   value: registry.redhat.io/rhacm2/volsync-rhel9@sha256:21036e648b2e134654c8f90bf23e4e098a55d119a70c6063f201f82743bdff21
                 - name: OPERATOR_VERSION
-                  value: 2.16.6
+                  value: 2.16.7
                 - name: OPERATOR_PACKAGE
                   value: advanced-cluster-management
                 - name: OPERAND_IMAGE_MULTICLUSTERHUB_OPERATOR
-                  value: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:cb7c62ea237d86061d4a8fa6083d3c4b414079f85cbecd739e6614de94a35f67
-                image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:cb7c62ea237d86061d4a8fa6083d3c4b414079f85cbecd739e6614de94a35f67
+                  value: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:c782fdd0204a0ee118054d9164641836aad9d91ebf2fd2725225bf43b49f6bc7
+                image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:c782fdd0204a0ee118054d9164641836aad9d91ebf2fd2725225bf43b49f6bc7
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -2082,7 +2082,7 @@ spec:
                 secret:
                   defaultMode: 420
                   secretName: multiclusterhub-operator-webhook
-  replaces: advanced-cluster-management.v2.16.5
+  replaces: advanced-cluster-management.v2.16.6
   relatedImages:
   - name: acm_cli
     image: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:f93cd09fd1829c90f4cb60facbb24bc718e116756966882d657c79438a1347ef
@@ -2149,7 +2149,7 @@ spec:
   - name: observatorium_operator
     image: registry.redhat.io/rhacm2/observatorium-rhel9-operator@sha256:8e48676f85850d5fffb91bfaa9816afad0ecb22bce1a53bf1a872836c061db25
   - name: prometheus
-    image: registry.redhat.io/rhacm2/prometheus-rhel9@sha256:6ede9f1b8319aff9c37882f41eb9e7825cf3a7ef84e52cf8822e11a6741f4a1d
+    image: registry.redhat.io/rhacm2/prometheus-rhel9@sha256:b5a4cbce047258813365ab66f7dfbfa7561b36785b6ed4818335338b97a617c2
   - name: prometheus_alertmanager
     image: registry.redhat.io/rhacm2/prometheus-alertmanager-rhel9@sha256:a658ee69c1cc3bd07dff52cbe7194e4d17c011c9cc11b09fad7e67e51b97e604
   - name: prometheus_config_reloader
