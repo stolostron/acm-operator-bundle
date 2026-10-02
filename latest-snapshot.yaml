@@ -2,88 +2,76 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/multicluster-observability-operator?rev=50f456b12cf8ede8c7f1153641c2fda261244dc4
-    build.appstudio.redhat.com/commit_sha: 50f456b12cf8ede8c7f1153641c2fda261244dc4
-    build.appstudio.redhat.com/target_branch: main
-    pac.test.appstudio.openshift.io/branch: main
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/governance-policy-propagator?rev=49b97eaf263dd8c3134d01935a3319c250ddd565
+    build.appstudio.redhat.com/commit_sha: 49b97eaf263dd8c3134d01935a3319c250ddd565
+    build.appstudio.redhat.com/target_branch: release-5.1
+    pac.test.appstudio.openshift.io/branch: release-5.1
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "110877433990"
+    pac.test.appstudio.openshift.io/check-run-id: "111037324830"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-eywtce
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-nsgtna
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/endpoint-monitoring-operator-acm-51-on-push-wpmwb
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/governance-policy-propagator-acm-51-on-push-frm9b
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
-      == "main"
-    pac.test.appstudio.openshift.io/original-prname: endpoint-monitoring-operator-acm-51-on-push
-    pac.test.appstudio.openshift.io/pull-request: "2740"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/multicluster-observability-operator
-    pac.test.appstudio.openshift.io/repository: endpoint-monitoring-operator-acm-210
+      == "release-5.1"
+    pac.test.appstudio.openshift.io/original-prname: governance-policy-propagator-acm-51-on-push
+    pac.test.appstudio.openshift.io/pull-request: "1468"
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/governance-policy-propagator
+    pac.test.appstudio.openshift.io/repository: governance-policy-propagator-fm3n
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
-    pac.test.appstudio.openshift.io/sender: jacobbaungardrh
-    pac.test.appstudio.openshift.io/sha: 50f456b12cf8ede8c7f1153641c2fda261244dc4
+    pac.test.appstudio.openshift.io/sender: acm-cicd-prow-bot
+    pac.test.appstudio.openshift.io/sha: 49b97eaf263dd8c3134d01935a3319c250ddd565
     pac.test.appstudio.openshift.io/sha-title: |-
-      fix: update apiserver histogram le matchers for Prometheus v3 float normalization (#2740)
+      Add FIPS build flags to Dockerfile
 
-      Prometheus v3 normalizes classic histogram `le` label values to canonical
-      float representation on ingestion, so bucket boundaries that were previously
-      stored as integers (e.g. le="1", le="5", le="30", le="40") are now stored
-      as floats (le="1.0", le="5.0", etc.). This caused all apiserver burn-rate,
-      availability, and SLI recording rules to silently return no data on clusters
-      running Prometheus v3.
+      Add CGO_ENABLED=1 and GOEXPERIMENT=strictfipsruntime to go build,
+      make, and promu build lines for FIPS compliance.
 
-      Switch all bare integer `le=` equality matchers to regex alternations
-      (`le=~"N|N\.0"`) so the rules work on both Prometheus v2 and v3.
+      JIRA: HYPBLD-847
 
-      Affected files:
-      - operators/endpointmetrics/manifests/prometheus/prometheusrules/kube-apiserver.yaml (le="1", le="5", le="40")
-      - operators/endpointmetrics/manifests/prometheus/prometheusrules/kube-apiserver-availability.yaml (le="1", le="5", le="30")
-      - operators/multiclusterobservability/manifests/base/config/metrics_allowlist.yaml (fix unescaped dot in existing le=~"1|1.0" workaround)
-
-      Signed-off-by: Nigel Smith <nigsmith@redhat.com>
-      Co-authored-by: Claude Sonnet 4.6 <noreply@anthropic.com>
-      Co-authored-by: Jacob Baungard Hansen <jachanse@redhat.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/multicluster-observability-operator/commit/50f456b12cf8ede8c7f1153641c2fda261244dc4
-    pac.test.appstudio.openshift.io/source-branch: refs/heads/main
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multicluster-observability-operator
+      Signed-off-by: Brian Smith <briansmi@redhat.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/governance-policy-propagator/commit/49b97eaf263dd8c3134d01935a3319c250ddd565
+    pac.test.appstudio.openshift.io/source-branch: refs/heads/release-5.1
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/governance-policy-propagator
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: multicluster-observability-operator
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-10-02T14:35:17Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-51-release-acm-51-20261002-142017-000-aw":{"lastUpdateTime":"2026-10-02T14:36:04.920817478Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: governance-policy-propagator
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-10-02T21:37:51Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-51-release-acm-51-20261002-212819-000":{"lastUpdateTime":"2026-10-02T21:38:30.584498089Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1790950817000"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1790976499000"
     test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/result-chains-git-commit: 50f456b12cf8ede8c7f1153641c2fda261244dc4
-    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/multicluster-observability-operator
-    test.appstudio.openshift.io/result-image-digest: sha256:321f7745c4375878725fc0d1581336625cd88a624549823aa36341b9c3003026
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/endpoint-monitoring-operator-acm-51:50f456b12cf8ede8c7f1153641c2fda261244dc4
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multicluster-observability-operator
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-51","status":"BuildPLRInProgress","lastUpdateTime":"2026-10-02T14:36:04.920817478Z","details":"Integration
-      test passed with warnings","startTime":"2026-10-02T14:35:17.673949702Z","completionTime":"2026-10-02T14:36:04.920817478Z","testPipelineRunName":"enterprise-contract-acm-51-bjtkp"}]'
-  creationTimestamp: "2026-10-02T14:35:17Z"
+    test.appstudio.openshift.io/result-chains-git-commit: 49b97eaf263dd8c3134d01935a3319c250ddd565
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/governance-policy-propagator
+    test.appstudio.openshift.io/result-image-digest: sha256:4eff76c2eddad97cbdda688428eefb029925749b106e25802c1ba3ed40de6572
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-propagator-acm-51:49b97eaf263dd8c3134d01935a3319c250ddd565
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/governance-policy-propagator
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-51","status":"BuildPLRInProgress","lastUpdateTime":"2026-10-02T21:38:30.584498089Z","details":"Integration
+      test passed with warnings","startTime":"2026-10-02T21:37:52.011847631Z","completionTime":"2026-10-02T21:38:30.584498089Z","testPipelineRunName":"enterprise-contract-acm-51-lcd4d"}]'
+  creationTimestamp: "2026-10-02T21:37:51Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-51
-    appstudio.openshift.io/build-pipelinerun: endpoint-monitoring-operator-acm-51-on-push-wpmwb
-    appstudio.openshift.io/component: endpoint-monitoring-operator-acm-51
+    appstudio.openshift.io/build-pipelinerun: governance-policy-propagator-acm-51-on-push-frm9b
+    appstudio.openshift.io/component: governance-policy-propagator-acm-51
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "110877433990"
+    pac.test.appstudio.openshift.io/check-run-id: "111037324830"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: endpoint-monitoring-operator-acm-51-on-push
-    pac.test.appstudio.openshift.io/pull-request: "2740"
-    pac.test.appstudio.openshift.io/repository: endpoint-monitoring-operator-acm-210
-    pac.test.appstudio.openshift.io/sha: 50f456b12cf8ede8c7f1153641c2fda261244dc4
+    pac.test.appstudio.openshift.io/original-prname: governance-policy-propagator-acm-51-on-push
+    pac.test.appstudio.openshift.io/pull-request: "1468"
+    pac.test.appstudio.openshift.io/repository: governance-policy-propagator-fm3n
+    pac.test.appstudio.openshift.io/sha: 49b97eaf263dd8c3134d01935a3319c250ddd565
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: multicluster-observability-operator
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1790951704"
+    pac.test.appstudio.openshift.io/url-repository: governance-policy-propagator
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1790977065"
     test.appstudio.openshift.io/type: component
-  name: release-acm-51-20261002-142017-000-aw
+  name: release-acm-51-20261002-212819-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -92,28 +80,12 @@ metadata:
     kind: Application
     name: release-acm-51
     uid: ec6e13f5-affe-47ff-9636-8502a9217f2e
-  resourceVersion: "11526439489"
-  uid: 486a9af3-a4ef-4d92-9708-e870fe97e6e0
+  resourceVersion: "11531522654"
+  uid: d20c751e-9265-4f40-a86d-bb420f907635
 spec:
   application: release-acm-51
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/siteconfig-acm-51@sha256:b8b8e93a435f87544394fa15f195553c1f797046a2281324a404e60a416e7850
-    name: siteconfig-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 96a40c9ef03e0b028d3b0d5cf7492510a1365eb4
-        url: https://github.com/stolostron/siteconfig
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/dynamic-scoring-controller-acm-51@sha256:e33ae598f6cbdb96940f1ab87397d20ab7dc53d3c10e5c412cf0bafa161b52ee
-    name: dynamic-scoring-controller-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 123b6a512d6743aa0a3834582e155d78c26bf350
-        url: https://github.com/stolostron/dynamic-scoring-framework
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/rbac-query-proxy-acm-51@sha256:77ec54b01d4a42fb978258e99f6d8d8e86afab992c80c6bc87373ff981953cbe
     name: rbac-query-proxy-acm-51
     source:
@@ -154,13 +126,13 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: bba7eabaeb654fb86db0ba2b693e5d5fcc27a9b8
         url: https://github.com/stolostron/thanos
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-51@sha256:bf7588054484570fbada4b98b9dbe0129cbdb4267f47e1e08cd6e3f89f25a2df
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-51@sha256:558fe994add8d7c87c2639aa84045c49c985a35cd9e47d7836cb4e4960081669
     name: cert-policy-controller-acm-51
     source:
       git:
         context: ./
         dockerfileUrl: build/Dockerfile.rhtap
-        revision: 6ab35bac86ffeec289b9ab1eaf8fb65f3b92c9f7
+        revision: af50aad69d8707c27fb6d0d5aca1110ca4480a4c
         url: https://github.com/stolostron/cert-policy-controller
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-operator-acm-51@sha256:4fece5707b8085e485e811b4bd99c4dc4151180eec6969d165a1e3b1c6aa703e
     name: multicluster-observability-operator-acm-51
@@ -239,6 +211,7 @@ spec:
     source:
       git:
         context: ./
+        dockerfileUrl: operators/endpointmetrics/Containerfile.operator
         revision: 50f456b12cf8ede8c7f1153641c2fda261244dc4
         url: https://github.com/stolostron/multicluster-observability-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-acm-51@sha256:721d07f92320062e05bea93532c0a8f337a79a7e9750e5c82bb868c8ab4b2b85
@@ -249,13 +222,12 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: 2167d41a735f6dfc471d6e2254a122e3e413e0d6
         url: https://github.com/stolostron/grafana
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-propagator-acm-51@sha256:fb98f49a3fac18bbe191924dc43343336eb609f8f1b0f66f634a3f8e10b3adc9
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-propagator-acm-51@sha256:4eff76c2eddad97cbdda688428eefb029925749b106e25802c1ba3ed40de6572
     name: governance-policy-propagator-acm-51
     source:
       git:
         context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 8a0bdeca3c0675d36da5d008dc63e1accbe2e0a2
+        revision: 49b97eaf263dd8c3134d01935a3319c250ddd565
         url: https://github.com/stolostron/governance-policy-propagator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-state-metrics-acm-51@sha256:4cb2ba77b49ba3838c953b2448c44658bb32c2ad2dd425b4f0b6eed070a88a8f
     name: kube-state-metrics-acm-51
@@ -313,13 +285,13 @@ spec:
         dockerfileUrl: Dockerfile.konflux
         revision: 1805dcb1166ad331097f0379c1a1d3b27f0ae12e
         url: https://github.com/stolostron/submariner-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/volsync-addon-controller-acm-51@sha256:a85ff3f048ccbbac7e398a63bfe59a8b086b040317443c45428e4910b0185eb0
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/volsync-addon-controller-acm-51@sha256:74ae6ea7eeaf54df5c7c495a63892b233168ea76c96fb10ad320fd4e7ebc24e7
     name: volsync-addon-controller-acm-51
     source:
       git:
         context: ./
         dockerfileUrl: Dockerfile.rhtap
-        revision: fc850704b415bfe5a1b4556d24ed8c49164b1d75
+        revision: 85173b20b0ecd52890c04855c932409d5181e889
         url: https://github.com/stolostron/volsync-addon-controller
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-subscription-acm-51@sha256:3c104586b07353c349976fdcbff7ba40ae43b3d1aed8ef7eae5447c5ade1976b
     name: multicluster-operators-subscription-acm-51
@@ -353,13 +325,13 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: 3124dfc61333cc2a65adf0db5217df2d047a3f76
         url: https://github.com/stolostron/node-exporter
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-framework-addon-acm-51@sha256:10c27c2fbf554968524ece1a9d1e3495dab60c9fd2b078e3f599efee9b43c999
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-framework-addon-acm-51@sha256:5a054d97b27c2561a5f25fd77bf88b05d79efb9bcd10ac467a568c4f5ce461a7
     name: governance-policy-framework-addon-acm-51
     source:
       git:
         context: ./
         dockerfileUrl: build/Dockerfile.rhtap
-        revision: ec28d8d1118dbcbb7046957ee58863df4c564937
+        revision: aa630030c98f5f347c8b59c88377dfdd88bdc279
         url: https://github.com/stolostron/governance-policy-framework-addon
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-51@sha256:ead77d29deb1aab9dc93c0cf6d52500718ba31db7487253a3d38183c93ba5342
     name: mtv-integrations-acm-51
@@ -481,20 +453,36 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: 5295f97f5ef5cf72bae04fcf39e1f12c634608b3
         url: https://github.com/stolostron/multicloud-integrations
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/siteconfig-acm-51@sha256:b8b8e93a435f87544394fa15f195553c1f797046a2281324a404e60a416e7850
+    name: siteconfig-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 96a40c9ef03e0b028d3b0d5cf7492510a1365eb4
+        url: https://github.com/stolostron/siteconfig
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/dynamic-scoring-controller-acm-51@sha256:e33ae598f6cbdb96940f1ab87397d20ab7dc53d3c10e5c412cf0bafa161b52ee
+    name: dynamic-scoring-controller-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 123b6a512d6743aa0a3834582e155d78c26bf350
+        url: https://github.com/stolostron/dynamic-scoring-framework
 status:
   conditions:
-  - lastTransitionTime: "2026-10-02T14:36:04Z"
+  - lastTransitionTime: "2026-10-02T21:38:30Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-10-02T14:36:04Z"
+  - lastTransitionTime: "2026-10-02T21:38:30Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-10-02T14:36:05Z"
+  - lastTransitionTime: "2026-10-02T21:38:30Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
