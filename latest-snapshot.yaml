@@ -2,142 +2,103 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/search-indexer?rev=a2c6001cc1e30d9d655b811363ade205769b09f5
-    build.appstudio.redhat.com/commit_sha: a2c6001cc1e30d9d655b811363ade205769b09f5
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/console?rev=ad5313f2d18a20fbf19b79ca3f7a05d38e7ea290
+    build.appstudio.redhat.com/commit_sha: ad5313f2d18a20fbf19b79ca3f7a05d38e7ea290
     build.appstudio.redhat.com/target_branch: release-5.2
     pac.test.appstudio.openshift.io/branch: release-5.2
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "112367143943"
+    pac.test.appstudio.openshift.io/check-run-id: "112469092502"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-ryjgsr
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-vsgjvl
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/search-indexer-acm-52-on-push-k5dnk
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/console-acm-52-on-push-pp65r
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-5.2"
-    pac.test.appstudio.openshift.io/original-prname: search-indexer-acm-52-on-push
-    pac.test.appstudio.openshift.io/pull-request: "749"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/search-indexer
-    pac.test.appstudio.openshift.io/repository: search-indexer-acm-210
+    pac.test.appstudio.openshift.io/original-prname: console-acm-52-on-push
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/console
+    pac.test.appstudio.openshift.io/repository: console
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
     pac.test.appstudio.openshift.io/sender: acm-cicd-prow-bot
-    pac.test.appstudio.openshift.io/sha: a2c6001cc1e30d9d655b811363ade205769b09f5
+    pac.test.appstudio.openshift.io/sha: ad5313f2d18a20fbf19b79ca3f7a05d38e7ea290
     pac.test.appstudio.openshift.io/sha-title: |-
-      fix: skip upsert when cluster data is unchanged (#749)
+      ACM-47307 RBAC: Create cluster pool, Add credential, and Create placement buttons enabled for users with no permissions (#6921)
 
-      * fix: skip upsert when cluster data is unchanged
+      * Add RBAC checks for create actions on ClusterPools and Placements pages
 
-      Change the ON CONFLICT WHERE guard in goquInsertUpdate from
-        WHERE r.uid = $1
-      to
-        WHERE r.data != $2
+      - Disable "Create cluster pool" and "Create placement" buttons when the user lacks create permission
+      - Move placement create permission check to the page component so it can be shared with the empty state
+      - Add unit tests covering allowed and denied create access for both pages
 
-      so PostgreSQL skips the update entirely when the incoming data
-      matches what is already stored.  This avoids unnecessary write
-      amplification and HOT-update churn on the search.resources table
-      during routine cluster heartbeats.
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
 
-      Update four existing test expectations and add
-      Test_goquInsertUpdate_WhereClauseUsesDataComparison to lock in
-      the new WHERE-clause shape as a regression guard.
+      * PlacementsTable export removed
 
-      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
 
-      * fix: use IS DISTINCT FROM for null-safe cluster data comparison
+      * coderabbit approach
 
-      Replace != with IS DISTINCT FROM in the ON CONFLICT WHERE guard so
-      that a SQL-NULL data column is treated as distinct from any incoming
-      non-NULL value.  With !=, NULL != value evaluates to UNKNOWN and the
-      UPDATE is silently skipped, leaving the row with a NULL data column
-      instead of storing the incoming cluster properties.
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
 
-      Update test SQL expectations and strengthen
-      Test_goquInsertUpdate_WhereClauseUsesDataComparison to assert that
-      neither != nor r.uid appear in the generated clause.
+      * check:fix
 
-      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
 
-      * fix: qualify data column as r.data in ON CONFLICT WHERE clause
+      * PlacementsTable ReadOnly
 
-      Unqualified 'data' is ambiguous inside ON CONFLICT DO UPDATE because
-      PostgreSQL exposes both the target row (r) and the EXCLUDED pseudo-row
-      in that scope.  Use "r".data to explicitly reference the stored value.
-
-      Update the function comment to document both the table-qualification
-      rationale and the IS DISTINCT FROM NULL-safety guarantee.
-      Update all four SQL expectations and the assertion in
-      Test_goquInsertUpdate_WhereClauseUsesDataComparison to match.
-
-      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
-
-      * Fix comment
-
-      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
-
-      * fix: update clustersync SQL expectations to match new ON CONFLICT clause
-
-      Test_ProcessClusterUpsert_ManagedCluster and
-      Test_ProcessClusterUpsert_ManagedClusterInfo both had stale
-      gomock.Eq expectations using the old WHERE ("r".uid = '...') guard.
-      Update them to match the current goquInsertUpdate output:
-
-        WHERE "r".data IS DISTINCT FROM '...'
-
-      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
 
       ---------
 
-      Signed-off-by: Jorge Padilla <jpadilla@redhat.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/search-indexer/commit/a2c6001cc1e30d9d655b811363ade205769b09f5
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/console/commit/ad5313f2d18a20fbf19b79ca3f7a05d38e7ea290
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-5.2
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/search-indexer
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: search-indexer
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-10-06T16:10:02Z"}'
-    test.appstudio.openshift.io/create-snapshot-status: Component(s) 'kube-state-metrics-acm-52,
-      dynamic-scoring-controller-acm-52, prometheus-alertmanager-acm-52, endpoint-monitoring-operator-acm-52,
-      observatorium-acm-52, multicluster-observability-operator-acm-52, prometheus-operator-acm-52,
-      kube-rbac-proxy-acm-52, observatorium-operator-acm-52, dynamic-scoring-addon-acm-52,
-      obo-prometheus-operator-acm-52, multicluster-observability-addon-acm-52, grafana-acm-52,
-      node-exporter-acm-52, thanos-receive-controller-acm-52, prometheus-config-reloader-acm-52,
-      grafana-dashboard-loader-acm-52, metrics-collector-acm-52, thanos-acm-52, memcached-exporter-acm-52,
-      prometheus-acm-52, rbac-query-proxy-acm-52' is(are) not included in snapshot
-      due to missing valid containerImage or git source
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-52-release-acm-52-20261006-155925-000":{"lastUpdateTime":"2026-10-06T16:10:47.857384866Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: console
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-10-06T20:10:08Z"}'
+    test.appstudio.openshift.io/create-snapshot-status: Component(s) 'prometheus-acm-52,
+      rbac-query-proxy-acm-52, kube-state-metrics-acm-52, dynamic-scoring-controller-acm-52,
+      prometheus-alertmanager-acm-52, endpoint-monitoring-operator-acm-52, observatorium-acm-52,
+      multicluster-observability-operator-acm-52, prometheus-operator-acm-52, kube-rbac-proxy-acm-52,
+      observatorium-operator-acm-52, dynamic-scoring-addon-acm-52, obo-prometheus-operator-acm-52,
+      multicluster-observability-addon-acm-52, grafana-acm-52, node-exporter-acm-52,
+      thanos-receive-controller-acm-52, prometheus-config-reloader-acm-52, grafana-dashboard-loader-acm-52,
+      metrics-collector-acm-52, thanos-acm-52, memcached-exporter-acm-52' is(are)
+      not included in snapshot due to missing valid containerImage or git source
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-52-release-acm-52-20261006-195029-000":{"lastUpdateTime":"2026-10-06T20:10:49.899430284Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1791302365000"
-    test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/result-chains-git-commit: a2c6001cc1e30d9d655b811363ade205769b09f5
-    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/search-indexer
-    test.appstudio.openshift.io/result-image-digest: sha256:e29e029705571654198d4519af186039cdd85423ed40b9b9beec7876af4b318c
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-52:a2c6001cc1e30d9d655b811363ade205769b09f5
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/search-indexer
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-52","status":"BuildPLRInProgress","lastUpdateTime":"2026-10-06T16:10:47.857384866Z","details":"Integration
-      test passed with warnings","startTime":"2026-10-06T16:10:02.470489994Z","completionTime":"2026-10-06T16:10:47.857384866Z","testPipelineRunName":"enterprise-contract-acm-52-55g5r"}]'
-  creationTimestamp: "2026-10-06T16:10:02Z"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1791316229000"
+    test.appstudio.openshift.io/result-chains-git-commit: ad5313f2d18a20fbf19b79ca3f7a05d38e7ea290
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/console
+    test.appstudio.openshift.io/result-image-digest: sha256:e0e9e1e651fe83f7f5262336fa91c5cafd82516dfec5cf128d91af750b58d885
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-52:ad5313f2d18a20fbf19b79ca3f7a05d38e7ea290
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-52","status":"BuildPLRInProgress","lastUpdateTime":"2026-10-06T20:10:49.899430284Z","details":"Integration
+      test passed with warnings","startTime":"2026-10-06T20:10:09.048591558Z","completionTime":"2026-10-06T20:10:49.899430284Z","testPipelineRunName":"enterprise-contract-acm-52-5zlxw"}]'
+  creationTimestamp: "2026-10-06T20:10:08Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-52
-    appstudio.openshift.io/build-pipelinerun: search-indexer-acm-52-on-push-k5dnk
-    appstudio.openshift.io/component: search-indexer-acm-52
+    appstudio.openshift.io/build-pipelinerun: console-acm-52-on-push-pp65r
+    appstudio.openshift.io/component: console-acm-52
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "112367143943"
+    pac.test.appstudio.openshift.io/check-run-id: "112469092502"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: search-indexer-acm-52-on-push
-    pac.test.appstudio.openshift.io/pull-request: "749"
-    pac.test.appstudio.openshift.io/repository: search-indexer-acm-210
-    pac.test.appstudio.openshift.io/sha: a2c6001cc1e30d9d655b811363ade205769b09f5
+    pac.test.appstudio.openshift.io/original-prname: console-acm-52-on-push
+    pac.test.appstudio.openshift.io/repository: console
+    pac.test.appstudio.openshift.io/sha: ad5313f2d18a20fbf19b79ca3f7a05d38e7ea290
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: search-indexer
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1791302995"
+    pac.test.appstudio.openshift.io/url-repository: console
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1791317402"
     test.appstudio.openshift.io/type: component
-  name: release-acm-52-20261006-155925-000
+  name: release-acm-52-20261006-195029-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -146,12 +107,20 @@ metadata:
     kind: Application
     name: release-acm-52
     uid: cfc033ef-9dfc-426e-9763-dbb135f75288
-  resourceVersion: "11588778974"
-  uid: ddbc8b62-8f13-4352-a954-02ebf12e665b
+  resourceVersion: "11592146025"
+  uid: 662053db-f30b-4b5f-821d-f61388250847
 spec:
   application: release-acm-52
   artifacts: {}
   components:
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/volsync-addon-controller-acm-52@sha256:1a9f25cfd1551b0b15a694e1b98524e65b9d1f1673be1f3cb148a588590825a5
+    name: volsync-addon-controller-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 8a4175663174b8e79e65384a3565fc9ad927519a
+        url: https://github.com/stolostron/volsync-addon-controller
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-role-assignment-acm-52@sha256:29c77c825eb95608c79320e9cc2810f3e01ba936a84c7c32f17873dbc18d13e1
     name: multicluster-role-assignment-acm-52
     source:
@@ -192,28 +161,29 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: 5295f97f5ef5cf72bae04fcf39e1f12c634608b3
         url: https://github.com/stolostron/multicloud-integrations
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-52@sha256:30357abcf4ee6594f87d72546df1b547316276ca5608daebfd5b7e3e7e078337
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-52@sha256:c724f6ea2180edd178cb7ca9b53d7fd95da15a7b4be0cdfdc0c7fe63f14f0383
     name: multiclusterhub-operator-acm-52
     source:
       git:
         context: ./
         dockerfileUrl: build/Dockerfile.rhtap
-        revision: e8224bfd39b187c297f3c3b5c26553c06604e8bc
+        revision: 2bedffc17badc6ea5de4d45bc2a9a5c189ae34ab
         url: https://github.com/stolostron/multiclusterhub-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-52@sha256:e29e029705571654198d4519af186039cdd85423ed40b9b9beec7876af4b318c
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-52@sha256:244f6bec4463dc82f9f6cbf047e2614eef9548f492f13e7e4fd57de8ad6cceba
     name: search-indexer-acm-52
     source:
       git:
         context: ./
-        revision: a2c6001cc1e30d9d655b811363ade205769b09f5
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 13532f204f78f8f6cae9030dcaf8f17783e4a247
         url: https://github.com/stolostron/search-indexer
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/config-policy-controller-acm-52@sha256:f6f5f6775bc61d2e8777e4d45f492f0f8285b52f7f283fe2afddb8f0aaf218f0
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/config-policy-controller-acm-52@sha256:09ceb83273917cd451b8239694b8050e261ce4517d16c1ac6db4cc5e0c75c9ce
     name: config-policy-controller-acm-52
     source:
       git:
         context: ./
         dockerfileUrl: build/Dockerfile.rhtap
-        revision: 1698ae11737cbdd1761ad0824cff0bc5fb313151
+        revision: 2af3be8bd463cff4d7a32bc87323b0a193ed0c40
         url: https://github.com/stolostron/config-policy-controller
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-52@sha256:8029ecf67ec3e4669133687cc9fd1591ab666f9450933028904969ade91bc762
     name: multicluster-operators-application-acm-52
@@ -295,13 +265,12 @@ spec:
         dockerfileUrl: Dockerfile
         revision: 45fd2b9754a693985f0f89b9aa4aa9a7fe274f83
         url: https://github.com/stolostron/mtv-integrations
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-52@sha256:e548dd9d8efd032913cfcb25a9a9ea675abf1e170447b826b88fc8c7482105b9
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-52@sha256:e0e9e1e651fe83f7f5262336fa91c5cafd82516dfec5cf128d91af750b58d885
     name: console-acm-52
     source:
       git:
         context: ./
-        dockerfileUrl: Containerfile.acm.konflux
-        revision: 321cfaeb950bc3c05a25b90c0d9dbbdd838fef08
+        revision: ad5313f2d18a20fbf19b79ca3f7a05d38e7ea290
         url: https://github.com/stolostron/console
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-api-acm-52@sha256:5d89d9c05672f408ee110096cd8e8eb6b8688196a0dc9c07a00a841d1e7c91f1
     name: search-v2-api-acm-52
@@ -351,28 +320,20 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: ac7001b8f6bf46e6c4dfeb0bf22126540a645c55
         url: https://github.com/stolostron/search-v2-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/volsync-addon-controller-acm-52@sha256:1a9f25cfd1551b0b15a694e1b98524e65b9d1f1673be1f3cb148a588590825a5
-    name: volsync-addon-controller-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 8a4175663174b8e79e65384a3565fc9ad927519a
-        url: https://github.com/stolostron/volsync-addon-controller
 status:
   conditions:
-  - lastTransitionTime: "2026-10-06T16:10:47Z"
+  - lastTransitionTime: "2026-10-06T20:10:50Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-10-06T16:10:47Z"
+  - lastTransitionTime: "2026-10-06T20:10:50Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-10-06T16:10:48Z"
+  - lastTransitionTime: "2026-10-06T20:10:50Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
