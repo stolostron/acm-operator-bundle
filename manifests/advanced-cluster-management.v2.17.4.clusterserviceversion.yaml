@@ -8,7 +8,7 @@ metadata:
     categories: Integration & Delivery
     certified: 'true'
     support: Red Hat
-    createdAt: '2026-10-08T14:08:37Z'
+    createdAt: '2026-10-08T20:19:05Z'
     description: Advanced provisioning and management of OpenShift and Kubernetes clusters
     operatorframework.io/suggested-namespace: open-cluster-management
     operatorframework.io/initialization-resource: '{"apiVersion":"operator.open-cluster-management.io/v1",
@@ -1904,6 +1904,8 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.namespace
+                - name: OPERATOR_VERSION
+                  value: 2.17.4
                 - name: OPERAND_IMAGE_ACM_CLI
                   value: registry.redhat.io/rhacm2/acm-cli-rhel9@sha256:44102873d103a43f08808a3a8f6a5720add504522a466f578a1fb26510f3da6f
                 - name: OPERAND_IMAGE_ACM_MUST_GATHER
@@ -1957,9 +1959,9 @@ spec:
                 - name: OPERAND_IMAGE_MULTICLUSTER_OPERATORS_SUBSCRIPTION
                   value: registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel9@sha256:09cccabd947e652b30213342877de6ad91ba2bbfbf3db7e0637f7e26d5091ad7
                 - name: OPERAND_IMAGE_MULTICLUSTER_ROLE_ASSIGNMENT
-                  value: registry.redhat.io/rhacm2/multicluster-role-assignment-rhel9@sha256:0cc61c36f91d7f83db1f341139b0219b4e7f01376fb6f9359e4d3ea8b0b6eaff
+                  value: registry.redhat.io/rhacm2/multicluster-role-assignment-rhel9@sha256:3a34d17fbb112358b8c71f53ecf383c75995baef2a0f8549271f208fdab52592
                 - name: OPERAND_IMAGE_MULTICLUSTERHUB_OPERATOR
-                  value: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:6eadafdbd80b2efda26507b4d9581b1650e32150d6ce1017c44f74a6bb726cd8
+                  value: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:00d9705d5670ee3bae5b01fdb82ee70d0b7884e092dcf13d8ac4c26063722097
                 - name: OPERAND_IMAGE_NODE_EXPORTER
                   value: registry.redhat.io/rhacm2/node-exporter-rhel9@sha256:a06ebc29f1a30a2b61717b3bd9c09ec43fd29dd4c555711accd58e40e8bb5e8b
                 - name: OPERAND_IMAGE_OBO_PROMETHEUS_RHEL9_OPERATOR
@@ -1989,7 +1991,7 @@ spec:
                 - name: OPERAND_IMAGE_SITECONFIG_OPERATOR
                   value: registry.redhat.io/rhacm2/acm-siteconfig-rhel9@sha256:1a41b27ae57942409b0c06a2b2f76668e55babfc0f340ccb4341b2bf7e87ee39
                 - name: OPERAND_IMAGE_SUBMARINER_ADDON
-                  value: registry.redhat.io/rhacm2/submariner-addon-rhel9@sha256:bcb6a6af53b0dfe4eab785de41bb7a5a49f53b56936f69a79804e2fec62c83d8
+                  value: registry.redhat.io/rhacm2/submariner-addon-rhel9@sha256:655e648e5807a3b9671e42c71228e468a7846670ebb9e1cbf7e2d4233f46a2f2
                 - name: OPERAND_IMAGE_THANOS
                   value: registry.redhat.io/rhacm2/thanos-rhel9@sha256:58c5a827a3c1e8804c893ade5338b5860e03c1390ca25fe3863b77ea20b8f511
                 - name: OPERAND_IMAGE_THANOS_RECEIVE_CONTROLLER
@@ -2004,11 +2006,9 @@ spec:
                   value: registry.redhat.io/rhel9/memcached@sha256:b2443d5941ca37cb7772bc67fe922458b97500c27e944c1b6baff48fd903ea82
                 - name: OPERAND_IMAGE_VOLSYNC
                   value: registry.redhat.io/rhacm2/volsync-rhel9@sha256:a129ef014d3d1e3ac13829879de127bd19a45de37379df6590f6227c3912af55
-                - name: OPERATOR_VERSION
-                  value: 2.17.4
                 - name: OPERATOR_PACKAGE
                   value: advanced-cluster-management
-                image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:6eadafdbd80b2efda26507b4d9581b1650e32150d6ce1017c44f74a6bb726cd8
+                image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:00d9705d5670ee3bae5b01fdb82ee70d0b7884e092dcf13d8ac4c26063722097
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -2106,7 +2106,7 @@ spec:
   - name: multicluster_operators_subscription
     image: registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel9@sha256:09cccabd947e652b30213342877de6ad91ba2bbfbf3db7e0637f7e26d5091ad7
   - name: multicluster_role_assignment
-    image: registry.redhat.io/rhacm2/multicluster-role-assignment-rhel9@sha256:0cc61c36f91d7f83db1f341139b0219b4e7f01376fb6f9359e4d3ea8b0b6eaff
+    image: registry.redhat.io/rhacm2/multicluster-role-assignment-rhel9@sha256:3a34d17fbb112358b8c71f53ecf383c75995baef2a0f8549271f208fdab52592
   - name: node_exporter
     image: registry.redhat.io/rhacm2/node-exporter-rhel9@sha256:a06ebc29f1a30a2b61717b3bd9c09ec43fd29dd4c555711accd58e40e8bb5e8b
   - name: obo_prometheus_rhel9_operator
@@ -2136,7 +2136,7 @@ spec:
   - name: siteconfig_operator
     image: registry.redhat.io/rhacm2/acm-siteconfig-rhel9@sha256:1a41b27ae57942409b0c06a2b2f76668e55babfc0f340ccb4341b2bf7e87ee39
   - name: submariner_addon
-    image: registry.redhat.io/rhacm2/submariner-addon-rhel9@sha256:bcb6a6af53b0dfe4eab785de41bb7a5a49f53b56936f69a79804e2fec62c83d8
+    image: registry.redhat.io/rhacm2/submariner-addon-rhel9@sha256:655e648e5807a3b9671e42c71228e468a7846670ebb9e1cbf7e2d4233f46a2f2
   - name: thanos
     image: registry.redhat.io/rhacm2/thanos-rhel9@sha256:58c5a827a3c1e8804c893ade5338b5860e03c1390ca25fe3863b77ea20b8f511
   - name: thanos_receive_controller
