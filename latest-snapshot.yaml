@@ -2,72 +2,746 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/klusterlet-addon-controller?rev=2d751c04050faad2030d0b5e5062903ea9a6c7e7
-    build.appstudio.redhat.com/commit_sha: 2d751c04050faad2030d0b5e5062903ea9a6c7e7
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/console?rev=d6a416cc7a69074a966bbfab63f89d553354651e
+    build.appstudio.redhat.com/commit_sha: d6a416cc7a69074a966bbfab63f89d553354651e
     build.appstudio.redhat.com/target_branch: release-5.1
     pac.test.appstudio.openshift.io/branch: release-5.1
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "114995918148"
+    pac.test.appstudio.openshift.io/check-run-id: "115272490815"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-crowqc
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-ilytdg
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/klusterlet-addon-controller-acm-51-on-push-xl66m
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/console-acm-51-on-push-4px9g
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-5.1"
-    pac.test.appstudio.openshift.io/original-prname: klusterlet-addon-controller-acm-51-on-push
-    pac.test.appstudio.openshift.io/pull-request: "743"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/klusterlet-addon-controller
-    pac.test.appstudio.openshift.io/repository: klusterlet-addon-controller-acm-210
+    pac.test.appstudio.openshift.io/original-prname: console-acm-51-on-push
+    pac.test.appstudio.openshift.io/pull-request: "6842"
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/console
+    pac.test.appstudio.openshift.io/repository: console
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
     pac.test.appstudio.openshift.io/sender: acm-cicd-prow-bot
-    pac.test.appstudio.openshift.io/sha: 2d751c04050faad2030d0b5e5062903ea9a6c7e7
+    pac.test.appstudio.openshift.io/sha: d6a416cc7a69074a966bbfab63f89d553354651e
     pac.test.appstudio.openshift.io/sha-title: |-
-      chore(deps): update module golang.org/x/net to v0.60.0 [security] (main) (#743)
+      [ACM-45223] Migrate the console backend to Go (#6842)
 
-      Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
-      Co-authored-by: red-hat-konflux[bot] <126015336+red-hat-konflux[bot]@users.noreply.github.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/klusterlet-addon-controller/commit/2d751c04050faad2030d0b5e5062903ea9a6c7e7
+      * ACM-42589: Migrate console backend to Go with Node sidecar (#46)
+
+      * ACM-42589: Rename backend directory to backend-node
+
+      Move the existing Node.js console backend into backend-node/ and update
+      repository references, build scripts, CI configs, and documentation so
+      the renamed package remains the single backend entry point.
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+      Co-authored-by: Cursor <cursoragent@cursor.com>
+
+      * ACM-42589: Add Go console backend with Node sidecar proxy
+
+      Introduce a Go public listener in backend/ that owns TLS, health probes,
+      shared config, and auth helpers while reverse-proxying unmigrated routes to
+      the existing Node implementation in backend-node/.
+
+      ## Strategy (executive summary)
+
+      This change follows a strangler-fig migration:
+
+      1. **Free the backend path** — the existing Node server was moved to
+         `backend-node/` so `backend/` can host the new Go entry point without
+         breaking historical paths for config, certs, and `.env`.
+      2. **Dual-process local dev** — Go listens on `BACKEND_PORT` (4000) as the
+         browser-facing backend; Node runs as a sidecar on `NODE_BACKEND_PORT`
+         (4001) for routes not yet ported.
+      3. **Proxy-first cutover** — Go registers only health endpoints natively; all
+         other traffic is forwarded to the sidecar with the original URL (including
+         `/multicloud`) so the Node router keeps working unchanged.
+      4. **Shared runtime artifacts** — `backend/.env`, `backend/config/`, and
+         `backend/certs/` remain the single source of truth; the sidecar reads them
+         via `ENV_FILE`, `CONFIG_DIR`, and `CERTS_DIR`.
+      5. **Incremental porting** — new Go packages (`internal/server`, `proxy`,
+         `health`, `config`, `auth`) establish the foundation; routes can migrate
+         from Node to Go one at a time without frontend changes.
+
+      Root npm scripts, setup, and docs were updated for the Go + sidecar workflow.
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+      Co-authored-by: Cursor <cursoragent@cursor.com>
+
+      * ACM-42589: Adopt golangci-lint for Go backend and fix initial findings
+
+      Replace go vet with golangci-lint in backend check/lint scripts, add a
+      backend/.golangci.yml config, and introduce scripts/golangci-lint-backend.sh
+      to install and run the linter. Fix the first lint findings: variable
+      shadowing in main.go and server_test.go, and US spelling in the RBAC
+      informer comment. Update AGENTS.md and Makefile.prow to include the new
+      backend lint/check steps.
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42589: Validate RBAC event tokens via /api and skip logger wrapping for SSE
+
+      Replace the TokenReviewer-based auth in the RBAC events handler with a new
+      ValidateUserToken helper that checks tokens by GET /api, matching the Node
+      sidecar behavior and avoiding TokenReview failures for some identities. Also
+      bypass the request logger response wrapper for /events/rbac so HTTP/2 can
+      flush SSE events to EventSource.
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42589: Revert incomplete RBAC merge that breaks Go backend build
+
+      The RBAC event token validation commit referenced APIs from ACM-42589_roles
+      (RESTConfig, WithRBACEvents, events/rbac) that are not on this branch, so
+      go run ./cmd/console failed and the plugin proxy could not reach :4000.
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+      Co-authored-by: Cursor <cursoragent@cursor.com>
+
+      * ACM-42589: Add Air live reload for Go backend development
+
+      Configure github.com/air-verse/air to rebuild and restart the Go console
+      backend when cmd/ or internal/ files change. Add scripts/air-backend.sh
+      to install Air if missing, wire it into npm run start:backend:go, and
+      update AGENTS.md, .gitignore, and clean scripts for the new backend/tmp
+      directory.
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * Use named constants for Bearer authorization scheme prefix in token extraction
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * Go to 1.26
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42589: Migrate ClusterRole watch to Go /events/rbac SSE (#47)
+
+      * ACM-42589: Migrate ClusterRole watch to Go /events/rbac SSE
+
+      Move vm-clusterroles ClusterRole watching from the Node sidecar to a
+      dedicated Go SSE stream with per-user SSAR filtering, and wire the
+      frontend to consume it via LoadRbacEvents while keeping Search-based
+      role assignments on the sidecar.
+
+      Signed-off-by: Auto <auto@cursor.com>
+      Co-authored-by: Cursor <cursoragent@cursor.com>
+
+      * ACM-42589: Adopt golangci-lint for Go backend and fix initial findings
+
+      Replace go vet with golangci-lint in backend check/lint scripts, add a
+      backend/.golangci.yml config, and introduce scripts/golangci-lint-backend.sh
+      to install and run the linter. Fix the first lint findings: variable
+      shadowing in main.go and server_test.go, and US spelling in the RBAC
+      informer comment. Update AGENTS.md and Makefile.prow to include the new
+      backend lint/check steps.
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42589: Validate RBAC event tokens via /api and skip logger wrapping for SSE
+
+      Replace the TokenReviewer-based auth in the RBAC events handler with a new
+      ValidateUserToken helper that checks tokens by GET /api, matching the Node
+      sidecar behavior and avoiding TokenReview failures for some identities. Also
+      bypass the request logger response wrapper for /events/rbac so HTTP/2 can
+      flush SSE events to EventSource.
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42589: Harden RBAC events SSE with per-user fallback and proxy passthrough
+
+      - Refactor the RBAC events handler to accept an Authenticator interface and
+        use APIAuth backed by GET /api.
+      - Add a per-user ClusterRole list fallback when the shared informer store is
+        empty.
+      - Make informer cache-sync timeout non-fatal so SSE starts even without
+        clusterrole watch rights.
+      - Set no-store/no-transform SSE headers and X-Accel-Buffering: no.
+      - Treat /events/rbac as an event-stream path and proxy
+        /multicloud/events/rbac through the webpack dev server.
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42589: Fix auth merge corruption breaking Go backend and RBAC SSE
+
+      Restores RESTConfig to return *rest.Config, re-adds ValidateUserToken and
+      NewTokenReviewer, and skips the request logger wrapper for /events/rbac so
+      the backend compiles and role events stream correctly after merging ACM-42589.
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+      Co-authored-by: Cursor <cursoragent@cursor.com>
+
+      * ACM-42589: Refactor frontend event streams into composable LoadDataAbstract abstraction
+
+      Split the monolithic LoadData component into LoadEventsData and LoadRbacData,
+      both built on a reusable LoadDataAbstract component. Extract shared event
+      stream handling into useWatchEventStream and applyWatchEventsToCache hooks,
+      replace LoadRbacEvents with LoadRbacData, and add unit tests for the new
+      abstractions.
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      ---------
+
+      Signed-off-by: Auto <auto@cursor.com>
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+      Co-authored-by: Cursor <cursoragent@cursor.com>
+
+      ---------
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+      Signed-off-by: Auto <auto@cursor.com>
+      Co-authored-by: Cursor <cursoragent@cursor.com>
+
+      * ACM-42592: Migrate hub kube-apiserver proxy routes to Go (#48)
+
+      * ACM-42589: Migrate hub kube-apiserver proxy routes to Go
+
+      Move /api, /apis, and /version passthrough from the Node sidecar to a new
+      backend/internal/k8sproxy package in the Go public listener. The proxy uses
+      the user's Bearer or cookie token, strips the /multicloud prefix for route
+      matching, forwards an allowlist of request/response headers, and falls back
+      to 502 Bad Gateway when the upstream cluster API is unreachable. Remove the
+      corresponding Node proxy route and tests, and update AGENTS.md and
+      ARCHITECTURE.md to reflect the migrated routes.
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * .editorconfig
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      ---------
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42594 Serve static plugin and SPA assets from the Go backend (#50)
+
+      * Serve static plugin and SPA assets from the Go backend
+
+      Move static file serving out of the Node sidecar into a new Go
+      internal/static package. The Go listener now handles plugin assets,
+      hashed JS/CSS, locales, and index.html with the same cache headers,
+      CSP, and brotli/gzip negotiation previously provided by backend-node.
+
+      - Add PUBLIC_FOLDER config and default to /app/public in images
+      - Build the Go console binary in Containerfile.acm and Containerfile.mce
+      - Remove backend-node/src/routes/serve.ts and its tests
+      - Add scripts/console-entrypoint.sh to launch Go + Node sidecar
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * .editorconfig
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      ---------
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+      Co-authored-by: Cursor <cursoragent@cursor.com>
+
+      * ACM-42593 Migrate managed cluster, metrics, and VM proxy routes to Go backend (#49)
+
+      * Migrate managed cluster, metrics, and VM proxy routes to Go backend
+
+      Add Go handlers for /managedclusterproxy/*, /prometheus/*, /observability/*,
+      and the /virtualmachines* family, moving them from the Node sidecar to the
+      Go listener. Introduce internal/clusterproxy resolver, metricsproxy,
+      mcproxy, and vmproxy packages, plus auth helpers for service CA TLS and
+      request token validation. Update server routing, config env vars, and
+      AGENTS.md to register and document the migrated stateless proxies.
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * .editorconfig
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * Add hubresources package and use dynamic client for MCE/MCH lookups
+
+      Introduce backend/internal/hubresources with MCETargetNamespace and
+      MCHFineGrainedRBAC helpers. Update clusterproxy.Resolver and vmproxy to
+      use the Kubernetes dynamic client instead of manual HTTP/JSON requests
+      when reading MultiClusterEngine and MultiClusterHub resources, and adjust
+      tests to use the fake dynamic client.
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      ---------
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+      Co-authored-by: Cursor <cursoragent@cursor.com>
+
+      * ACM-42595: Migrate OAuth login, logout, and /configure discovery to Go backend (#51)
+
+      * ACM-42589: Migrate OAuth login, logout, and /configure discovery to Go backend
+
+      Move standalone OAuth/OpenShift OAuth/OIDC login flow and token-endpoint discovery from the Node sidecar into the Go public listener. Adds `internal/oauth` with `/configure`, `/login`, `/login/callback`, and `/logout` handlers, OCM SSO client-credentials exchange in `internal/auth`, shared TLS/HTTP client helpers, and new env vars (`OAUTH2_*`, `OIDC_ISSUER_URL`, `FRONTEND_URL`). The Go server registers these routes under `/` and `/multicloud` in non-production, while production keeps OpenShift Console auth. Removes the corresponding Node routes and tests, updates `AGENTS.md` and architecture docs, and adjusts a frontend test helper.
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * .editorconfig
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * use the dynamic client-go
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      ---------
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+      Co-authored-by: Cursor <cursoragent@cursor.com>
+
+      * cors fix (#53)
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42596 Migrate auth check, user, and cluster-info routes to Go (#54)
+
+      * cors fix
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * Migrate auth check, user, and cluster-info routes to Go
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * check-hub-alignment.sh
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * generate-certs at setup.sh
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      ---------
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42597 Implement informer cache with client-go SharedInformerFactory  (#55)
+
+      * cors fix
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * Implement informer cache with client-go SharedInformerFactory
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * hang issue fixed
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * restoring rm -rf backend/.env backend/certs/ && npm run setup && npm run ci:backend flow
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      ---------
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42598 Implement SSE hub with per-user RBAC filtering (#57)
+
+      * cors fix
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * Implement informer cache with client-go SharedInformerFactory
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * hang issue fixed
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * restoring rm -rf backend/.env backend/certs/ && npm run setup && npm run ci:backend flow
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * Implement SSE hub with per-user RBAC filtering
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * unauth-events - expected empty body, got "Unauthorized\n" fixed
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * pending tests implemented
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * merge conflict errors
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      ---------
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42600 Migrate aggregation layer to Go (#59)
+
+      * ACM-42600
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * Feng's proposal already applied
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      ---------
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42601 Migrate search proxy and WebSocket relay to Go (#62)
+
+      * ACM-42600
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42601  Migrate search proxy and WebSocket relay to Go
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      ---------
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42602 Migrate long-tail routes to Go (#61)
+
+      * ACM-42600
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42601  Migrate search proxy and WebSocket relay to Go
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42602 Migrate long-tail routes to Go
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      ---------
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42603 Decommission Node.js backend (#63)
+
+      * ACM-42600
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42601  Migrate search proxy and WebSocket relay to Go
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42602 Migrate long-tail routes to Go
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42603 Decommission Node.js backend
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * tektone gomod path
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * config.DisableEvents
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * Change Containerfile.[a|e]cm file go image to registry.ci.openshift.org/stolostron/builder:go1.26-linux and move line to the top
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      ---------
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * performance improvements (#64)
+
+      * ACM-42600
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42601  Migrate search proxy and WebSocket relay to Go
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42602 Migrate long-tail routes to Go
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-42603 Decommission Node.js backend
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * performance improvements
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * Additional backend performance improvements: cache list calls, reuse SSAR clients, prefetch RBAC checks, and serve cluster info from informer cache
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      ---------
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * Fix disable events (#65)
+
+      Signed-off-by: fxiang1 <fxiang@redhat.com>
+
+      * Fix partial discovery failure and stale discover cache (#66)
+
+      Signed-off-by: fxiang1 <fxiang@redhat.com>
+
+      * backend check errors fixed
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * Backend golangci-lint (Go 1.26 incompatibility)
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * Remove multi-arch for pull request
+
+      Signed-off-by: fxiang1 <fxiang@redhat.com>
+
+      * Fix LoadPluginData.test.tsx (#69)
+
+      Signed-off-by: fxiang1 <fxiang@redhat.com>
+
+      * just silly change at README.md for triggering CodeRabbit after aplying advance license
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * Fix CodeRabbit findings from the Go backend migration review. (#70)
+
+      Keep GET /events cheap: authorize snapshot metadata first and DeepCopyJSON only allowed objects, without extra SSARs or disconnecting on RBAC errors. Correct aggregation cache redistribution, UserPreference/search/VM error statuses, and a few proxy/static bugs that diverged from Node or dropped data.
+
+      Rejected for this change (Node parity / not a product bug): OAuth empty state, UserPreference name hashing, Ansible InsecureSkipVerify, fail-closed empty hub CA, SSE disconnect on overflow or SSAR error, authorizing DELETED/Namespace, Search WS CheckOrigin, extra SSAR timeouts, gofmt directory claim, CSR empty-value selector, LOG_LEVEL debug default, gzip q-value negotiation, and expired RBAC SSE cache deletion.
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+      Co-authored-by: Cursor <cursoragent@cursor.com>
+
+      * Fix Go image for Konflux EC violation (#71)
+
+      Signed-off-by: fxiang1 <fxiang@redhat.com>
+
+      * sonar issues solved (frontend)
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * ACM-45311: Migrate golang builder to ART official builder (#72)
+
+      * ACM-45311: Migrate golang builder to ART official builder
+
+      Update Containerfile.acm and Containerfile.mce to use the official ART
+      golang builder (registry.redhat.io/openshift/golang-builder:golang-builder-v1.26-rhel9)
+      instead of the deprecated internal builder (registry.ci.openshift.org/stolostron/builder:go1.26-linux).
+
+      This change ensures compliance with the ACM-45311 deadline of October 15, 2026,
+      when the old internal builder will no longer be maintained.
+
+      Signed-off-by: Randy Bruno Piverger <21374229+Randy424@users.noreply.github.com>
+      Co-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>
+
+      * Change go build -mod flag from mod to readonly
+
+      Per Feng's recommendation to fix CodeRabbit comment: use -mod=readonly
+      instead of -mod=mod in both Containerfile.acm and Containerfile.mce.
+
+      Signed-off-by: Randy Bruno Piverger <21374229+Randy424@users.noreply.github.com>
+
+      ---------
+
+      Signed-off-by: Randy Bruno Piverger <21374229+Randy424@users.noreply.github.com>
+      Co-authored-by: Randy Bruno Piverger <21374229+Randy424@users.noreply.github.com>
+      Co-authored-by: Claude Haiku 4.5 <noreply@anthropic.com>
+
+      * pending TS files on backend
+
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
+
+      * Feng various fixes frontend reverted back (#78)
+
+      * Performance fixes
+
+      Signed-off-by: fxiang1 <fxiang@redhat.com>
+
+      * frontend changes from  #46 reverted back
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      ---------
+
+      Signed-off-by: fxiang1 <fxiang@redhat.com>
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+      Co-authored-by: fxiang1 <fxiang@redhat.com>
+
+      * ACM-42591: Remove unused system crypto-policy and upgrade to PQC base images (#76)
+
+      Pure-Go binaries do not consume /etc/crypto-policies; Go uses native cryptography.
+      The crypto-policy stage and COPY were no-ops for the Go backend.
+
+      Fixes CodeRabbit security finding: TLS crypto policy mismatch between system
+      config and Go's native TLS setup. Go backend enforces TLS 1.2+ natively.
+
+      Addresses ACM-45722 requirement: Upgrade runtime base images to PQC-enabled
+      versions (ubi9-minimal-pqc) to support Post-Quantum Cryptography infrastructure
+      for ACM 5.0 and MCE 5.0 releases.
+
+      Changes:
+      - Remove unused crypto-policy stage (doesn't affect Go)
+      - Upgrade RUNTIME_BASE to ubi9-minimal-pqc:latest
+      - Simplifies build while enabling PQC compliance
+
+      Signed-off-by: Randy Bruno Piverger <21374229+Randy424@users.noreply.github.com>
+      Co-authored-by: Randy Bruno Piverger <21374229+Randy424@users.noreply.github.com>
+      Co-authored-by: Claude Haiku 4.5 <noreply@anthropic.com>
+
+      * [GO MIGRATION BACKPORT] [ACM-46104] ACM-38197-guard-against-flapping-resources #6760 backend migration (#75)
+
+      * ACM-38197-guard-against-flapping-resources #6760 backend migration
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * Keep recent violation visible when throttling flapping policies
+
+      When a replicated policy is throttled, remember the most severe
+      NonCompliant status seen in the recent history instead of publishing
+      the current (possibly Compliant) object. Project that violation onto
+      the propagated policy snapshot and onto the root policy's per-cluster
+      status so the console continues to show the policy as non-compliant.
+
+      Adds root-policy tracking, violation ranking, and dirty-root event
+      generation in the hub event flap state, plus tests for throttled
+      snapshot and root projection behavior.
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      ---------
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+
+      * Coderrabbit suggestions 261001 (#79)
+
+      * copyright ignoreDirectories
+
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
+
+      * engine.go searchLoop
+
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
+
+      * flap.go forget
+
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
+
+      * fuse fuzzy matches
+
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
+
+      * engine.go Bound the startup hub lookups with a timeout.
+
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
+
+      * clusters.go Handle int64 in the Service port type switch.
+
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
+
+      * clusters.go isLocalClusterURL returns true when the server URL is empty.
+
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
+
+      * main.go Start the RBAC informer after the listener binds.
+
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
+
+      ---------
+
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
+
+      * latest coderabbit tweaks minor changes
+
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
+
+      * ACM-42599 Implement TLS profile hot-reload in Go
+
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
+
+      * Revert "ACM-42599 Implement TLS profile hot-reload in Go"
+
+      This reverts commit d25b5639e398709bee94720f887c063126e613ae.
+
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
+
+      * Fix RBAC client single-flight handling during cache cleanup
+
+      Prevent cleanup from evicting token states while a Kubernetes client is
+      still being created, which could cause redundant newClient calls or
+      waiters to fail. Retry clientFor instead of returning an error when the
+      token state is evicted mid-flight, and ensure only the creator owning
+      the current wait channel publishes the result.
+
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
+
+      ---------
+
+      Signed-off-by: Enrique Mingorance Cano <ginxaco@gmail.com>
+      Signed-off-by: Auto <auto@cursor.com>
+      Signed-off-by: fxiang1 <fxiang@redhat.com>
+      Signed-off-by: Randy Bruno Piverger <21374229+Randy424@users.noreply.github.com>
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
+      Co-authored-by: Cursor <cursoragent@cursor.com>
+      Co-authored-by: Feng Xiang <fxiang@redhat.com>
+      Co-authored-by: Randy Bruno Piverger <rbrunopi@redhat.com>
+      Co-authored-by: Randy Bruno Piverger <21374229+Randy424@users.noreply.github.com>
+      Co-authored-by: Claude Haiku 4.5 <noreply@anthropic.com>
+      Co-authored-by: Enrique Mingorance Cano <emingora@emingora-thinkpadp1gen8.rmtes.csb>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/console/commit/d6a416cc7a69074a966bbfab63f89d553354651e
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-5.1
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/klusterlet-addon-controller
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: klusterlet-addon-controller
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-10-12T20:54:10Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-51-release-acm-51-20261012-203107-000":{"lastUpdateTime":"2026-10-12T20:54:45.952340035Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: console
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-10-13T11:49:46Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-51-release-acm-51-20261013-112800-000":{"lastUpdateTime":"2026-10-13T11:50:23.66030962Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1791837067000"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1791890880000"
     test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/result-chains-git-commit: 2d751c04050faad2030d0b5e5062903ea9a6c7e7
-    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/klusterlet-addon-controller
-    test.appstudio.openshift.io/result-image-digest: sha256:aa8755241f4d85fe9bf2cca0325f4adfa11ae15357f06da41d0eef69faef12e8
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-51:2d751c04050faad2030d0b5e5062903ea9a6c7e7
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/klusterlet-addon-controller
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-51","status":"BuildPLRInProgress","lastUpdateTime":"2026-10-12T20:54:45.952340035Z","details":"Integration
-      test passed with warnings","startTime":"2026-10-12T20:54:10.290013235Z","completionTime":"2026-10-12T20:54:45.952340035Z","testPipelineRunName":"enterprise-contract-acm-51-xk825"}]'
-  creationTimestamp: "2026-10-12T20:54:10Z"
+    test.appstudio.openshift.io/result-chains-git-commit: d6a416cc7a69074a966bbfab63f89d553354651e
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/console
+    test.appstudio.openshift.io/result-image-digest: sha256:a20f766f151e88ea0e4f8e447e6b6c77c306ef30340412db6a414d700fc3e710
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-51:d6a416cc7a69074a966bbfab63f89d553354651e
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-51","status":"BuildPLRInProgress","lastUpdateTime":"2026-10-13T11:50:23.66030962Z","details":"Integration
+      test passed with warnings","startTime":"2026-10-13T11:49:46.310583878Z","completionTime":"2026-10-13T11:50:23.66030962Z","testPipelineRunName":"enterprise-contract-acm-51-stc75"}]'
+  creationTimestamp: "2026-10-13T11:49:46Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-51
-    appstudio.openshift.io/build-pipelinerun: klusterlet-addon-controller-acm-51-on-push-xl66m
-    appstudio.openshift.io/component: klusterlet-addon-controller-acm-51
+    appstudio.openshift.io/build-pipelinerun: console-acm-51-on-push-4px9g
+    appstudio.openshift.io/component: console-acm-51
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "114995918148"
+    pac.test.appstudio.openshift.io/check-run-id: "115272490815"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: klusterlet-addon-controller-acm-51-on-push
-    pac.test.appstudio.openshift.io/pull-request: "743"
-    pac.test.appstudio.openshift.io/repository: klusterlet-addon-controller-acm-210
-    pac.test.appstudio.openshift.io/sha: 2d751c04050faad2030d0b5e5062903ea9a6c7e7
+    pac.test.appstudio.openshift.io/original-prname: console-acm-51-on-push
+    pac.test.appstudio.openshift.io/pull-request: "6842"
+    pac.test.appstudio.openshift.io/repository: console
+    pac.test.appstudio.openshift.io/sha: d6a416cc7a69074a966bbfab63f89d553354651e
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: klusterlet-addon-controller
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1791838443"
+    pac.test.appstudio.openshift.io/url-repository: console
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1791892179"
     test.appstudio.openshift.io/type: component
-  name: release-acm-51-20261012-203107-000
+  name: release-acm-51-20261013-112800-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -76,140 +750,12 @@ metadata:
     kind: Application
     name: release-acm-51
     uid: ec6e13f5-affe-47ff-9636-8502a9217f2e
-  resourceVersion: "11700851327"
-  uid: 8cd3e63f-2ca9-4131-9cdc-c42ba48b858b
+  resourceVersion: "11715848673"
+  uid: 9f30402d-f684-4078-b791-d9341ce5ef28
 spec:
   application: release-acm-51
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/thanos-acm-51@sha256:c3cc7eca64bede01d94591e4c0f73fc60e79905f0820a499fdf742dd880cdb68
-    name: thanos-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: bba7eabaeb654fb86db0ba2b693e5d5fcc27a9b8
-        url: https://github.com/stolostron/thanos
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-backup-operator-acm-51@sha256:46c00624bc29724957dc208c2e4f16206082794ce5529faf6194ee689c976ec7
-    name: cluster-backup-operator-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: a6b204183c1eaca0ffa24fa2d13641627b366a80
-        url: https://github.com/stolostron/cluster-backup-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-framework-addon-acm-51@sha256:4f86e752528a027d48021613f8a96e9be62e8e832c1370e949a4ded77e13e2f9
-    name: governance-policy-framework-addon-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: b1f5a674ac97e082bf995c1e9130f82b9fccabfe
-        url: https://github.com/stolostron/governance-policy-framework-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/memcached-exporter-acm-51@sha256:9f2751164bbd122cd5e1927dbea8525183ef080eab065473c1a5ec0bf8239b6c
-    name: memcached-exporter-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: e22dc805b19310c80357d04023bdc6cdd2f4793d
-        url: https://github.com/stolostron/memcached_exporter
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-collector-acm-51@sha256:6480be9acfd739e0691ae2c91f902e9ce1452f6a833860805a1df0b77391bf57
-    name: search-collector-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 9735a820c12c1c1ccd61c4f4cc0fc8474ce3ffb5
-        url: https://github.com/stolostron/search-collector
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/siteconfig-acm-51@sha256:06664081de8a3ace78f65c519b7e45663295aea57a4f24c7b92d40100ad84f40
-    name: siteconfig-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: d37e7d5d4340eee917d0c8c48bf881beb8d0aed9
-        url: https://github.com/stolostron/siteconfig
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicloud-integrations-acm-51@sha256:6dfdc6f34328787402a787c738135bac5d33115d4d87e2777bbdb5a55eacdd03
-    name: multicloud-integrations-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 749d42923a58e77e76d7142f1b84566a2f744905
-        url: https://github.com/stolostron/multicloud-integrations
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-role-assignment-acm-51@sha256:1372d070775a21f6cf27d65bfca93c56796ef06578ae0a3f4e190412683c08f6
-    name: multicluster-role-assignment-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile
-        revision: eef09cc638d4b38618aff599656ccdec4cfd4e17
-        url: https://github.com/stolostron/multicluster-role-assignment
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-operator-acm-51@sha256:690218e8cbd5335ac072ad1c4ff249aae752db7719614991ed460bf90fee8411
-    name: multicluster-observability-operator-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: operators/multiclusterobservability/Containerfile.operator
-        revision: f6fcbcde6a60eab61cc192b1c28ab92a83d9dc1d
-        url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-51@sha256:8ab182dfc9036b82824c80effbd8ddd381e3e91acd04856746dc92a382d48443
-    name: console-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.acm.konflux
-        revision: 3ad2b7bc530bd7987c0044e4c4d21979b83fe092
-        url: https://github.com/stolostron/console
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/must-gather-acm-51@sha256:811e9cbb65a0de5bf944a3e95e68a1a7e3ade95ac7c0084a0749aeea76da36c2
-    name: must-gather-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: f019952a70ecdc9d28933e261db03ae9fc4832a1
-        url: https://github.com/stolostron/must-gather
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-51@sha256:ead77d29deb1aab9dc93c0cf6d52500718ba31db7487253a3d38183c93ba5342
-    name: mtv-integrations-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile
-        revision: 45fd2b9754a693985f0f89b9aa4aa9a7fe274f83
-        url: https://github.com/stolostron/mtv-integrations
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-dashboard-loader-acm-51@sha256:12eaccdaec31b332d8dae34bb1b8b8edcf81037b40507293738f2b359a365e23
-    name: grafana-dashboard-loader-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: loaders/dashboards/Containerfile.operator
-        revision: f6fcbcde6a60eab61cc192b1c28ab92a83d9dc1d
-        url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-addon-controller-acm-51@sha256:6d298e09dc986742e2a1f2b48a62b4deaa8a779b8ce3c8120e2fbb8cedd35ef9
-    name: governance-policy-addon-controller-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 2a02a37ef918fcc28fd11ea210c94136ef5390ba
-        url: https://github.com/stolostron/governance-policy-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-51@sha256:3d5e2b1e1039d74a6614b947662bf5993e9e57954d418c2fcd43fb920abd5545
-    name: multiclusterhub-operator-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 1b97225ae43cb765212650b66b20f8aa88f601b3
-        url: https://github.com/stolostron/multiclusterhub-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-acm-51@sha256:dd6b1ba6dbd3699773187bd4b919201aa599c5f99c19862030039b0af8ef33d5
-    name: grafana-acm-51
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 110267d90a46ceaeeba1ca6edd60f56af5d00f82
-        url: https://github.com/stolostron/grafana
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-cli-acm-51@sha256:b99894b03721d3fa5630b74b3c67afadcd9f71506d350ebc259e4385e69b7548
     name: acm-cli-acm-51
     source:
@@ -226,7 +772,7 @@ spec:
         dockerfileUrl: collectors/metrics/Containerfile.operator
         revision: f6fcbcde6a60eab61cc192b1c28ab92a83d9dc1d
         url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-subscription-acm-51@sha256:3c104586b07353c349976fdcbff7ba40ae43b3d1aed8ef7eae5447c5ade1976b
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-subscription-acm-51@sha256:5f181ccbab848e79e3cddc2d9f7ed8c085f3bfcf1aaab897c945b4ab1e73f08a
     name: multicluster-operators-subscription-acm-51
     source:
       git:
@@ -250,7 +796,7 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: 2f6a061a14af1ea99b48f2067c8bca370b42a86f
         url: https://github.com/stolostron/multicloud-operators-channel
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/node-exporter-acm-51@sha256:e29fa1ec63e25a757184debde1b2ba6428b470558d0a9c6b034742c1734b41b8
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/node-exporter-acm-51@sha256:dd4e6aee845a773ac24da3231eaf53f7ae531a8f781290c93358d081da3a8db8
     name: node-exporter-acm-51
     source:
       git:
@@ -274,7 +820,7 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: 123b6a512d6743aa0a3834582e155d78c26bf350
         url: https://github.com/stolostron/dynamic-scoring-framework
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/obo-prometheus-operator-acm-51@sha256:b13716c28e9ccc43b46be07fc7f2879e883509286a479b50e1e3c3a3d69adc9e
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/obo-prometheus-operator-acm-51@sha256:f48a4e2e51d915449bec6ce90bd78e9b910ab1f6f8254defc5c3b1a790c7e8e7
     name: obo-prometheus-operator-acm-51
     source:
       git:
@@ -298,7 +844,7 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: 8354e64ed2bca48b9e82207e40cc0554ee647b82
         url: https://github.com/stolostron/cert-policy-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-acm-51@sha256:6b65c1553a6673ef127bf557f7ff114bd42960b3fd48ab87e2bd15ce9f74252e
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-acm-51@sha256:4ce8b9f9a6a7833caf1b00af287a9e5a378e682122029bcb236fd915b7bd1336
     name: prometheus-acm-51
     source:
       git:
@@ -306,7 +852,7 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: 0e1719a903bc3abb393e0d1ebe45bf765db9d681
         url: https://github.com/stolostron/prometheus
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-51@sha256:40ce75a6d5d5a57b9aa9fada07d280d21955a432f97d12a3a8682edab71e932e
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-51@sha256:27f7e16415f9c168ea8c1469a0de325092e127fef35c24a76c70e8af242be6bf
     name: multicluster-operators-application-acm-51
     source:
       git:
@@ -343,9 +889,10 @@ spec:
     source:
       git:
         context: ./
+        dockerfileUrl: Dockerfile.rhtap
         revision: 2d751c04050faad2030d0b5e5062903ea9a6c7e7
         url: https://github.com/stolostron/klusterlet-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-config-reloader-acm-51@sha256:afe734a9242df3d39d995485621a09bfe688953f7ed295e7dd3176e68b401092
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-config-reloader-acm-51@sha256:3721022bc5067c36835631a7bb08f91a7c4061b2617123cffca1a3d6ba2f0f5a
     name: prometheus-config-reloader-acm-51
     source:
       git:
@@ -353,7 +900,7 @@ spec:
         dockerfileUrl: cmd/prometheus-config-reloader/Containerfile.operator
         revision: 3a2b78154ca2de76170536ced6ca868868dcb1e9
         url: https://github.com/stolostron/prometheus-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-operator-acm-51@sha256:120808ff37c9b62e96a3588fd430eff22c60d872785c62d5e480bd2698f7d789
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-operator-acm-51@sha256:841fefc1e1827302cc2e4c7bc3c75eb9a74d600579322131ee26d69e1214bd15
     name: prometheus-operator-acm-51
     source:
       git:
@@ -369,7 +916,7 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: 32a271cd8caa8ba372520ed860883af07fb4b4a2
         url: https://github.com/stolostron/volsync-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-alertmanager-acm-51@sha256:964f03327d3cb38774cfbdcddfe2562b291ed673ccdc10c10c72de19ead1794d
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-alertmanager-acm-51@sha256:335e6555ae583c9c5f6decc724de10697778180c1542f2ed326cdad715eae668
     name: prometheus-alertmanager-acm-51
     source:
       git:
@@ -457,7 +1004,7 @@ spec:
         dockerfileUrl: Dockerfile.konflux
         revision: 51589c4a6f7c85a30cae1428fc0ef199521ff80d
         url: https://github.com/stolostron/submariner-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-state-metrics-acm-51@sha256:4cb2ba77b49ba3838c953b2448c44658bb32c2ad2dd425b4f0b6eed070a88a8f
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/kube-state-metrics-acm-51@sha256:bf7a5ff798768c86d18072d3dd2b1364deb83132f2ea1d88831c93ac8ab169de
     name: kube-state-metrics-acm-51
     source:
       git:
@@ -465,20 +1012,147 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: 3856276756f234e144351d1aa5955b62a070cca2
         url: https://github.com/stolostron/kube-state-metrics
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/thanos-acm-51@sha256:a0cbb7557467cc8ff61d69be7442ca88d65a23d4ff67caeba74d2db2d8f1e783
+    name: thanos-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: bba7eabaeb654fb86db0ba2b693e5d5fcc27a9b8
+        url: https://github.com/stolostron/thanos
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-backup-operator-acm-51@sha256:46c00624bc29724957dc208c2e4f16206082794ce5529faf6194ee689c976ec7
+    name: cluster-backup-operator-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: a6b204183c1eaca0ffa24fa2d13641627b366a80
+        url: https://github.com/stolostron/cluster-backup-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-framework-addon-acm-51@sha256:4f86e752528a027d48021613f8a96e9be62e8e832c1370e949a4ded77e13e2f9
+    name: governance-policy-framework-addon-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: b1f5a674ac97e082bf995c1e9130f82b9fccabfe
+        url: https://github.com/stolostron/governance-policy-framework-addon
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/memcached-exporter-acm-51@sha256:db780c44e0991c196f4f813699052e727c72e59c91339f272d9fae22c8c0a54e
+    name: memcached-exporter-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: e22dc805b19310c80357d04023bdc6cdd2f4793d
+        url: https://github.com/stolostron/memcached_exporter
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-collector-acm-51@sha256:6480be9acfd739e0691ae2c91f902e9ce1452f6a833860805a1df0b77391bf57
+    name: search-collector-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 9735a820c12c1c1ccd61c4f4cc0fc8474ce3ffb5
+        url: https://github.com/stolostron/search-collector
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/siteconfig-acm-51@sha256:06664081de8a3ace78f65c519b7e45663295aea57a4f24c7b92d40100ad84f40
+    name: siteconfig-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: d37e7d5d4340eee917d0c8c48bf881beb8d0aed9
+        url: https://github.com/stolostron/siteconfig
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicloud-integrations-acm-51@sha256:dbb3ad04876869630ab33e5bd32c570e45d9a139a9d4cfc7f336f3ba4cfa4af7
+    name: multicloud-integrations-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: ac41afb3778700b04f397ac07ca8da88fd3ab4a0
+        url: https://github.com/stolostron/multicloud-integrations
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-role-assignment-acm-51@sha256:1372d070775a21f6cf27d65bfca93c56796ef06578ae0a3f4e190412683c08f6
+    name: multicluster-role-assignment-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile
+        revision: eef09cc638d4b38618aff599656ccdec4cfd4e17
+        url: https://github.com/stolostron/multicluster-role-assignment
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-observability-operator-acm-51@sha256:690218e8cbd5335ac072ad1c4ff249aae752db7719614991ed460bf90fee8411
+    name: multicluster-observability-operator-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: operators/multiclusterobservability/Containerfile.operator
+        revision: f6fcbcde6a60eab61cc192b1c28ab92a83d9dc1d
+        url: https://github.com/stolostron/multicluster-observability-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-51@sha256:a20f766f151e88ea0e4f8e447e6b6c77c306ef30340412db6a414d700fc3e710
+    name: console-acm-51
+    source:
+      git:
+        context: ./
+        revision: d6a416cc7a69074a966bbfab63f89d553354651e
+        url: https://github.com/stolostron/console
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/must-gather-acm-51@sha256:811e9cbb65a0de5bf944a3e95e68a1a7e3ade95ac7c0084a0749aeea76da36c2
+    name: must-gather-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: f019952a70ecdc9d28933e261db03ae9fc4832a1
+        url: https://github.com/stolostron/must-gather
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-51@sha256:ead77d29deb1aab9dc93c0cf6d52500718ba31db7487253a3d38183c93ba5342
+    name: mtv-integrations-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile
+        revision: 45fd2b9754a693985f0f89b9aa4aa9a7fe274f83
+        url: https://github.com/stolostron/mtv-integrations
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-dashboard-loader-acm-51@sha256:12eaccdaec31b332d8dae34bb1b8b8edcf81037b40507293738f2b359a365e23
+    name: grafana-dashboard-loader-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: loaders/dashboards/Containerfile.operator
+        revision: f6fcbcde6a60eab61cc192b1c28ab92a83d9dc1d
+        url: https://github.com/stolostron/multicluster-observability-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-addon-controller-acm-51@sha256:6d298e09dc986742e2a1f2b48a62b4deaa8a779b8ce3c8120e2fbb8cedd35ef9
+    name: governance-policy-addon-controller-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 2a02a37ef918fcc28fd11ea210c94136ef5390ba
+        url: https://github.com/stolostron/governance-policy-addon-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-51@sha256:3d5e2b1e1039d74a6614b947662bf5993e9e57954d418c2fcd43fb920abd5545
+    name: multiclusterhub-operator-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 1b97225ae43cb765212650b66b20f8aa88f601b3
+        url: https://github.com/stolostron/multiclusterhub-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-acm-51@sha256:dd6b1ba6dbd3699773187bd4b919201aa599c5f99c19862030039b0af8ef33d5
+    name: grafana-acm-51
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 110267d90a46ceaeeba1ca6edd60f56af5d00f82
+        url: https://github.com/stolostron/grafana
 status:
   conditions:
-  - lastTransitionTime: "2026-10-12T20:54:45Z"
+  - lastTransitionTime: "2026-10-13T11:50:23Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-10-12T20:54:45Z"
+  - lastTransitionTime: "2026-10-13T11:50:23Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-10-12T20:54:46Z"
+  - lastTransitionTime: "2026-10-13T11:50:23Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
