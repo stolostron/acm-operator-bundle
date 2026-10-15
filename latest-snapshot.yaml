@@ -2,110 +2,65 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/cluster-backup-operator?rev=a92dcaa6803cf9a05f97390b371145c7dc19b1ab
-    build.appstudio.redhat.com/commit_sha: a92dcaa6803cf9a05f97390b371145c7dc19b1ab
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/governance-policy-propagator?rev=a3c7e9b4aefecbdb6580803aa20c9192c2bc36cb
+    build.appstudio.redhat.com/commit_sha: a3c7e9b4aefecbdb6580803aa20c9192c2bc36cb
     build.appstudio.redhat.com/target_branch: release-5.0
     pac.test.appstudio.openshift.io/branch: release-5.0
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "115888361540"
+    pac.test.appstudio.openshift.io/check-run-id: "116162766490"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
-    pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-wnngvw
+    pac.test.appstudio.openshift.io/event-type: incoming
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-dtjshb
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/cluster-backup-operator-acm-50-on-push-h4wj9
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/governance-policy-propagator-acm-50-on-push-pg98n
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-5.0"
-    pac.test.appstudio.openshift.io/original-prname: cluster-backup-operator-acm-50-on-push
-    pac.test.appstudio.openshift.io/pull-request: "1792"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/cluster-backup-operator
-    pac.test.appstudio.openshift.io/repository: cluster-backup-operator-acm-210
+    pac.test.appstudio.openshift.io/original-prname: governance-policy-propagator-acm-50-on-push
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/governance-policy-propagator
+    pac.test.appstudio.openshift.io/repository: governance-policy-propagator-fm3n
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
-    pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
-    pac.test.appstudio.openshift.io/sha: a92dcaa6803cf9a05f97390b371145c7dc19b1ab
-    pac.test.appstudio.openshift.io/sha-title: |-
-      fix: set immediate-import annotation for Hive clusters independent of MSA (#1792)
-
-      postRestoreActivation only set the
-      import.open-cluster-management.io/immediate-import annotation after a
-      managed cluster passed through MSA-secret lookup and token decoding.
-      Hive-provisioned clusters never get an MSA secret at backup time
-      (prepareImportedClusters unconditionally skips MSA setup for them), so
-      the annotation could never be set for them - meaning a Hive-deployed
-      managed cluster would never be signaled for reimport on a hub whose
-      AutoImportStrategy is ImportOnly.
-
-      Set the annotation for Hive-provisioned clusters (isHiveCreatedCluster)
-      right after managedClusterShouldReimport confirms a reimport is needed,
-      independent of MSA, then move on to the next cluster - Hive clusters
-      never have an MSA secret, so without this they would always fall
-      through to the MSA lookup below and log a misleading 'no suitable MSA
-      secret' message for an expected, by-design state.
-
-      Non-Hive clusters keep the existing MSA-gated behavior unchanged: the
-      annotation is only set once a usable MSA token is found and we are
-      about to (re)create the auto-import-secret, to avoid forcing a
-      reimport retry for a cluster we have no working credential for.
-
-      Extracted the annotation-setting logic into setImmediateImportAnnotation
-      for clarity and testability, and switched it to a merge patch instead
-      of Update: the ManagedCluster was read earlier in the restore flow and
-      other controllers actively update it concurrently (e.g. klusterlet
-      status), so its resourceVersion can be stale by the time we write the
-      annotation. A merge patch only touches the annotations field and isn't
-      subject to that resourceVersion conflict, whereas Update would silently
-      fail and leave the annotation unset.
-
-      Added a dedicated test verifying: a Hive cluster with no MSA secret
-      still gets the annotation and does NOT log a 'no suitable MSA secret'
-      message; a non-Hive cluster with a valid MSA secret still gets the
-      annotation; a non-Hive cluster without a usable MSA secret does NOT
-      get the annotation (unchanged); and a cluster that doesn't need
-      reimporting gets neither.
-
-      Signed-off-by: sahare <sahare@redhat.com>
-      Co-authored-by: sahare <sahare@redhat.com>
-      Co-authored-by: Cursor <cursoragent@cursor.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/cluster-backup-operator/commit/a92dcaa6803cf9a05f97390b371145c7dc19b1ab
-    pac.test.appstudio.openshift.io/source-branch: refs/heads/release-5.0
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/cluster-backup-operator
+    pac.test.appstudio.openshift.io/sender: incoming
+    pac.test.appstudio.openshift.io/sha: a3c7e9b4aefecbdb6580803aa20c9192c2bc36cb
+    pac.test.appstudio.openshift.io/sha-title: Add FIPS build flags to Dockerfile
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/governance-policy-propagator/commit/a3c7e9b4aefecbdb6580803aa20c9192c2bc36cb
+    pac.test.appstudio.openshift.io/source-branch: release-5.0
+    pac.test.appstudio.openshift.io/source-repo-url: ""
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: cluster-backup-operator
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-10-14T14:06:22Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-50-release-acm-50-20261014-135638-000":{"lastUpdateTime":"2026-10-14T14:07:21.667958502Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: governance-policy-propagator
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-10-14T23:46:04Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-50-release-acm-50-20261014-233558-000-ym":{"lastUpdateTime":"2026-10-14T23:46:39.451586909Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1791986198000"
-    test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/result-chains-git-commit: a92dcaa6803cf9a05f97390b371145c7dc19b1ab
-    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/cluster-backup-operator
-    test.appstudio.openshift.io/result-image-digest: sha256:6fa6adec20a250a8619566d0bd446e9d450e4f3f548bc6195fb3c8fa0f60143b
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-backup-operator-acm-50:a92dcaa6803cf9a05f97390b371145c7dc19b1ab
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/cluster-backup-operator
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-50","status":"BuildPLRInProgress","lastUpdateTime":"2026-10-14T14:07:21.667958502Z","details":"Integration
-      test passed with warnings","startTime":"2026-10-14T14:06:22.864576948Z","completionTime":"2026-10-14T14:07:21.667958502Z","testPipelineRunName":"enterprise-contract-acm-50-7vm72"}]'
-  creationTimestamp: "2026-10-14T14:06:22Z"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1792020958000"
+    test.appstudio.openshift.io/result-chains-git-commit: a3c7e9b4aefecbdb6580803aa20c9192c2bc36cb
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/governance-policy-propagator
+    test.appstudio.openshift.io/result-image-digest: sha256:2a193b36d3469d85af1e9f33fe28197439ae0c8ae57708c6bb5f6c4e94fc0150
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-propagator-acm-50:a3c7e9b4aefecbdb6580803aa20c9192c2bc36cb
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/governance-policy-propagator
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-50","status":"BuildPLRInProgress","lastUpdateTime":"2026-10-14T23:46:39.451586909Z","details":"Integration
+      test passed with warnings","startTime":"2026-10-14T23:46:04.861235772Z","completionTime":"2026-10-14T23:46:39.451586909Z","testPipelineRunName":"enterprise-contract-acm-50-ljtj4"}]'
+  creationTimestamp: "2026-10-14T23:46:04Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-50
-    appstudio.openshift.io/build-pipelinerun: cluster-backup-operator-acm-50-on-push-h4wj9
-    appstudio.openshift.io/component: cluster-backup-operator-acm-50
+    appstudio.openshift.io/build-pipelinerun: governance-policy-propagator-acm-50-on-push-pg98n
+    appstudio.openshift.io/component: governance-policy-propagator-acm-50
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "115888361540"
-    pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: cluster-backup-operator-acm-50-on-push
-    pac.test.appstudio.openshift.io/pull-request: "1792"
-    pac.test.appstudio.openshift.io/repository: cluster-backup-operator-acm-210
-    pac.test.appstudio.openshift.io/sha: a92dcaa6803cf9a05f97390b371145c7dc19b1ab
+    pac.test.appstudio.openshift.io/check-run-id: "116162766490"
+    pac.test.appstudio.openshift.io/event-type: incoming
+    pac.test.appstudio.openshift.io/original-prname: governance-policy-propagator-acm-50-on-push
+    pac.test.appstudio.openshift.io/repository: governance-policy-propagator-fm3n
+    pac.test.appstudio.openshift.io/sha: a3c7e9b4aefecbdb6580803aa20c9192c2bc36cb
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: cluster-backup-operator
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1791986776"
+    pac.test.appstudio.openshift.io/url-repository: governance-policy-propagator
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1792021558"
     test.appstudio.openshift.io/type: component
-  name: release-acm-50-20261014-135638-000
+  name: release-acm-50-20261014-233558-000-ym
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -114,12 +69,36 @@ metadata:
     kind: Application
     name: release-acm-50
     uid: 95420e61-ff03-40c3-a8b9-47011873be13
-  resourceVersion: "11742772765"
-  uid: ac225b9c-b92b-4ba4-b639-feafb96359dd
+  resourceVersion: "11750806110"
+  uid: 7ccaeaf4-ce7d-4ea4-bf39-7f4afe905b94
 spec:
   application: release-acm-50
   artifacts: {}
   components:
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/observatorium-operator-acm-50@sha256:4e325b2cecbfcfcaf1e2596ac8b21f72dc39413f02663d84c5bc92fc851e5fbf
+    name: observatorium-operator-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 2668dfec471d5d8c1d66a794e786ed0ac881a302
+        url: https://github.com/stolostron/observatorium-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-50@sha256:073d99edcea2916aa7c77a5c529b85629fbd32138b40529efed7e9172c9269de
+    name: cert-policy-controller-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: e9845e95b9cdce2cd252156a817445588eca8470
+        url: https://github.com/stolostron/cert-policy-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicloud-integrations-acm-50@sha256:034c909c6e855223537178fec7016b55496fd6aa056b2e39dc2eac967e4bb56d
+    name: multicloud-integrations-acm-50
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 1b0902eb1dc9665906ac6db748e12a3b39dd9165
+        url: https://github.com/stolostron/multicloud-integrations
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-collector-acm-50@sha256:a73f8a677955391b206b33ade09b579ae9ef881a9d239756358427f3788eef23
     name: search-collector-acm-50
     source:
@@ -224,12 +203,11 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: 6cc88b6133ac1330cc38a8f0a9095a269d643f65
         url: https://github.com/stolostron/multiclusterhub-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-propagator-acm-50@sha256:d6c541c48beee90054e7c67237f301b2ab236827030e2a8912a2eddda11f665c
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-propagator-acm-50@sha256:2a193b36d3469d85af1e9f33fe28197439ae0c8ae57708c6bb5f6c4e94fc0150
     name: governance-policy-propagator-acm-50
     source:
       git:
         context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
         revision: a3c7e9b4aefecbdb6580803aa20c9192c2bc36cb
         url: https://github.com/stolostron/governance-policy-propagator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/metrics-collector-acm-50@sha256:84bb3f85609762dc97a535d783d0c44ae4c4332aebb0402f95b22315ad807861
@@ -309,6 +287,7 @@ spec:
     source:
       git:
         context: ./
+        dockerfileUrl: Dockerfile.rhtap
         revision: a92dcaa6803cf9a05f97390b371145c7dc19b1ab
         url: https://github.com/stolostron/cluster-backup-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-dashboard-loader-acm-50@sha256:b674d272eeeff0da19adbc2bb3ab26060d4ed5c7faf1267ddf684670d89bf9b2
@@ -463,44 +442,20 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: 2ef912b8a30c802dbdc032f219ec9158cd22cf5d
         url: https://github.com/stolostron/volsync-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/observatorium-operator-acm-50@sha256:4e325b2cecbfcfcaf1e2596ac8b21f72dc39413f02663d84c5bc92fc851e5fbf
-    name: observatorium-operator-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 2668dfec471d5d8c1d66a794e786ed0ac881a302
-        url: https://github.com/stolostron/observatorium-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-50@sha256:613f5bfec9f0299cd928ca58ffb1fa89eb8bdb480476e70f8789b14426643607
-    name: cert-policy-controller-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: e9845e95b9cdce2cd252156a817445588eca8470
-        url: https://github.com/stolostron/cert-policy-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicloud-integrations-acm-50@sha256:034c909c6e855223537178fec7016b55496fd6aa056b2e39dc2eac967e4bb56d
-    name: multicloud-integrations-acm-50
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 1b0902eb1dc9665906ac6db748e12a3b39dd9165
-        url: https://github.com/stolostron/multicloud-integrations
 status:
   conditions:
-  - lastTransitionTime: "2026-10-14T14:07:21Z"
+  - lastTransitionTime: "2026-10-14T23:46:39Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-10-14T14:07:21Z"
+  - lastTransitionTime: "2026-10-14T23:46:39Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-10-14T14:07:21Z"
+  - lastTransitionTime: "2026-10-14T23:46:39Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
