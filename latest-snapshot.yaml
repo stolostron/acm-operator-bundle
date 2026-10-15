@@ -2,83 +2,65 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/governance-policy-propagator?rev=e56f4ba0208101565bedbef3b91c1a2d35e310ba
-    build.appstudio.redhat.com/commit_sha: e56f4ba0208101565bedbef3b91c1a2d35e310ba
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/governance-policy-framework-addon?rev=984299e78b9987f0b9817d6c26e13fcd4872d52c
+    build.appstudio.redhat.com/commit_sha: 984299e78b9987f0b9817d6c26e13fcd4872d52c
     build.appstudio.redhat.com/target_branch: release-2.17
     pac.test.appstudio.openshift.io/branch: release-2.17
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "116021054236"
+    pac.test.appstudio.openshift.io/check-run-id: "116162808691"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
-    pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-fvehvd
+    pac.test.appstudio.openshift.io/event-type: incoming
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-jsmjkl
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/governance-policy-propagator-acm-217-on-push-ccmxj
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/governance-policy-framework-addon-acm-217-on-push-fkwrl
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-2.17"
-    pac.test.appstudio.openshift.io/original-prname: governance-policy-propagator-acm-217-on-push
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/governance-policy-propagator
-    pac.test.appstudio.openshift.io/repository: governance-policy-propagator-fm3n
+    pac.test.appstudio.openshift.io/original-prname: governance-policy-framework-addon-acm-217-on-push
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/governance-policy-framework-addon
+    pac.test.appstudio.openshift.io/repository: governance-policy-framework-addon-dfsa
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
-    pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
-    pac.test.appstudio.openshift.io/sha: e56f4ba0208101565bedbef3b91c1a2d35e310ba
-    pac.test.appstudio.openshift.io/sha-title: |-
-      Fix mapper log values accumulation
-
-      Previously, many of the "mapper" closures here were accumulating values
-      in their loggers. The issue was that the `log` variable they were using
-      was from outside their closure, and so it was effectively global state.
-      This likely caused increasing memory usage by the controller over time.
-
-      These loggers were only used for V(2) logs, so this situation had not
-      previously been noticed. If users had increased their logging verbosity,
-      their log files may have grown very quickly and caused problems.
-
-      Refs:
-       - https://issues.redhat.com/browse/ACM-37510
-
-      Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
-      Signed-off-by: Justin Kulikauskas <jkulikau@redhat.com>
-      (cherry picked from commit d406016d5a1ca963e77f94450077012825d5849c)
-      (cherry picked from commit 51339c27dcd23755d2bed491709cdf5e73118244)
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/governance-policy-propagator/commit/e56f4ba0208101565bedbef3b91c1a2d35e310ba
-    pac.test.appstudio.openshift.io/source-branch: refs/heads/release-2.17
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/governance-policy-propagator
+    pac.test.appstudio.openshift.io/sender: incoming
+    pac.test.appstudio.openshift.io/sha: 984299e78b9987f0b9817d6c26e13fcd4872d52c
+    pac.test.appstudio.openshift.io/sha-title: Add FIPS build flags to Dockerfile
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/governance-policy-framework-addon/commit/984299e78b9987f0b9817d6c26e13fcd4872d52c
+    pac.test.appstudio.openshift.io/source-branch: release-2.17
+    pac.test.appstudio.openshift.io/source-repo-url: ""
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: governance-policy-propagator
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-10-14T18:22:35Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20261014-181138-000":{"lastUpdateTime":"2026-10-14T18:23:12.480088451Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: governance-policy-framework-addon
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-10-14T23:47:30Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20261014-233606-000":{"lastUpdateTime":"2026-10-14T23:48:12.582448249Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1792001498000"
-    test.appstudio.openshift.io/result-chains-git-commit: e56f4ba0208101565bedbef3b91c1a2d35e310ba
-    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/governance-policy-propagator
-    test.appstudio.openshift.io/result-image-digest: sha256:784b46af484fa9562bfac329404d3e84a3e503c79902c5692437e3094a019910
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-propagator-acm-217:e56f4ba0208101565bedbef3b91c1a2d35e310ba
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/governance-policy-propagator
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"TestPassed","lastUpdateTime":"2026-10-14T18:23:12.480088451Z","details":"Integration
-      test passed","startTime":"2026-10-14T18:22:35.25892969Z","completionTime":"2026-10-14T18:23:12.480088451Z","testPipelineRunName":"enterprise-contract-acm-217-v9htg"}]'
-  creationTimestamp: "2026-10-14T18:22:35Z"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1792020966000"
+    test.appstudio.openshift.io/result-chains-git-commit: 984299e78b9987f0b9817d6c26e13fcd4872d52c
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/governance-policy-framework-addon
+    test.appstudio.openshift.io/result-image-digest: sha256:889cc93c0ac38fede40b370e328cd3349d331fc5e8f33ff065df4458b75b43da
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-framework-addon-acm-217:984299e78b9987f0b9817d6c26e13fcd4872d52c
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/governance-policy-framework-addon
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"BuildPLRInProgress","lastUpdateTime":"2026-10-14T23:48:12.582448249Z","details":"Integration
+      test passed with warnings","startTime":"2026-10-14T23:47:30.801622808Z","completionTime":"2026-10-14T23:48:12.582448249Z","testPipelineRunName":"enterprise-contract-acm-217-vj4q9"}]'
+  creationTimestamp: "2026-10-14T23:47:30Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-217
-    appstudio.openshift.io/build-pipelinerun: governance-policy-propagator-acm-217-on-push-ccmxj
-    appstudio.openshift.io/component: governance-policy-propagator-acm-217
+    appstudio.openshift.io/build-pipelinerun: governance-policy-framework-addon-acm-217-on-push-fkwrl
+    appstudio.openshift.io/component: governance-policy-framework-addon-acm-217
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "116021054236"
-    pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: governance-policy-propagator-acm-217-on-push
-    pac.test.appstudio.openshift.io/repository: governance-policy-propagator-fm3n
-    pac.test.appstudio.openshift.io/sha: e56f4ba0208101565bedbef3b91c1a2d35e310ba
+    pac.test.appstudio.openshift.io/check-run-id: "116162808691"
+    pac.test.appstudio.openshift.io/event-type: incoming
+    pac.test.appstudio.openshift.io/original-prname: governance-policy-framework-addon-acm-217-on-push
+    pac.test.appstudio.openshift.io/repository: governance-policy-framework-addon-dfsa
+    pac.test.appstudio.openshift.io/sha: 984299e78b9987f0b9817d6c26e13fcd4872d52c
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: governance-policy-propagator
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1792002148"
+    pac.test.appstudio.openshift.io/url-repository: governance-policy-framework-addon
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1792021639"
     test.appstudio.openshift.io/type: component
-  name: release-acm-217-20261014-181138-000
+  name: release-acm-217-20261014-233606-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -87,20 +69,12 @@ metadata:
     kind: Application
     name: release-acm-217
     uid: f6a47cb4-5edb-49df-b280-ca2ad71f1d6c
-  resourceVersion: "11746724786"
-  uid: ff86498e-1d08-4b9b-9dc7-848f5e279aa5
+  resourceVersion: "11750836809"
+  uid: 07f4f078-2b3e-407d-a56d-e61c34871bc7
 spec:
   application: release-acm-217
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-cli-acm-217@sha256:44102873d103a43f08808a3a8f6a5720add504522a466f578a1fb26510f3da6f
-    name: acm-cli-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 3a37ddf9e53234a66e76d3ae5f59aab51132e248
-        url: https://github.com/stolostron/acm-cli
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-channel-acm-217@sha256:4961bc9e5cae2eda3ca2e75e52f2f194b713e287bcf41c1774074c8e251c729c
     name: multicluster-operators-channel-acm-217
     source:
@@ -210,6 +184,7 @@ spec:
     source:
       git:
         context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
         revision: e56f4ba0208101565bedbef3b91c1a2d35e310ba
         url: https://github.com/stolostron/governance-policy-propagator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-217@sha256:7413f5f6479ae4a5bf32653405678bbc2a9f2b9b99367e3358b2bdd27ae55013
@@ -324,13 +299,13 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: 52a2f3b0cd35758417a1673748ef24266105f472
         url: https://github.com/stolostron/siteconfig
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-subscription-acm-217@sha256:8e5c2ae0525309d5beaa06e302deb2ba8b98e891b3e49212dbe75f2b0927a8e3
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-subscription-acm-217@sha256:f743ad28706c3729a8385ee540bae44e023478127f60e05ab6aa00443bf05121
     name: multicluster-operators-subscription-acm-217
     source:
       git:
         context: ./
         dockerfileUrl: build/Dockerfile.rhtap
-        revision: 84401712559162598d89985278b1c58a57e19e5f
+        revision: 37107976ef821261cc58d0a1c255d88fb9b500f9
         url: https://github.com/stolostron/multicloud-operators-subscription
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-config-reloader-acm-217@sha256:c8db55efe8827e4b8df802322cc4fda03e6574c5ddb74be2385497db9d6dcc3b
     name: prometheus-config-reloader-acm-217
@@ -452,28 +427,35 @@ spec:
         dockerfileUrl: operators/endpointmetrics/Containerfile.operator
         revision: 45aa96dde952598cae0e601148b139b51ad5fb99
         url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-framework-addon-acm-217@sha256:c92331a0248a169a67a4a7821b59ff2d71a97f610a7f4f0f6511515c20a59f35
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-framework-addon-acm-217@sha256:889cc93c0ac38fede40b370e328cd3349d331fc5e8f33ff065df4458b75b43da
     name: governance-policy-framework-addon-acm-217
     source:
       git:
         context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
         revision: 984299e78b9987f0b9817d6c26e13fcd4872d52c
         url: https://github.com/stolostron/governance-policy-framework-addon
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-cli-acm-217@sha256:44102873d103a43f08808a3a8f6a5720add504522a466f578a1fb26510f3da6f
+    name: acm-cli-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 3a37ddf9e53234a66e76d3ae5f59aab51132e248
+        url: https://github.com/stolostron/acm-cli
 status:
   conditions:
-  - lastTransitionTime: "2026-10-14T18:23:12Z"
+  - lastTransitionTime: "2026-10-14T23:48:12Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-10-14T18:23:12Z"
+  - lastTransitionTime: "2026-10-14T23:48:12Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-10-14T18:23:12Z"
+  - lastTransitionTime: "2026-10-14T23:48:12Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
