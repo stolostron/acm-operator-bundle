@@ -2,131 +2,68 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/cluster-backup-operator?rev=0538731187d36fd7d033515600a9674039a0c559
-    build.appstudio.redhat.com/commit_sha: 0538731187d36fd7d033515600a9674039a0c559
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/grafana?rev=51dbcaec368bdebe3158f72ce65b9929206d8139
+    build.appstudio.redhat.com/commit_sha: 51dbcaec368bdebe3158f72ce65b9929206d8139
     build.appstudio.redhat.com/target_branch: release-2.17
     pac.test.appstudio.openshift.io/branch: release-2.17
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "116553681326"
+    pac.test.appstudio.openshift.io/check-run-id: "116885690113"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-qnopwa
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-jculjj
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/cluster-backup-operator-acm-217-on-push-4kdjv
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/grafana-acm-217-on-push-7fhsj
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-2.17"
-    pac.test.appstudio.openshift.io/original-prname: cluster-backup-operator-acm-217-on-push
-    pac.test.appstudio.openshift.io/pull-request: "1794"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/cluster-backup-operator
-    pac.test.appstudio.openshift.io/repository: cluster-backup-operator-acm-210
+    pac.test.appstudio.openshift.io/original-prname: grafana-acm-217-on-push
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/grafana
+    pac.test.appstudio.openshift.io/repository: grafana-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
-    pac.test.appstudio.openshift.io/sender: openshift-merge-bot[bot]
-    pac.test.appstudio.openshift.io/sha: 0538731187d36fd7d033515600a9674039a0c559
+    pac.test.appstudio.openshift.io/sender: jacobbaungardrh
+    pac.test.appstudio.openshift.io/sha: 51dbcaec368bdebe3158f72ce65b9929206d8139
     pac.test.appstudio.openshift.io/sha-title: |-
-      fix: update to controller-runtime v0.23 APIs (release-2.17) (#1794)
+      Addresses CVE-2026-84445
 
-      * fix: update to controller-runtime v0.23 APIs
-
-      - Webhook: use generic admission.Validator[*Restore] interface
-        (NewWebhookManagedBy now takes the object directly)
-      - Events: migrate from deprecated record.EventRecorder to events.EventRecorder
-        (GetEventRecorderFor -> GetEventRecorder, Event -> Eventf)
-      - Regenerated deepcopy files for controller-runtime v0.23
-
-      Signed-off-by: sahare <sahare@redhat.com>
-      Co-authored-by: Cursor <cursoragent@cursor.com>
-      (cherry picked from commit 329124bc8f8fd63b0ad14630e8e6744fa9b15625)
-      Signed-off-by: sahare <sahare@redhat.com>
-
-      * fix: migrate remaining Restore Event call to Eventf
-
-      The RestoreHooksNotSupported warning event (added to release-2.17 after
-      commit 329124b's main-branch Event->Eventf migration) still used the
-      deprecated 4-arg record.EventRecorder.Event signature, which does not
-      exist on the new events.EventRecorder interface. Convert it to Eventf
-      to match the rest of the controller.
-
-      Also fixes gofmt alignment left behind by the prior cherry-pick.
-
-      Signed-off-by: sahare <sahare@redhat.com>
-      Co-authored-by: Cursor <cursoragent@cursor.com>
-
-      * fix: remove space from Restore controller's event recorder name (#1700)
-
-      The Restore controller's events.EventRecorder was created with the
-      name "Restore controller" (and "restore reconciler" in the envtest
-      suite setup), which contains a space. The events.k8s.io/v1 API server
-      validation rejects Event objects whose reportingController does not
-      match a DNS-1123-like identifier, so every event emitted by this
-      recorder (e.g. the RestoreHooksNotSupported warning) silently failed
-      to persist without any visible error to the operator or its logs.
-
-      Rename both recorder instances to "restore-controller" so emitted
-      events actually reach the API server. Re-enable the previously-skipped
-      event assertion in the hooks test now that it can reliably observe the
-      emitted Warning event.
-
-      Signed-off-by: sahare <sahare@redhat.com>
-      Co-authored-by: Cursor <cursoragent@cursor.com>
-      (cherry picked from commit 3c192914513f0a7fa4ffef1ceca2fcc6efe989a4)
-      Signed-off-by: sahare <sahare@redhat.com>
-
-      * chore: bump controller-runtime to v0.23.3
-
-      The Restore webhook signature migrated to the generic
-      admission.Validator[T] / NewWebhookManagedBy(mgr, obj) API in the
-      preceding commits, which requires controller-runtime >= v0.23. Bump
-      from v0.22.5 to v0.23.3 so this branch builds against its own pinned
-      dependency (previously only verified against main's newer pin).
-
-      Signed-off-by: sahare <sahare@redhat.com>
-      Co-authored-by: Cursor <cursoragent@cursor.com>
-
-      ---------
-
-      Signed-off-by: sahare <sahare@redhat.com>
-      Co-authored-by: Cursor <cursoragent@cursor.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/cluster-backup-operator/commit/0538731187d36fd7d033515600a9674039a0c559
+      Signed-off-by: Chai Bot <chai-bot@redhat.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/grafana/commit/51dbcaec368bdebe3158f72ce65b9929206d8139
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-2.17
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/cluster-backup-operator
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/grafana
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: cluster-backup-operator
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-10-15T17:06:23Z"}'
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20261015-165642-000":{"lastUpdateTime":"2026-10-15T17:07:11.015859897Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: grafana
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-10-16T09:14:04Z"}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-217-release-acm-217-20261016-083218-000":{"lastUpdateTime":"2026-10-16T09:14:42.429276172Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1792083402000"
-    test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/result-chains-git-commit: 0538731187d36fd7d033515600a9674039a0c559
-    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/cluster-backup-operator
-    test.appstudio.openshift.io/result-image-digest: sha256:e00c4229947a1452c1195d2cbd56865e56d22194451978ac4bac870ab4a8bac0
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-backup-operator-acm-217:0538731187d36fd7d033515600a9674039a0c559
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/cluster-backup-operator
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"BuildPLRInProgress","lastUpdateTime":"2026-10-15T17:07:11.015859897Z","details":"Integration
-      test passed with warnings","startTime":"2026-10-15T17:06:23.729766184Z","completionTime":"2026-10-15T17:07:11.015859897Z","testPipelineRunName":"enterprise-contract-acm-217-xdh9w"}]'
-  creationTimestamp: "2026-10-15T17:06:23Z"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1792139538000"
+    test.appstudio.openshift.io/result-chains-git-commit: 51dbcaec368bdebe3158f72ce65b9929206d8139
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/grafana
+    test.appstudio.openshift.io/result-image-digest: sha256:7fc7f304a771c045ad8f9b076acbd27e1d47041e9d4fad1a7cfd10bc15cd4f88
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-acm-217:51dbcaec368bdebe3158f72ce65b9929206d8139
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/grafana
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-217","status":"BuildPLRInProgress","lastUpdateTime":"2026-10-16T09:14:42.429276172Z","details":"Integration
+      test passed with warnings","startTime":"2026-10-16T09:14:04.813377304Z","completionTime":"2026-10-16T09:14:42.429276172Z","testPipelineRunName":"enterprise-contract-acm-217-m9t9x"}]'
+  creationTimestamp: "2026-10-16T09:14:04Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-217
-    appstudio.openshift.io/build-pipelinerun: cluster-backup-operator-acm-217-on-push-4kdjv
-    appstudio.openshift.io/component: cluster-backup-operator-acm-217
+    appstudio.openshift.io/build-pipelinerun: grafana-acm-217-on-push-7fhsj
+    appstudio.openshift.io/component: grafana-acm-217
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "116553681326"
+    pac.test.appstudio.openshift.io/check-run-id: "116885690113"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: cluster-backup-operator-acm-217-on-push
-    pac.test.appstudio.openshift.io/pull-request: "1794"
-    pac.test.appstudio.openshift.io/repository: cluster-backup-operator-acm-210
-    pac.test.appstudio.openshift.io/sha: 0538731187d36fd7d033515600a9674039a0c559
+    pac.test.appstudio.openshift.io/original-prname: grafana-acm-217-on-push
+    pac.test.appstudio.openshift.io/repository: grafana-acm-210
+    pac.test.appstudio.openshift.io/sha: 51dbcaec368bdebe3158f72ce65b9929206d8139
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: cluster-backup-operator
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1792083968"
+    pac.test.appstudio.openshift.io/url-repository: grafana
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1792142038"
     test.appstudio.openshift.io/type: component
-  name: release-acm-217-20261015-165642-000
+  name: release-acm-217-20261016-083218-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -135,36 +72,12 @@ metadata:
     kind: Application
     name: release-acm-217
     uid: f6a47cb4-5edb-49df-b280-ca2ad71f1d6c
-  resourceVersion: "11768943368"
-  uid: 5fbd8a69-f383-4e88-840e-639013026f6f
+  resourceVersion: "11782227082"
+  uid: cbd2996d-2640-437f-8a46-5f86a216783a
 spec:
   application: release-acm-217
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-framework-addon-acm-217@sha256:889cc93c0ac38fede40b370e328cd3349d331fc5e8f33ff065df4458b75b43da
-    name: governance-policy-framework-addon-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 984299e78b9987f0b9817d6c26e13fcd4872d52c
-        url: https://github.com/stolostron/governance-policy-framework-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-dashboard-loader-acm-217@sha256:205de4e78b61132d9f2e05c3f91d464f3737fd8e27738bf9b5d28bc2a6bf0e82
-    name: grafana-dashboard-loader-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: loaders/dashboards/Containerfile.operator
-        revision: 45aa96dde952598cae0e601148b139b51ad5fb99
-        url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-operator-acm-217@sha256:31bb311d130a10735ffd94b7965655d95e54ca2f64a8b60d2ab57f2fdda5e016
-    name: prometheus-operator-acm-217
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 6053da530bc0d476c566eed36e08a7a510e1fb94
-        url: https://github.com/stolostron/prometheus-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-217@sha256:655e648e5807a3b9671e42c71228e468a7846670ebb9e1cbf7e2d4233f46a2f2
     name: submariner-addon-acm-217
     source:
@@ -189,13 +102,13 @@ spec:
         dockerfileUrl: proxy/Containerfile.operator
         revision: 45aa96dde952598cae0e601148b139b51ad5fb99
         url: https://github.com/stolostron/multicluster-observability-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicloud-integrations-acm-217@sha256:ea9b6b2a1c24dbfb843553f3e97f44ec9c0c19b1a1f13faaa8878ed95885de2c
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicloud-integrations-acm-217@sha256:58a7d64a6ac0859175475a3a3d563d23dd3028c60bfada884a6c26b9d4544650
     name: multicloud-integrations-acm-217
     source:
       git:
         context: ./
         dockerfileUrl: build/Dockerfile.rhtap
-        revision: 8e1b42c864bd206eff226cd0fd6029f467f2b004
+        revision: f7e2eb75382ac5ae3006518686b1e3759670631b
         url: https://github.com/stolostron/multicloud-integrations
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-217@sha256:4fb9cfd67fc8a3a0589f1db31da02114e5a2187b3b585d4ad61321284c4765cb
     name: klusterlet-addon-controller-acm-217
@@ -245,13 +158,13 @@ spec:
         dockerfileUrl: Containerfile.operator
         revision: 64a3006e8070613f0eeb6751e67484c9a6d6d83d
         url: https://github.com/stolostron/memcached_exporter
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/obo-prometheus-operator-acm-217@sha256:446b15b3469a55d0e677352cf5d3c3ff5c5ab8bb2f54b4dce3bd0101152c584d
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/obo-prometheus-operator-acm-217@sha256:f4dedc66b61344db1b229f3c7d0047a5a0eae3f80be44f115e4fdfcee257fc16
     name: obo-prometheus-operator-acm-217
     source:
       git:
         context: ./
         dockerfileUrl: Containerfile.prom-operator
-        revision: 46d9bfa67cd888da7fbecdf8455a38b8e2cc1680
+        revision: c16bed855c284e8aea4bce25e44245c3bd9eaa1f
         url: https://github.com/stolostron/obo-prometheus-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-217@sha256:9c1faf552f3072f3b82b7a80142dee1ed0115a7fffed4cc1f7628ca4460c6c8b
     name: multicluster-operators-application-acm-217
@@ -330,6 +243,7 @@ spec:
     source:
       git:
         context: ./
+        dockerfileUrl: Dockerfile.rhtap
         revision: 0538731187d36fd7d033515600a9674039a0c559
         url: https://github.com/stolostron/cluster-backup-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/insights-client-acm-217@sha256:63054d3e766819e2eba5a994c7c27881e16bd346637495d7b0c66c5d0092c1a2
@@ -348,13 +262,12 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: e8bdd7675518ea3585136bec23b6386460859fe0
         url: https://github.com/stolostron/search-v2-api
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-acm-217@sha256:75aaff5b886101e4f4dec6d0524ec8f0cf0361c08f148861ba62b6ee5e8dd53e
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-acm-217@sha256:7fc7f304a771c045ad8f9b076acbd27e1d47041e9d4fad1a7cfd10bc15cd4f88
     name: grafana-acm-217
     source:
       git:
         context: ./
-        dockerfileUrl: Containerfile.operator
-        revision: 03b2fac134091425087bd042f72f7e5d2a8af6fe
+        revision: 51dbcaec368bdebe3158f72ce65b9929206d8139
         url: https://github.com/stolostron/grafana
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/config-policy-controller-acm-217@sha256:e65a15475058177bae54bf53358c82680390c60869bd9d7ad8334e35130c0ade
     name: config-policy-controller-acm-217
@@ -508,20 +421,44 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: 52a2f3b0cd35758417a1673748ef24266105f472
         url: https://github.com/stolostron/siteconfig
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-framework-addon-acm-217@sha256:889cc93c0ac38fede40b370e328cd3349d331fc5e8f33ff065df4458b75b43da
+    name: governance-policy-framework-addon-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 984299e78b9987f0b9817d6c26e13fcd4872d52c
+        url: https://github.com/stolostron/governance-policy-framework-addon
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/grafana-dashboard-loader-acm-217@sha256:205de4e78b61132d9f2e05c3f91d464f3737fd8e27738bf9b5d28bc2a6bf0e82
+    name: grafana-dashboard-loader-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: loaders/dashboards/Containerfile.operator
+        revision: 45aa96dde952598cae0e601148b139b51ad5fb99
+        url: https://github.com/stolostron/multicluster-observability-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/prometheus-operator-acm-217@sha256:31bb311d130a10735ffd94b7965655d95e54ca2f64a8b60d2ab57f2fdda5e016
+    name: prometheus-operator-acm-217
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.operator
+        revision: 6053da530bc0d476c566eed36e08a7a510e1fb94
+        url: https://github.com/stolostron/prometheus-operator
 status:
   conditions:
-  - lastTransitionTime: "2026-10-15T17:07:11Z"
+  - lastTransitionTime: "2026-10-16T09:14:42Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-10-15T17:07:11Z"
+  - lastTransitionTime: "2026-10-16T09:14:42Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-10-15T17:07:11Z"
+  - lastTransitionTime: "2026-10-16T09:14:42Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
