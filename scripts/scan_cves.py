@@ -1,0 +1,637 @@
+#!/usr/bin/env python3
+"""Scan all images for CVEs using Grype"""
+
+import argparse
+import json
+import os
+import subprocess
+import sys
+import time
+from datetime import datetime
+from pathlib import Path
+
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeElapsedColumn
+
+console = Console()
+
+
+def load_icsp_config(config_path):
+    """Load ICSP (ImageContentSourcePolicy) configuration from JSON file"""
+    if not config_path or not os.path.exists(config_path):
+        return None
+
+    try:
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+        return config.get('mirrors', [])
+    except Exception as e:
+        console.print(f"[yellow]Warning: Failed to load ICSP config from {config_path}: {e}[/yellow]")
+        return None
+
+
+def apply_icsp_redirect(image_ref, icsp_mirrors):
+    """Apply ICSP registry redirects to an image reference"""
+    if not icsp_mirrors:
+        return image_ref, None
+
+    # Parse image reference: registry/repo/image@sha256:digest
+    for mirror in icsp_mirrors:
+        source = mirror.get('source', '')
+        mirror_registry = mirror.get('mirror', '')
+
+        if source and mirror_registry and image_ref.startswith(source):
+            redirected = image_ref.replace(source, mirror_registry, 1)
+            return redirected, source
+
+    return image_ref, None
+
+
+def filter_grype_output_by_severity(input_file, output_file, severity_filter, format_type):
+    """Filter Grype output to only include specified severity levels
+
+    Args:
+        input_file: Path to unfiltered Grype output
+        output_file: Path to write filtered output
+        severity_filter: List of severity levels to include (e.g., ['high', 'critical'])
+        format_type: 'json' or 'table'
+    """
+    if format_type == 'json':
+        # Filter JSON output
+        with open(input_file, 'r') as f:
+            data = json.load(f)
+
+        # Filter matches by severity
+        filtered_matches = [
+            match for match in data.get('matches', [])
+            if match.get('vulnerability', {}).get('severity', '').lower() in severity_filter
+        ]
+
+        data['matches'] = filtered_matches
+
+        with open(output_file, 'w') as f:
+            json.dump(data, f, indent=2)
+    else:
+        # Filter table output
+        with open(input_file, 'r') as f_in, open(output_file, 'w') as f_out:
+            for line in f_in:
+                # Keep header lines and decorative lines
+                if any(x in line for x in ['NAME', 'INSTALLED', '─', '┃', '┏', '┗', '┣', '┫']):
+                    f_out.write(line)
+                    continue
+
+                # Check if line contains one of the filtered severities
+                line_upper = line.upper()
+                for sev in severity_filter:
+                    if sev.upper() in line_upper:
+                        f_out.write(line)
+                        break
+
+
+def check_grype_available():
+    """Check if grype is available"""
+    try:
+        subprocess.run(['grype', 'version'], capture_output=True, check=True)
+        return True
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return False
+
+
+def get_podman_socket():
+    """Detect podman socket path for Grype to use"""
+    # Try macOS podman machine socket
+    try:
+        result = subprocess.run(
+            ['podman', 'machine', 'inspect', 'podman-machine-default'],
+            capture_output=True,
+            timeout=10
+        )
+        if result.returncode == 0:
+            data = json.loads(result.stdout)
+            # podman machine inspect returns an array
+            if isinstance(data, list) and len(data) > 0:
+                data = data[0]
+            socket_path = data.get('ConnectionInfo', {}).get('PodmanSocket', {}).get('Path')
+            if socket_path and os.path.exists(socket_path):
+                return socket_path
+    except:
+        pass
+
+    # Try Linux user socket (CI environment)
+    user_socket = f"/run/user/{os.getuid()}/podman/podman.sock"
+    if os.path.exists(user_socket):
+        return user_socket
+
+    # Try system socket
+    system_socket = "/run/podman/podman.sock"
+    if os.path.exists(system_socket):
+        return system_socket
+
+    return None
+
+
+def scan_image_grype(image_ref, output_file, severity, timeout, format_type, podman_socket=None):
+    """Scan image with Grype using remote scanning with authentication"""
+
+    # Set up environment for Grype with registry authentication
+    env = os.environ.copy()
+
+    # Set REGISTRY_AUTH_FILE to point to podman's auth for remote scanning
+    containers_dir = os.path.expanduser('~/.config/containers')
+    auth_file = os.path.join(containers_dir, 'auth.json')
+    if os.path.exists(auth_file):
+        env['REGISTRY_AUTH_FILE'] = auth_file
+
+    # Set podman socket for Grype if available (Grype uses DOCKER_HOST)
+    if podman_socket:
+        env['DOCKER_HOST'] = f'unix://{podman_socket}'
+
+    # Parse severity filter (e.g., "HIGH,CRITICAL" -> ["high", "critical"])
+    severity_filter = [s.strip().lower() for s in severity.split(',')]
+
+    # Try remote scanning (no pull required, uses registry auth)
+    try:
+        cmd = ['grype', image_ref]
+
+        # Suppress INFO/WARN logs when using JSON format for clean JSON output
+        if format_type == 'json':
+            cmd.extend(['-o', 'json', '-q'])
+        else:
+            cmd.extend(['-o', 'table'])
+
+        # Grype scans all severities, so we need to filter the output
+        temp_file = str(output_file) + '.tmp'
+
+        with open(temp_file, 'w') as f:
+            result = subprocess.run(
+                cmd,
+                stdout=f,
+                stderr=subprocess.PIPE,
+                timeout=600,  # 10 minute timeout
+                env=env,
+                text=True
+            )
+
+        # Filter the output based on severity
+        if os.path.exists(temp_file) and os.path.getsize(temp_file) > 0:
+            filter_grype_output_by_severity(temp_file, output_file, severity_filter, format_type)
+            os.remove(temp_file)
+            return True
+
+        # Remote scan failed, try with podman pull + scan as fallback
+    except subprocess.TimeoutExpired:
+        return False
+    except Exception:
+        pass  # Fall through to podman fallback
+
+    # Fallback: Pull with podman then scan from local storage
+    try:
+        pull_cmd = ['podman', 'pull', '--quiet', image_ref]
+        pull_result = subprocess.run(
+            pull_cmd,
+            capture_output=True,
+            timeout=300,  # 5 minute timeout for pull
+            text=True
+        )
+
+        if pull_result.returncode != 0:
+            with open(output_file, 'w') as f:
+                if format_type == 'json':
+                    error_obj = {
+                        "SchemaVersion": 2,
+                        "ArtifactName": image_ref,
+                        "ArtifactType": "container_image",
+                        "Metadata": {},
+                        "Results": [],
+                        "error": "Failed to pull image",
+                        "error_details": pull_result.stderr
+                    }
+                    json.dump(error_obj, f, indent=2)
+                else:
+                    f.write(f"Failed to pull image: {pull_result.stderr}\n")
+            return False
+
+        # Scan from podman local storage using local daemon
+        cmd_podman = ['grype', image_ref]
+
+        if format_type == 'json':
+            cmd_podman.extend(['-o', 'json', '-q'])
+        else:
+            cmd_podman.extend(['-o', 'table'])
+
+        # Scan to temp file first, then filter
+        temp_file = str(output_file) + '.tmp'
+
+        with open(temp_file, 'w') as f:
+            result = subprocess.run(
+                cmd_podman,
+                stdout=f,
+                stderr=subprocess.PIPE,
+                timeout=600,
+                env=env,
+                text=True
+            )
+
+        # Filter and save final output
+        if os.path.exists(temp_file) and os.path.getsize(temp_file) > 0:
+            filter_grype_output_by_severity(temp_file, output_file, severity_filter, format_type)
+            os.remove(temp_file)
+            return True
+
+        return False
+    except subprocess.TimeoutExpired:
+        with open(output_file, 'w') as f:
+            if format_type == 'json':
+                error_obj = {
+                    "SchemaVersion": 2,
+                    "ArtifactName": image_ref,
+                    "ArtifactType": "container_image",
+                    "Metadata": {},
+                    "Results": [],
+                    "error": "Scan timeout",
+                    "error_details": "Scan exceeded timeout limit"
+                }
+                json.dump(error_obj, f, indent=2)
+            else:
+                f.write(f"Error: Scan timeout\n")
+        return False
+    except Exception as e:
+        with open(output_file, 'w') as f:
+            if format_type == 'json':
+                error_obj = {
+                    "SchemaVersion": 2,
+                    "ArtifactName": image_ref,
+                    "ArtifactType": "container_image",
+                    "Metadata": {},
+                    "Results": [],
+                    "error": "Scan failed",
+                    "error_details": str(e)
+                }
+                json.dump(error_obj, f, indent=2)
+            else:
+                f.write(f"\nError during scan: {e}\n")
+        return False
+
+
+def parse_grype_json_for_counts(scan_file):
+    """Parse Grype JSON to get vulnerability counts by severity"""
+    try:
+        with open(scan_file, 'r') as f:
+            data = json.load(f)
+
+        counts = {'critical': 0, 'high': 0, 'medium': 0, 'low': 0, 'total': 0}
+
+        # Grype uses 'matches' instead of 'Results'
+        if 'matches' in data:
+            for match in data.get('matches', []):
+                vuln = match.get('vulnerability', {})
+                severity = vuln.get('severity', '').upper()
+                if severity == 'CRITICAL':
+                    counts['critical'] += 1
+                elif severity == 'HIGH':
+                    counts['high'] += 1
+                elif severity == 'MEDIUM':
+                    counts['medium'] += 1
+                elif severity == 'LOW':
+                    counts['low'] += 1
+                counts['total'] += 1
+
+        return counts
+    except:
+        return {'critical': 0, 'high': 0, 'medium': 0, 'low': 0, 'total': 0}
+
+
+def parse_text_severity_counts(scan_file):
+    """Parse severity counts from Grype table output by counting rows"""
+    counts = {'critical': 0, 'high': 0, 'medium': 0, 'low': 0, 'total': 0}
+    try:
+        with open(scan_file, 'r') as f:
+            for line in f:
+                # Count each line that contains a severity keyword
+                # Grype format: NAME  INSTALLED  FIXED  TYPE  VULNERABILITY  SEVERITY  ...
+                line_upper = line.upper()
+
+                # Skip header lines and decorative lines
+                if 'NAME' in line and 'INSTALLED' in line:
+                    continue
+                if line.strip().startswith(('─', '┃', '┏', '┗', '┣', '┫')):
+                    continue
+
+                # Count by severity column (case-insensitive)
+                if 'CRITICAL' in line_upper:
+                    counts['critical'] += 1
+                    counts['total'] += 1
+                elif 'HIGH' in line_upper:
+                    counts['high'] += 1
+                    counts['total'] += 1
+                elif 'MEDIUM' in line_upper:
+                    counts['medium'] += 1
+                    counts['total'] += 1
+                elif 'LOW' in line_upper:
+                    counts['low'] += 1
+                    counts['total'] += 1
+
+        return counts
+    except:
+        return {'critical': 0, 'high': 0, 'medium': 0, 'low': 0, 'total': 0}
+
+
+def count_vulnerabilities(scan_file, format_type):
+    """Try to count vulnerabilities from scan file"""
+    try:
+        if format_type == 'json':
+            with open(scan_file, 'r') as f:
+                data = json.load(f)
+                # Grype uses 'matches' array
+                return len(data.get('matches', []))
+        else:
+            # For table format, count CVE lines
+            with open(scan_file, 'r') as f:
+                return sum(1 for line in f if 'CVE-' in line)
+    except:
+        return 0
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Scan images for CVEs using Grype')
+    parser.add_argument('--image-key', type=str, help='Scan only the image with this key (e.g., multicluster-operators-application)')
+    args = parser.parse_args()
+
+    extras_dir = os.getenv('EXTRAS_DIR', 'extras')
+    reports_dir = os.getenv('REPORTS_DIR', 'reports')
+    severity = os.getenv('SCAN_SEVERITY', 'HIGH,CRITICAL')
+    timeout = os.getenv('SCAN_TIMEOUT', '10m')
+    output_json = os.getenv('OUTPUT_JSON', 'false').lower() == 'true'
+    format_type = 'json' if output_json else 'table'
+    icsp_config_path = os.getenv('ICSP_CONFIG', 'icsp-config.json')
+    acm_version = os.getenv('ACM_VERSION', '')
+
+    if not check_grype_available():
+        console.print("[red]Error: grype is not installed[/red]")
+        console.print("Install from: https://github.com/anchore/grype")
+        sys.exit(1)
+
+    # Detect podman socket for Grype to use
+    podman_socket = get_podman_socket()
+    auth_file = os.path.expanduser('~/.config/containers/auth.json')
+    has_auth = os.path.exists(auth_file)
+
+    runtime_info = []
+    if podman_socket:
+        runtime_info.append(f"[green]Podman socket:[/green] {podman_socket}")
+    if has_auth:
+        runtime_info.append(f"[green]Registry auth:[/green] {auth_file}")
+
+    if runtime_info:
+        console.print(Panel(
+            "\n".join(runtime_info),
+            title="Container Runtime",
+            border_style="green"
+        ))
+    else:
+        console.print("[yellow]No podman socket or auth detected (will try direct registry access)[/yellow]\n")
+
+    # Determine version from extras files if not provided
+    if not acm_version:
+        extras_path = Path(extras_dir)
+        json_files = sorted(extras_path.glob('*.json'))
+        if json_files:
+            acm_version = json_files[0].stem  # e.g., "2.17.0"
+
+    # Create organized reports directory structure
+    # reports/2.17.0/json/ or reports/2.17.0/text/
+    if acm_version:
+        version_dir = Path(reports_dir) / acm_version
+        subdir = 'json' if format_type == 'json' else 'text'
+        output_dir = version_dir / subdir
+
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Set reports_dir to version directory
+        reports_dir = str(version_dir)
+
+        console.print(f"[blue]Reports will be saved to: {output_dir}[/blue]\n")
+    else:
+        Path(reports_dir).mkdir(exist_ok=True)
+
+    # Load ICSP configuration
+    icsp_mirrors = load_icsp_config(icsp_config_path)
+    if icsp_mirrors:
+        mirror_lines = "\n".join([f"  {m['source']} → {m['mirror']}" for m in icsp_mirrors])
+        console.print(Panel(
+            f"[green]Loaded {len(icsp_mirrors)} ICSP mirror(s):[/green]\n{mirror_lines}",
+            title="ICSP Configuration",
+            border_style="green"
+        ))
+    else:
+        console.print("[yellow]No ICSP config loaded (set ICSP_CONFIG env var to use)[/yellow]\n")
+
+    format_label = "JSON" if format_type == 'json' else "text"
+    console.print(f"[blue]Scanning images for vulnerabilities ({format_label} output)...[/blue]")
+    console.print(f"Severity filter: [yellow]{severity}[/yellow]\n")
+
+    extras_path = Path(extras_dir)
+    if not extras_path.exists():
+        console.print(f"[red]Error: {extras_dir} directory not found[/red]")
+        sys.exit(1)
+
+    json_files = sorted(extras_path.glob('*.json'))
+    if not json_files:
+        console.print(f"[red]No JSON files found in {extras_dir}[/red]")
+        sys.exit(1)
+
+    for json_file in json_files:
+        console.print(f"\n[bold yellow]Processing: {json_file}[/bold yellow]")
+        file_start_time = time.time()
+
+        base_name = json_file.stem
+
+        # Summary file goes in version directory root
+        summary_file = Path(reports_dir) / f"{base_name}_cve_summary.txt"
+
+        try:
+            with open(json_file, 'r') as f:
+                images = json.load(f)
+        except Exception as e:
+            console.print(f"[red]Error reading {json_file}: {e}[/red]")
+            continue
+
+        # Filter by image-key if specified
+        if args.image_key:
+            original_count = len(images)
+            images = [img for img in images if img.get('image-key') == args.image_key]
+            if not images:
+                console.print(f"[yellow]No image found with key '{args.image_key}' in {json_file}[/yellow]")
+                continue
+            console.print(f"[blue]Filtering: scanning only '{args.image_key}' (1 of {original_count} images)[/blue]\n")
+
+        total_images = 0
+        scanned = 0
+        failed = 0
+        total_scan_time = 0.0
+        results = []  # Store results for table display
+
+        with open(summary_file, 'w') as summary:
+            summary.write(f"CVE Scan Summary - {datetime.now()}\n")
+            summary.write(f"Severity Filter: {severity}\n")
+            if args.image_key:
+                summary.write(f"Image Filter: {args.image_key}\n")
+            if icsp_mirrors:
+                summary.write(f"ICSP Mirrors: {len(icsp_mirrors)} configured\n")
+            summary.write("=" * 60 + "\n\n")
+
+            # Detect if we're in CI to adjust output
+            in_ci = os.getenv('CI') == 'true' or os.getenv('GITHUB_ACTIONS') == 'true'
+
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(),
+                TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+                TimeElapsedColumn(),
+                console=console,
+                disable=in_ci  # Disable rich progress in CI
+            ) as progress:
+                task = progress.add_task("[cyan]Scanning images...", total=len(images))
+
+                for idx, image in enumerate(images, 1):
+                    image_key = image.get('image-key', 'unknown')
+                    image_remote = image.get('image-remote', '')
+                    image_name = image.get('image-name', '')
+                    image_digest = image.get('image-digest', '')
+                    full_image = f"{image_remote}/{image_name}@{image_digest}"
+
+                    # Apply ICSP redirect if configured
+                    scan_image, redirect_source = apply_icsp_redirect(full_image, icsp_mirrors)
+
+                    progress.update(task, description=f"[cyan]Scanning {image_key}...")
+
+                    # Print plain progress in CI for visibility
+                    if in_ci:
+                        print(f"[{idx}/{len(images)}] Scanning {image_key}...", flush=True)
+
+                    # Determine output file extension and path
+                    ext = 'json' if format_type == 'json' else 'txt'
+                    if acm_version:
+                        subdir = 'json' if format_type == 'json' else 'text'
+                        scan_file = Path(reports_dir) / subdir / f"{base_name}_{image_key}_grype.{ext}"
+                    else:
+                        scan_file = Path(reports_dir) / f"{base_name}_{image_key}_grype.{ext}"
+
+                    # Time the scan
+                    start_time = time.time()
+                    result = scan_image_grype(scan_image, scan_file, severity, timeout, format_type, podman_socket)
+                    elapsed = time.time() - start_time
+                    total_scan_time += elapsed
+
+                    # Try to get vulnerability details
+                    if result:
+                        if format_type == 'json':
+                            vuln_data = parse_grype_json_for_counts(scan_file)
+                        else:
+                            # Parse text output for severity breakdown
+                            vuln_data = parse_text_severity_counts(scan_file)
+                    else:
+                        vuln_data = 0
+
+                    if result:
+                        results.append((image_key, "✓ OK", f"{elapsed:.1f}s", vuln_data, "green"))
+                        if redirect_source:
+                            summary.write(f"✓ {image_key}: {full_image} ({elapsed:.1f}s)\n")
+                            summary.write(f"  → Scanned via ICSP mirror: {scan_image}\n")
+                        else:
+                            summary.write(f"✓ {image_key}: {full_image} ({elapsed:.1f}s)\n")
+
+                        if isinstance(vuln_data, dict):
+                            total_vulns = vuln_data.get('total', 0)
+                            if total_vulns > 0:
+                                summary.write(f"  Found {total_vulns} vulnerabilities: ")
+                                summary.write(f"{vuln_data.get('critical', 0)} CRIT, ")
+                                summary.write(f"{vuln_data.get('high', 0)} HIGH, ")
+                                summary.write(f"{vuln_data.get('medium', 0)} MED, ")
+                                summary.write(f"{vuln_data.get('low', 0)} LOW\n")
+
+                                # Print in CI for visibility
+                                if in_ci:
+                                    print(f"  ✓ Completed in {elapsed:.1f}s - Found {total_vulns} vulns: "
+                                          f"{vuln_data.get('critical', 0)} CRIT, {vuln_data.get('high', 0)} HIGH, "
+                                          f"{vuln_data.get('medium', 0)} MED, {vuln_data.get('low', 0)} LOW", flush=True)
+                            else:
+                                if in_ci:
+                                    print(f"  ✓ Completed in {elapsed:.1f}s - No vulnerabilities found", flush=True)
+                        elif vuln_data > 0:
+                            summary.write(f"  Found {vuln_data} vulnerabilities\n")
+                            if in_ci:
+                                print(f"  ✓ Completed in {elapsed:.1f}s - Found {vuln_data} vulnerabilities", flush=True)
+                        else:
+                            if in_ci:
+                                print(f"  ✓ Completed in {elapsed:.1f}s", flush=True)
+
+                        scanned += 1
+                    else:
+                        results.append((image_key, "✗ FAILED", f"{elapsed:.1f}s", 0, "red"))
+                        if redirect_source:
+                            summary.write(f"✗ {image_key}: {full_image} ({elapsed:.1f}s)\n")
+                            summary.write(f"  → Failed even with ICSP mirror: {scan_image}\n")
+                        else:
+                            summary.write(f"✗ {image_key}: {full_image} - Scan failed ({elapsed:.1f}s)\n")
+
+                        # Print failure in CI
+                        if in_ci:
+                            print(f"  ✗ FAILED in {elapsed:.1f}s", flush=True)
+
+                        failed += 1
+
+                    total_images += 1
+                    progress.advance(task)
+
+            summary.write(f"\n{'=' * 60}\n")
+            summary.write(f"Summary: {scanned} scanned, {failed} failed out of {total_images} total\n")
+            summary.write(f"Total scan time: {total_scan_time:.1f}s (avg: {total_scan_time/total_images:.1f}s per image)\n")
+
+        file_elapsed = time.time() - file_start_time
+
+        # Display results table
+        console.print()
+        table = Table(title="CVE Scan Results", show_header=True, header_style="bold cyan")
+        table.add_column("Image", style="cyan")
+        table.add_column("Status", justify="center")
+        table.add_column("Time", justify="right", style="magenta")
+        table.add_column("CRIT", justify="right", style="red")
+        table.add_column("HIGH", justify="right", style="yellow")
+        table.add_column("MED", justify="right", style="blue")
+        table.add_column("LOW", justify="right", style="green")
+        table.add_column("Total", justify="right", style="bold")
+
+        for img_key, status, time_val, vulns, color in results:
+            if isinstance(vulns, dict):
+                # Show breakdown by severity
+                crit = str(vulns.get('critical', 0)) if vulns.get('critical', 0) > 0 else "-"
+                high = str(vulns.get('high', 0)) if vulns.get('high', 0) > 0 else "-"
+                med = str(vulns.get('medium', 0)) if vulns.get('medium', 0) > 0 else "-"
+                low = str(vulns.get('low', 0)) if vulns.get('low', 0) > 0 else "-"
+                total = str(vulns.get('total', 0)) if vulns.get('total', 0) > 0 else "-"
+                table.add_row(img_key, f"[{color}]{status}[/{color}]", time_val, crit, high, med, low, total)
+            else:
+                # Old format or failed scan
+                vuln_str = str(vulns) if vulns > 0 else "-"
+                table.add_row(img_key, f"[{color}]{status}[/{color}]", time_val, "-", "-", "-", "-", vuln_str)
+        console.print(table)
+
+        # Display summary panel
+        console.print()
+        summary_text = (
+            f"[green]✓ {scanned} scanned[/green]  [red]✗ {failed} failed[/red]  Total: {total_images}\n"
+            f"Scan time: {total_scan_time:.1f}s (avg: {total_scan_time/total_images:.1f}s per image)\n"
+            f"Total elapsed: {file_elapsed:.1f}s\n"
+            f"Summary saved to: [cyan]{summary_file}[/cyan]"
+        )
+        console.print(Panel(summary_text, title="Summary", border_style="blue"))
+
+    console.print(f"\n[bold green]✓ CVE scanning complete. Reports in {reports_dir}[/bold green]")
+
+
+if __name__ == '__main__':
+    main()

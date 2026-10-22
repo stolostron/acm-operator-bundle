@@ -1,0 +1,354 @@
+name: Mirror External Images
+
+run-name: "Mirror Images - ${{ github.event.workflow_run.head_branch || inputs.branch || github.ref_name }}"
+
+# SECURITY NOTES:
+# 1. This workflow handles sensitive secrets (registry credentials, private keys)
+# 2. Command injection mitigations:
+#    - All untrusted inputs (branch names, etc.) are passed via environment variables
+#    - Never use ${{ }} syntax directly in bash contexts with untrusted data
+# 3. workflow_run validation:
+#    - Only accepts triggers from this repository (not forks)
+#    - Validates repository source before processing
+# 4. Minimal GITHUB_TOKEN permissions (permissions: {})
+# 5. If secrets are compromised, rotate immediately:
+#    - TOOLS_REPO_READER_PRIVATE_KEY
+#    - REGISTRY_REDHAT_IO_RGY_PASSWORD
+#    - REGISTRY_STAGE_REDHAT_IO_RGY_PASSWORD
+#    - QUAY_IO_ACMD_RGY_PASSWORD
+#    - SLACK_WEBHOOK_URL
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to checkout (defaults to current branch)'
+        required: false
+        type: string
+      dry-run:
+        description: 'Run in dry-run mode (no actual mirroring)'
+        required: false
+        type: boolean
+        default: false
+  workflow_run:
+    workflows: ["Gen Bundle Contents When Triggered"]
+    types:
+      - completed
+
+defaults:
+  run:
+    shell: bash
+
+# Restrict GITHUB_TOKEN permissions to minimum required
+# This prevents token misuse if the workflow is compromised
+permissions: {}
+
+jobs:
+  mirror-images:
+    runs-on: ubuntu-24.04
+    # Only run if the triggering workflow succeeded or if manually triggered
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+    - name: Validate workflow_run repository
+      if: github.event_name == 'workflow_run'
+      env:
+        WORKFLOW_REPO: ${{ github.event.workflow_run.head_repository.full_name }}
+        EXPECTED_REPO: ${{ github.repository }}
+      run: |
+        echo "Validating workflow_run trigger source..."
+        echo "Expected repository: ${EXPECTED_REPO}"
+        echo "Triggering repository: ${WORKFLOW_REPO}"
+
+        if [ "${WORKFLOW_REPO}" != "${EXPECTED_REPO}" ]; then
+          echo "ERROR: workflow_run triggered from untrusted repository!"
+          echo "This workflow only accepts triggers from ${EXPECTED_REPO}"
+          exit 1
+        fi
+
+        echo "Repository validation passed."
+
+    - name: Log workflow trigger context
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
+        WORKFLOW_SHA: ${{ github.event.workflow_run.head_sha }}
+        WORKFLOW_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        WORKFLOW_REPO: ${{ github.event.workflow_run.head_repository.full_name }}
+        INPUT_BRANCH: ${{ inputs.branch }}
+      run: |
+        echo "Workflow triggered by: ${EVENT_NAME}"
+        if [ "${EVENT_NAME}" = "workflow_run" ]; then
+          echo "Triggering workflow: ${WORKFLOW_NAME}"
+          echo "Triggering commit SHA: ${WORKFLOW_SHA}"
+          echo "Triggering branch: ${WORKFLOW_BRANCH}"
+          echo "Triggering repo: ${WORKFLOW_REPO}"
+        elif [ "${EVENT_NAME}" = "workflow_dispatch" ]; then
+          echo "Manual trigger - branch input: ${INPUT_BRANCH}"
+        fi
+
+    - name: Determine branch context
+      id: branch
+      env:
+        # Use the branch that triggered the workflow:
+        # - workflow_run: use head_branch (the PR branch, e.g., release-2.14)
+        # - workflow_dispatch: use ref_name or input branch
+        WORKFLOW_RUN_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        INPUT_BRANCH: ${{ inputs.branch }}
+        REF_NAME: ${{ github.ref_name }}
+      run: |
+        BRANCH_NAME="${WORKFLOW_RUN_BRANCH:-${INPUT_BRANCH:-${REF_NAME}}}"
+        echo "name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+
+        # Extract release version from branch name
+        # Matches: release-2.14, update-snapshot-release-5.0, etc.
+        RELEASE_VERSION=""
+        if [[ "${BRANCH_NAME}" =~ release-([0-9]+\.[0-9]+) ]]; then
+          RELEASE_VERSION="${BASH_REMATCH[1]}"
+        fi
+        echo "release_version=${RELEASE_VERSION}" >> $GITHUB_OUTPUT
+
+        echo "Branch name: ${BRANCH_NAME}"
+        echo "Release version: ${RELEASE_VERSION}"
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        # When triggered by workflow_run, checkout the commit SHA that triggered it (persists even if branch is deleted)
+        # When triggered manually, checkout the specified branch or current branch
+        ref: ${{ inputs.branch || github.event.workflow_run.head_sha || github.ref }}
+        path: workflow
+        sparse-checkout: |
+          config
+        show-progress: false
+
+    - name: Get tools-repo pin config from main branch
+      run: |
+        # Always pull tooling config (acm-bundle-pr-config-vars) from main
+        # branch to ensure consistency across all release branches, without
+        # disturbing other files under config/ (e.g. acm-manifest-gen-config.json,
+        # which lives only on release branches and must be preserved).
+        # A second full `actions/checkout` with path: workflow would overwrite
+        # the whole config/ directory instead of just this one file, so use
+        # `git show` to fetch only the single file we need.
+        git -C workflow fetch --depth=1 origin main
+        git -C workflow show origin/main:config/acm-bundle-pr-config-vars > workflow/config/acm-bundle-pr-config-vars
+
+    - name: Read pinned release-tools commit
+      id: tools-repo-pin
+      run: |
+        # Parse (never `source`) the same config that run-script-from-tools-repo
+        # uses, so this workflow checks out release-tools at the exact same
+        # pinned commit. This step runs on workflow_run, where the config file
+        # comes from whatever branch triggered the upstream workflow; `source`-ing
+        # it would execute arbitrary shell from that branch before the SHA-format
+        # check below ever runs. Extract the single expected assignment as data
+        # instead, and refuse a mutable ref: a push to release@master must not be
+        # able to inject code that runs here with quay.io/acm-d push credentials.
+        mapfile -t tools_repo_pins < <(sed -nE 's/^tools_repo_branch=([0-9a-f]{40})$/\1/p' workflow/config/acm-bundle-pr-config-vars)
+        if [[ "${#tools_repo_pins[@]}" -ne 1 ]]; then
+          echo "ERROR: config/acm-bundle-pr-config-vars must contain exactly one 'tools_repo_branch=<40-hex-sha>' line (found ${#tools_repo_pins[@]})."
+          exit 1
+        fi
+        tools_repo_branch="${tools_repo_pins[0]}"
+        echo "Release-tools repo pinned to commit: $tools_repo_branch"
+        echo "sha=$tools_repo_branch" >> "$GITHUB_OUTPUT"
+
+    - name: Generate GitHub token to read release tools repo
+      id: gen-tools-repo-token
+      uses: actions/create-github-app-token@v1
+      with:
+        app-id: ${{ vars.TOOLS_REPO_READER_APP_ID }}
+        private-key: ${{ secrets.TOOLS_REPO_READER_PRIVATE_KEY }}
+        owner: ${{ vars.TOOLS_REPO_OWNER }}
+        repositories: "release"
+
+    - name: Checkout release tools repo
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ vars.TOOLS_REPO_OWNER }}/release
+        ref: ${{ steps.tools-repo-pin.outputs.sha }}
+        token: ${{ steps.gen-tools-repo-token.outputs.token }}
+        path: release-tools
+        sparse-checkout: |
+          tools/konflux/bundle/utils
+        show-progress: false
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install skopeo
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y skopeo
+
+    - name: Authenticate and run mirror script
+      id: mirror
+      continue-on-error: true
+      run: |
+        BRANCH_NAME="${{ steps.branch.outputs.name }}"
+        RELEASE_VERSION="${{ steps.branch.outputs.release_version }}"
+
+        # Add to GitHub Actions summary
+        echo "### Image Mirroring for ACM ${RELEASE_VERSION:-${BRANCH_NAME}}" >> $GITHUB_STEP_SUMMARY
+        echo "**Branch:** ${BRANCH_NAME}" >> $GITHUB_STEP_SUMMARY
+        if [ -n "$RELEASE_VERSION" ]; then
+          echo "**Release Version:** ${RELEASE_VERSION}" >> $GITHUB_STEP_SUMMARY
+        fi
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        # Authenticate to needed image registries...
+
+        # Access to registry.redhat.io needed to resolve external image references (shipped images):
+        echo "Doing skopeo login to registry.redhat.io"
+        echo "${{ secrets.REGISTRY_REDHAT_IO_RGY_PASSWORD }}" \
+           | skopeo login -u="${{ vars.REGISTRY_REDHAT_IO_RGY_USERNAME }}" --password-stdin registry.redhat.io
+
+        # Access to registry.stage.redhat.io needed to resolve staging image references:
+        echo "Doing skopeo login to registry.stage.redhat.io"
+        echo "${{ secrets.REGISTRY_STAGE_REDHAT_IO_RGY_PASSWORD }}" \
+           | skopeo login -u="${{ vars.REGISTRY_STAGE_REDHAT_IO_RGY_USERNAME }}" --password-stdin registry.stage.redhat.io
+
+        # Access to quay.io/acm-d needed to resolve external image references (in-dev images):
+        echo "Doing skopeo login to quay.io (for acm-d)"
+        echo "${{ secrets.QUAY_IO_ACMD_RGY_PASSWORD }}" \
+           | skopeo login -u="${{ vars.QUAY_IO_ACMD_RGY_USERNAME }}" --password-stdin quay.io
+
+        # Run the mirror script
+        ARGS="--operator acm"
+        if [ "${{ inputs.dry-run }}" == "true" ]; then
+          ARGS="$ARGS --dry-run"
+        fi
+
+        # Run the script from stolostron/release repo, using config from workflow (bundle) repo
+        cd workflow
+        python ../release-tools/tools/konflux/bundle/utils/mirror-external-images.py $ARGS
+
+    - name: Send Slack notification
+      if: always()
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        SLACK_USER_ID: ${{ vars.SLACK_USER_ID }}
+      run: |
+        BRANCH_NAME="${{ steps.branch.outputs.name }}"
+        RELEASE_VERSION="${{ steps.branch.outputs.release_version }}"
+
+        # Read results from the JSON file
+        if [ ! -f workflow/mirror-results.json ]; then
+          echo "No results file found, creating minimal report"
+          STATUS="❌ *FAILED*"
+          SUMMARY="Mirror script did not complete successfully"
+          DETAILS=""
+          HAS_FAILURE=true
+          # No results file means the script never ran (e.g. an earlier step
+          # failed). Default the counts so the jq --argjson calls below still
+          # get valid JSON instead of empty strings.
+          MIRRORED=0
+          SKIPPED=0
+          FAILED=0
+          FAILURES_JSON="[]"
+        else
+          # Parse the JSON results
+          MIRRORED=$(jq -r '.mirrored' workflow/mirror-results.json)
+          SKIPPED=$(jq -r '.skipped' workflow/mirror-results.json)
+          FAILED=$(jq -r '.failed' workflow/mirror-results.json)
+          DRY_RUN=$(jq -r '.dry_run' workflow/mirror-results.json)
+
+          # Determine status
+          if [ "$FAILED" -gt 0 ]; then
+            STATUS="⚠️ *COMPLETED WITH FAILURES*"
+            HAS_FAILURE=true
+          elif [ "$DRY_RUN" = "true" ]; then
+            STATUS="🔍 *DRY RUN COMPLETED*"
+            HAS_FAILURE=false
+          else
+            STATUS="✅ *SUCCESS*"
+            HAS_FAILURE=false
+          fi
+
+          # Get failure details if any
+          FAILURES_JSON=""
+          if [ "$FAILED" -gt 0 ]; then
+            FAILURES_JSON=$(jq -c '[.failures[] | "• `\(.image_key)` [\(.operator)]\n  Source: `\(.source)`\n  Target: `\(.target)`\n  Error: \(.error)"]' workflow/mirror-results.json)
+          fi
+        fi
+
+        # Add user mention if there's a failure and SLACK_USER_ID is set
+        USER_MENTION=""
+        if [ "$HAS_FAILURE" = "true" ] && [ -n "$SLACK_USER_ID" ]; then
+          USER_MENTION=" <@$SLACK_USER_ID>"
+        fi
+
+        # Build header with release version if available
+        HEADER_TEXT="Image Mirroring Report"
+        if [ -n "$RELEASE_VERSION" ]; then
+          HEADER_TEXT="Image Mirroring Report - ACM ${RELEASE_VERSION}"
+        fi
+
+        # Build the Slack message using jq for safe JSON construction
+        WORKFLOW_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        MESSAGE=$(jq -n \
+          --arg header "$HEADER_TEXT" \
+          --arg status "$STATUS$USER_MENTION" \
+          --argjson mirrored "$MIRRORED" \
+          --argjson skipped "$SKIPPED" \
+          --argjson failed "$FAILED" \
+          --argjson failures "${FAILURES_JSON:-[]}" \
+          --arg event "$EVENT_NAME" \
+          --arg branch "$BRANCH_NAME" \
+          --arg url "$WORKFLOW_URL" \
+          '{
+            "blocks": [
+              {
+                "type": "header",
+                "text": {
+                  "type": "plain_text",
+                  "text": $header
+                }
+              },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": ($status + "\n\n*Summary:*\n• Mirrored: " + ($mirrored|tostring) + "\n• Skipped: " + ($skipped|tostring) + "\n• Failed: " + ($failed|tostring) + (if ($failures | length) > 0 then "\n\n*Failed Images:*\n" + ($failures | join("\n")) else "" end))
+                }
+              },
+              {
+                "type": "section",
+                "fields": [
+                  {
+                    "type": "mrkdwn",
+                    "text": ("*Triggered by:*\n" + $event)
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": ("*Branch:*\n" + $branch)
+                  }
+                ]
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "View Workflow Run"
+                    },
+                    "url": $url
+                  }
+                ]
+              }
+            ]
+          }')
+
+        # Send to Slack
+        curl -X POST -H 'Content-type: application/json' \
+          --data "$MESSAGE" \
+          "${{ secrets.SLACK_WEBHOOK_URL }}"
+
+    - name: Fail workflow if mirroring failed
+      if: steps.mirror.outcome == 'failure'
+      run: exit 1
