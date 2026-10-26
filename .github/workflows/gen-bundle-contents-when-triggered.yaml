@@ -114,6 +114,11 @@ jobs:
 
         # Use the GH_WORKFLOW_TOKEN token within workflow business logic.
         GH_WORKFLOW_TOKEN: ${{ steps.gen-workflow-token.outputs.token }}
+
+        # process-triggering-pr.sh uses GH_REPO_TOKEN for the repo clone and the
+        # git push, so it must be the App token. The workflow GITHUB_TOKEN is
+        # read-only (see `permissions` above) and is denied on push.
+        GH_REPO_TOKEN: ${{ steps.gen-workflow-token.outputs.token }}
       with:
         max_attempts: 3
         timeout_minutes: 30
