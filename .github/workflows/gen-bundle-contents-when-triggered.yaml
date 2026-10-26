@@ -103,7 +103,7 @@ jobs:
            | docker login -u="${{ vars.QUAY_IO_ACMD_RGY_USERNAME }}" --password-stdin quay.io
 
     - name: Process triggering PR
-      uses: nick-fields/retry@v3
+      timeout-minutes: 30
       env:
         GH_CONTEXT: ${{ toJson(github) }}
         GIT_USER:  ${{ vars.WORKFLOW_BOT_GIT_USER }}
@@ -119,17 +119,13 @@ jobs:
         # git push, so it must be the App token. The workflow GITHUB_TOKEN is
         # read-only (see `permissions` above) and is denied on push.
         GH_REPO_TOKEN: ${{ steps.gen-workflow-token.outputs.token }}
-      with:
-        max_attempts: 3
-        timeout_minutes: 30
-        retry_wait_seconds: 15
-        command: |
-          # Save GitHub context in env as compact JSON string rather than pretty-printed
-          export GH_CONTEXT=$(jq -c . <<< "$GH_CONTEXT")
+      run: |
+        # Save GitHub context in env as compact JSON string rather than pretty-printed
+        export GH_CONTEXT=$(jq -c . <<< "$GH_CONTEXT")
 
-          # Use the workflow token by default.
-          export GITHUB_TOKEN="$GH_WORKFLOW_TOKEN"
+        # Use the workflow token by default.
+        export GITHUB_TOKEN="$GH_WORKFLOW_TOKEN"
 
-          # We start with current directory being the top of the workflow repo clone
-          cd workflow
-          tools/run-script-from-tools-repo config/bundle-pr-config-vars
+        # We start with current directory being the top of the workflow repo clone
+        cd workflow
+        tools/run-script-from-tools-repo config/bundle-pr-config-vars
