@@ -2,7 +2,7 @@ Notes:
 
 The `run-script-from-tools-repo` script found in this directory is a front-end
 script that clones the release-tools repository and then invokes a target script
-from the cloned repository. The repository and branch to clone and the pathame
+from the cloned repository. The repository and branch to clone and the pathname
 of the target script are set by configuration variables defined in a (sourced)
 Bash snippet that lives in the config directory of this branch.
 

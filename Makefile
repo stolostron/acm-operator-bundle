@@ -12,6 +12,10 @@ RELEASE ?=
 # Scripts directory
 SCRIPTS_DIR := scripts
 
+# Python interpreter: prefer local .venv if present, else system python3.
+# Override with: make PYTHON=/path/to/python
+PYTHON ?= $(shell if [ -x .venv/bin/python ]; then echo .venv/bin/python; else echo python3; fi)
+
 # Build scan_cves arguments
 SCAN_ARGS := $(if $(IMAGE_KEY),--image-key $(IMAGE_KEY),)
 
@@ -41,34 +45,34 @@ help: ## Show this help message
 	@echo "  make cve-trends-multi                      # Multi-release comparison dashboard"
 
 list-images: ## List all images from extras/*.json files
-	@python3 $(SCRIPTS_DIR)/list_images.py
+	@$(PYTHON) $(SCRIPTS_DIR)/list_images.py
 
 list-images-full: ## List all images with full SHA digests
-	@SHOW_FULL_DIGEST=true python3 $(SCRIPTS_DIR)/list_images.py
+	@SHOW_FULL_DIGEST=true $(PYTHON) $(SCRIPTS_DIR)/list_images.py
 
 check-dummy-shas: ## Check for dummy or flagged SHA digests
-	@python3 $(SCRIPTS_DIR)/check_dummy_shas.py
+	@$(PYTHON) $(SCRIPTS_DIR)/check_dummy_shas.py
 
 verify-images: ## Verify all images are pullable using skopeo
-	@python3 $(SCRIPTS_DIR)/verify_images.py
+	@$(PYTHON) $(SCRIPTS_DIR)/verify_images.py
 
 verify-images-icsp: ## Verify images using ICSP registry redirects (for pre-GA testing)
-	@ICSP_CONFIG=icsp-config.json python3 $(SCRIPTS_DIR)/verify_images.py
+	@ICSP_CONFIG=icsp-config.json $(PYTHON) $(SCRIPTS_DIR)/verify_images.py
 
 verify-images-podman: ## Verify images using podman (alternative to skopeo)
-	@USE_PODMAN=true python3 $(SCRIPTS_DIR)/verify_images.py
+	@USE_PODMAN=true $(PYTHON) $(SCRIPTS_DIR)/verify_images.py
 
 verify-images-arm64: ## Verify images for arm64 architecture
-	@OVERRIDE_ARCH=arm64 OVERRIDE_OS=linux python3 $(SCRIPTS_DIR)/verify_images.py
+	@OVERRIDE_ARCH=arm64 OVERRIDE_OS=linux $(PYTHON) $(SCRIPTS_DIR)/verify_images.py
 
 verify-images-amd64: ## Verify images for amd64 architecture
-	@OVERRIDE_ARCH=amd64 OVERRIDE_OS=linux python3 $(SCRIPTS_DIR)/verify_images.py
+	@OVERRIDE_ARCH=amd64 OVERRIDE_OS=linux $(PYTHON) $(SCRIPTS_DIR)/verify_images.py
 
 verify-images-ppc64le: ## Verify images for ppc64le architecture
-	@OVERRIDE_ARCH=ppc64le OVERRIDE_OS=linux python3 $(SCRIPTS_DIR)/verify_images.py
+	@OVERRIDE_ARCH=ppc64le OVERRIDE_OS=linux $(PYTHON) $(SCRIPTS_DIR)/verify_images.py
 
 verify-images-s390x: ## Verify images for s390x architecture
-	@OVERRIDE_ARCH=s390x OVERRIDE_OS=linux python3 $(SCRIPTS_DIR)/verify_images.py
+	@OVERRIDE_ARCH=s390x OVERRIDE_OS=linux $(PYTHON) $(SCRIPTS_DIR)/verify_images.py
 
 verify-images-latest: ## Pull latest changes and verify images
 	@echo "Pulling latest changes from current branch..."
@@ -81,42 +85,42 @@ scan-release: setup-release scan-cves-json-icsp ## Scan a release for CVEs (Usag
 
 scan-cves: ## Scan all images for CVEs using Grype (text output)
 	$(setup-if-release)
-	@python3 $(SCRIPTS_DIR)/scan_cves.py $(SCAN_ARGS)
+	@$(PYTHON) $(SCRIPTS_DIR)/scan_cves.py $(SCAN_ARGS)
 
 scan-cves-icsp: ## Scan images using ICSP registry redirects (text output)
 	$(setup-if-release)
-	@ICSP_CONFIG=icsp-config.json python3 $(SCRIPTS_DIR)/scan_cves.py $(SCAN_ARGS)
+	@ICSP_CONFIG=icsp-config.json $(PYTHON) $(SCRIPTS_DIR)/scan_cves.py $(SCAN_ARGS)
 
 scan-cves-json: ## Scan images and output results in JSON format
 	$(setup-if-release)
-	@OUTPUT_JSON=true python3 $(SCRIPTS_DIR)/scan_cves.py $(SCAN_ARGS)
+	@OUTPUT_JSON=true $(PYTHON) $(SCRIPTS_DIR)/scan_cves.py $(SCAN_ARGS)
 	@$(MAKE) store-scan-result
 
 scan-cves-json-icsp: ## Scan images with ICSP and output JSON (for Slack reports)
 	$(setup-if-release)
-	@ICSP_CONFIG=icsp-config.json OUTPUT_JSON=true python3 $(SCRIPTS_DIR)/scan_cves.py $(SCAN_ARGS)
+	@ICSP_CONFIG=icsp-config.json OUTPUT_JSON=true $(PYTHON) $(SCRIPTS_DIR)/scan_cves.py $(SCAN_ARGS)
 	@$(MAKE) store-scan-result
 
 image-report: ## Generate comprehensive image report
-	@python3 $(SCRIPTS_DIR)/image_report.py
+	@$(PYTHON) $(SCRIPTS_DIR)/image_report.py
 
 slack-cve-report: ## Send CVE scan summary to Slack (requires SLACK_WEBHOOK_URL)
-	@python3 $(SCRIPTS_DIR)/slack_cve_report.py
+	@$(PYTHON) $(SCRIPTS_DIR)/slack_cve_report.py
 
 slack-cve-report-detailed: ## Send detailed CVE report to Slack
-	@SLACK_FORMAT=detailed python3 $(SCRIPTS_DIR)/slack_cve_report.py
+	@SLACK_FORMAT=detailed $(PYTHON) $(SCRIPTS_DIR)/slack_cve_report.py
 
 store-scan-result: ## Store latest scan results for trend tracking
-	@python3 $(SCRIPTS_DIR)/store_scan_results.py --reports-dir $(REPORTS_DIR) --extras-dir $(EXTRAS_DIR) $(if $(RELEASE),--release $(RELEASE),)
+	@$(PYTHON) $(SCRIPTS_DIR)/store_scan_results.py --reports-dir $(REPORTS_DIR) --extras-dir $(EXTRAS_DIR) $(if $(RELEASE),--release $(RELEASE),)
 
 cve-trends: ## Generate CVE trend report (Usage: make cve-trends RELEASE=release-2.17)
-	@python3 $(SCRIPTS_DIR)/cve_trends.py --reports-dir $(REPORTS_DIR) --release $(or $(RELEASE),$(error RELEASE not specified. Use: make cve-trends RELEASE=release-2.17))
+	@$(PYTHON) $(SCRIPTS_DIR)/cve_trends.py --reports-dir $(REPORTS_DIR) --release $(or $(RELEASE),$(error RELEASE not specified. Use: make cve-trends RELEASE=release-2.17))
 
 cve-trends-html: ## Generate HTML trend dashboard (Usage: make cve-trends-html RELEASE=release-2.17)
-	@python3 $(SCRIPTS_DIR)/generate_trend_report.py --reports-dir $(REPORTS_DIR) --release $(or $(RELEASE),$(error RELEASE not specified. Use: make cve-trends-html RELEASE=release-2.17))
+	@$(PYTHON) $(SCRIPTS_DIR)/generate_trend_report.py --reports-dir $(REPORTS_DIR) --release $(or $(RELEASE),$(error RELEASE not specified. Use: make cve-trends-html RELEASE=release-2.17))
 
 cve-trends-multi: ## Generate multi-release comparison dashboard with tabs
-	@python3 $(SCRIPTS_DIR)/generate_multi_release_dashboard.py --reports-dir $(REPORTS_DIR)
+	@$(PYTHON) $(SCRIPTS_DIR)/generate_multi_release_dashboard.py --reports-dir $(REPORTS_DIR)
 
 setup-release: ## Set up extras/ from a release branch (Usage: make setup-release RELEASE=release-2.17)
 	@bash $(SCRIPTS_DIR)/setup_release.sh $(RELEASE)
@@ -140,7 +144,7 @@ clean-reports: ## Remove all generated reports
 check-tools: ## Check if required tools are installed
 	@echo "Checking required tools..."
 	@command -v python3 >/dev/null 2>&1 && echo "✓ python3 found" || { echo "✗ python3 is not installed"; exit 1; }
-	@python3 -c "import rich" 2>/dev/null && echo "✓ rich library found" || echo "⚠ rich not found - run: pip install -r requirements.txt"
+	@$(PYTHON) -c "import rich" 2>/dev/null && echo "✓ rich library found" || echo "⚠ rich not found - run: make install-deps"
 	@command -v skopeo >/dev/null 2>&1 && echo "✓ skopeo found" || echo "⚠ skopeo not found (optional for verify-images)"
 	@command -v podman >/dev/null 2>&1 && echo "✓ podman found" || echo "⚠ podman not found (optional for verify-images-podman)"
 	@command -v grype >/dev/null 2>&1 && echo "✓ grype found" || echo "⚠ grype not found (required for scan-cves)"
@@ -148,7 +152,7 @@ check-tools: ## Check if required tools are installed
 
 install-deps: ## Install Python dependencies
 	@echo "Installing Python dependencies..."
-	@pip install -r requirements.txt
+	@$(PYTHON) -m pip install -r requirements.txt
 	@echo "Dependencies installed"
 
 .PHONY: make-scripts-executable
