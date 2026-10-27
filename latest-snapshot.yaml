@@ -2,268 +2,104 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/console?rev=d29dda9e078797eb881d07d13200f9dc2bbdf77b
-    build.appstudio.redhat.com/commit_sha: d29dda9e078797eb881d07d13200f9dc2bbdf77b
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/console?rev=8ff471f05cdcf38bd4145ebe36c3de5fe60170a7
+    build.appstudio.redhat.com/commit_sha: 8ff471f05cdcf38bd4145ebe36c3de5fe60170a7
     build.appstudio.redhat.com/target_branch: release-5.2
     pac.test.appstudio.openshift.io/branch: release-5.2
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "122042132159"
+    pac.test.appstudio.openshift.io/check-run-id: "122242457413"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-zhztla
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-dzpyua
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/console-acm-52-on-push-8txwr
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/console-acm-52-on-push-zfpj9
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-5.2"
     pac.test.appstudio.openshift.io/original-prname: console-acm-52-on-push
-    pac.test.appstudio.openshift.io/pull-request: "7005"
+    pac.test.appstudio.openshift.io/pull-request: "6976"
     pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/console
     pac.test.appstudio.openshift.io/repository: console
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
     pac.test.appstudio.openshift.io/sender: acm-cicd-prow-bot
-    pac.test.appstudio.openshift.io/sha: d29dda9e078797eb881d07d13200f9dc2bbdf77b
+    pac.test.appstudio.openshift.io/sha: 8ff471f05cdcf38bd4145ebe36c3de5fe60170a7
     pac.test.appstudio.openshift.io/sha-title: |-
-      ACM-23889 Resolve remaining lower-severity Sonar reliability issues (#7005)
+      Update kubernetes monorepo to v0.37.1 (main) (#6976)
 
-      * ACM-23889 Simplify negated-equality check in HypershiftUpgradeModal
+      * Update kubernetes monorepo to v0.37.1
 
-      `!controlPlaneChecked === false` is a confusing negated expression in an
-      equality check (Sonar typescript:S7736). It is equivalent to the plain
-      boolean `controlPlaneChecked`; simplify accordingly. No behavior change.
+      Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
 
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-      Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
-
-      * ACM-23889 Remove side effect from waitFor callback in Searchbar test
-
-      Sonar typescript:S8985 flags the fireEvent.click side effect inside the
-      waitFor callback, which can run multiple times. The menu item is already
-      asserted present, so click it directly instead of inside waitFor.
+      * Adjust code for newer k8s client
 
       Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-      Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 
-      * ACM-23889 Mark floating promises as ignored in multicluster-sdk
+      * docs(backend): document WatchListClient behavior for k8s 0.37 informers (#7027)
 
-      Sonar typescript:S9383 flags promise-returning calls used as statements
-      without being awaited or handled. These are intentional fire-and-forget
-      calls (watch/search startup and refetch); prefix them with the `void` operator to make the intent
-      explicit, matching existing usage in the codebase. No behavior change.
+      Capture that production uses streaming sync by default and that unit
+      tests must opt out because fake watches never emit the end bookmark.
 
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-      Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
-
-      * ACM-23889 Mark floating promises as ignored in Search routes
-
-      Sonar typescript:S9383 flags promise-returning calls used as statements
-      without being awaited or handled. These are intentional fire-and-forget
-      calls (navigation and search queries); prefix them with the `void` operator to make the intent
-      explicit, matching existing usage in the codebase. No behavior change.
-
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-      Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
-
-      * ACM-23889 Mark floating promises as ignored in Infrastructure routes
-
-      Sonar typescript:S9383 flags promise-returning calls used as statements
-      without being awaited or handled. These are intentional fire-and-forget
-      calls (navigation and resource create/fetch); prefix them with the `void` operator to make the intent
-      explicit, matching existing usage in the codebase. No behavior change.
-
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-      Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
-
-      * ACM-23889 Mark floating promises as ignored in Applications routes
-
-      Sonar typescript:S9383 flags promise-returning calls used as statements
-      without being awaited or handled. These are intentional fire-and-forget
-      calls (navigation and resource fetches); prefix them with the `void` operator to make the intent
-      explicit, matching existing usage in the codebase. No behavior change.
-
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-      Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
-
-      * ACM-23889 Mark floating promises as ignored in Governance routes
-
-      Sonar typescript:S9383 flags promise-returning calls used as statements
-      without being awaited or handled. These are intentional fire-and-forget
-      calls (navigation and policy template fetches); prefix them with the `void` operator to make the intent
-      explicit, matching existing usage in the codebase. No behavior change.
-
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-      Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
-
-      * ACM-23889 Mark floating promises as ignored in Credentials routes
-
-      Sonar typescript:S9383 flags promise-returning calls used as statements
-      without being awaited or handled. These are intentional fire-and-forget
-      calls (navigation after create/edit); prefix them with the `void` operator to make the intent
-      explicit, matching existing usage in the codebase. No behavior change.
-
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-      Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
-
-      * ACM-23889 Mark floating promises as ignored in Home overview
-
-      Sonar typescript:S9383 flags promise-returning calls used as statements
-      without being awaited or handled. These are intentional fire-and-forget
-      calls (upgrade-risk and user-preference fetches); prefix them with the `void` operator to make the intent
-      explicit, matching existing usage in the codebase. No behavior change.
-
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-      Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
-
-      * ACM-23889 Mark floating promises as ignored in core lib, hooks, and navigation
-
-      Sonar typescript:S9383 flags promise-returning calls used as statements
-      without being awaited or handled. These are intentional fire-and-forget
-      calls (navigation, resource deletes, and data fetches); prefix them with
-      the `void` operator to make the intent explicit, matching existing usage
-      in the codebase. No behavior change.
-
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-      Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
-
-      * ACM-23889 Mark floating promises as ignored in shared components
-
-      Sonar typescript:S9383 flags promise-returning calls used as statements
-      without being awaited or handled. These are intentional fire-and-forget
-      calls (navigation, clipboard, and data loading); prefix them with the
-      `void` operator to make the intent explicit, matching existing usage in
-      the codebase. No behavior change.
-
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-      Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
-
-      * ACM-23889 Surface sync failures in SyncResourceModal
-
-      reconcileResources only handled the success case, so a rejected
-      reconciliation was silently discarded and the user was never told the
-      sync failed. Add a .catch handler that logs the error and shows a danger
-      toast, matching the error-handling pattern in SyncArgoCDModal. The chain
-      now ends with .catch, so the promise is properly handled.
-
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-      Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
-
-      * ACM-23889 Return submit promises so form errors surface
-
-      AnsibleAutomationsForm and InstallSubmarinerForm were voiding the
-      resource-mutation promise inside their AcmDataFormPage `submit` handlers.
-      AcmDataForm relies on the returned promise to display submit errors and
-      drive the submitting/loading state, so voiding it meant a failed create
-      or replace (or a thrown aggregate error from settled results) was
-      silently swallowed with no feedback. Return the promise instead of using
-      `void`; this both restores error handling and satisfies the floating-
-      promise rule (the promise is no longer discarded).
-
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-      Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
-
-      * ACM-23889 Test success and failure toasts in SyncResourceModal
-
-      Cover the reconcileResources success path (success toast) and the newly
-      added rejection path (danger toast) in SyncResourceModal.
-
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-      Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
-
-      * ACM-23889 Remove file-level coverage ignore from NavigationPath
-
-      The back/cancel navigation helpers in this file now have unit tests, so
-      the blanket `istanbul ignore file` directive is no longer appropriate and
-      was preventing that covered code from being measured.
-
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-      Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
-
-      * ACM-23889 Add tests covering navigation in reliability cleanup
-
-      Cover the navigation/clipboard/form-submit code paths touched by this
-      PR's floating-promise cleanup so the changed lines are exercised:
-      Applications (Overview, ApplicationDetails, AdvancedConfiguration),
-      Governance (EditPolicy, EditPolicySet), Search (DetailsOverviewPage),
-      Infrastructure (AnsibleAutomations, AnsibleAutomationsForm,
-      InfraEnvironmentsPage), Credentials, AcmDataForm, and a new
-      NavigationPath back/cancel hook test. Tests assert the resulting
-      navigation/behavior, not just rendering.
-
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-      Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
-
-      * ACM-23889 Assert exact push-model route in Overview create test
-
-      toHaveTextContent does a substring match, so the argo push-model
-      assertion ('/multicloud/applications/create/argo') would also pass for
-      the pull-model route ('.../argopullmodel'). Compare the location display's
-      full textContent exactly so a regression to the pull-model path is caught.
-
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-      Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
-
-      * ACM-23889 Parameterize Overview row-action navigation tests
-
-      The seven 'row action navigates to ...' tests were structurally identical,
-      differing only in app name, action, and expected route (Sonar
-      typescript:S5976). Consolidate them into a single test.each with a row per
-      case, preserving each case's name and assertion.
-
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-      Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
+      Co-authored-by: Cursor <cursoragent@cursor.com>
 
       ---------
 
+      Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
       Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-      Co-authored-by: Claude Opus 4.8 <noreply@anthropic.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/console/commit/d29dda9e078797eb881d07d13200f9dc2bbdf77b
+      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
+      Co-authored-by: red-hat-konflux[bot] <126015336+red-hat-konflux[bot]@users.noreply.github.com>
+      Co-authored-by: Kevin Cormier <kcormier@redhat.com>
+      Co-authored-by: Enrique Mingorance Cano <emingora@redhat.com>
+      Co-authored-by: Cursor <cursoragent@cursor.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/console/commit/8ff471f05cdcf38bd4145ebe36c3de5fe60170a7
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-5.2
     pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
     pac.test.appstudio.openshift.io/url-repository: console
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-10-27T06:53:50Z"}'
-    test.appstudio.openshift.io/create-snapshot-status: Component(s) 'grafana-dashboard-loader-acm-52,
-      grafana-acm-52, rbac-query-proxy-acm-52, thanos-receive-controller-acm-52, obo-prometheus-operator-acm-52,
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-10-27T14:44:02Z"}'
+    test.appstudio.openshift.io/create-snapshot-status: Component(s) 'prometheus-acm-52,
+      endpoint-monitoring-operator-acm-52, prometheus-config-reloader-acm-52, thanos-acm-52,
+      memcached-exporter-acm-52, grafana-dashboard-loader-acm-52, grafana-acm-52,
+      rbac-query-proxy-acm-52, thanos-receive-controller-acm-52, obo-prometheus-operator-acm-52,
       node-exporter-acm-52, kube-rbac-proxy-acm-52, multicluster-observability-addon-acm-52,
       metrics-collector-acm-52, kube-state-metrics-acm-52, observatorium-acm-52, prometheus-alertmanager-acm-52,
-      multicluster-observability-operator-acm-52, prometheus-operator-acm-52, observatorium-operator-acm-52,
-      prometheus-acm-52, endpoint-monitoring-operator-acm-52, prometheus-config-reloader-acm-52,
-      thanos-acm-52, memcached-exporter-acm-52' is(are) not included in snapshot due
-      to missing valid containerImage or git source
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-52-release-acm-52-20261027-062759-000":{"lastUpdateTime":"2026-10-27T06:56:08.799983898Z"}}}'
+      multicluster-observability-operator-acm-52, prometheus-operator-acm-52, observatorium-operator-acm-52'
+      is(are) not included in snapshot due to missing valid containerImage or git
+      source
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-52-release-acm-52-20261027-141918-000":{"lastUpdateTime":"2026-10-27T14:44:51.341174318Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1793082479000"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1793110758000"
     test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/result-chains-git-commit: d29dda9e078797eb881d07d13200f9dc2bbdf77b
+    test.appstudio.openshift.io/result-chains-git-commit: 8ff471f05cdcf38bd4145ebe36c3de5fe60170a7
     test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/console
-    test.appstudio.openshift.io/result-image-digest: sha256:6bf376e59c8157a4b4b4a52049eb7d44cd4fd84400a581a710100d50187122ab
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-52:d29dda9e078797eb881d07d13200f9dc2bbdf77b
+    test.appstudio.openshift.io/result-image-digest: sha256:1a2ef6dede75eff9048f63c0aa8a8e632c5f14022037bffba012b7f32c2d887c
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-52:8ff471f05cdcf38bd4145ebe36c3de5fe60170a7
     test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-52","status":"BuildPLRInProgress","lastUpdateTime":"2026-10-27T06:56:08.799983898Z","details":"Integration
-      test passed with warnings","startTime":"2026-10-27T06:53:50.908876776Z","completionTime":"2026-10-27T06:56:08.799983898Z","testPipelineRunName":"enterprise-contract-acm-52-s9k2z"}]'
-  creationTimestamp: "2026-10-27T06:53:50Z"
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-52","status":"BuildPLRInProgress","lastUpdateTime":"2026-10-27T14:44:51.341174318Z","details":"Integration
+      test passed with warnings","startTime":"2026-10-27T14:44:02.367683043Z","completionTime":"2026-10-27T14:44:51.341174318Z","testPipelineRunName":"enterprise-contract-acm-52-9kgg6"}]'
+  creationTimestamp: "2026-10-27T14:44:02Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-52
-    appstudio.openshift.io/build-pipelinerun: console-acm-52-on-push-8txwr
+    appstudio.openshift.io/build-pipelinerun: console-acm-52-on-push-zfpj9
     appstudio.openshift.io/component: console-acm-52
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "122042132159"
+    pac.test.appstudio.openshift.io/check-run-id: "122242457413"
     pac.test.appstudio.openshift.io/event-type: push
     pac.test.appstudio.openshift.io/original-prname: console-acm-52-on-push
-    pac.test.appstudio.openshift.io/pull-request: "7005"
+    pac.test.appstudio.openshift.io/pull-request: "6976"
     pac.test.appstudio.openshift.io/repository: console
-    pac.test.appstudio.openshift.io/sha: d29dda9e078797eb881d07d13200f9dc2bbdf77b
+    pac.test.appstudio.openshift.io/sha: 8ff471f05cdcf38bd4145ebe36c3de5fe60170a7
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
     pac.test.appstudio.openshift.io/url-repository: console
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1793084022"
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1793112235"
     test.appstudio.openshift.io/type: component
-  name: release-acm-52-20261027-062759-000
+  name: release-acm-52-20261027-141918-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -272,12 +108,68 @@ metadata:
     kind: Application
     name: release-acm-52
     uid: cfc033ef-9dfc-426e-9763-dbb135f75288
-  resourceVersion: "11997872194"
-  uid: 2f4eee7e-5d0e-497f-8108-8db48752e389
+  resourceVersion: "12008099122"
+  uid: c564d783-ee6a-428a-a279-04d98987f2fe
 spec:
   application: release-acm-52
   artifacts: {}
   components:
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-52@sha256:0d65a7b0d0ae803ba81bac9f28c6987c2ed65c342e224e1ff2a33ef58482f292
+    name: klusterlet-addon-controller-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 2d751c04050faad2030d0b5e5062903ea9a6c7e7
+        url: https://github.com/stolostron/klusterlet-addon-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/insights-metrics-acm-52@sha256:3113d9794f26565f2b932813879ccce89eda26c2bcc49e9cd9d946f94243e2f7
+    name: insights-metrics-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 00f420b3c5418a9404133439eee80bbe5af78d22
+        url: https://github.com/stolostron/insights-metrics
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-52@sha256:a86d86e1ad6d1769e5c6945259410c2964c877b6bb1070a396bfd5d5614c96ab
+    name: mtv-integrations-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile
+        revision: de5924382673eab536d47cec05d290347fecc528
+        url: https://github.com/stolostron/mtv-integrations
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-subscription-acm-52@sha256:e1ee04ea122d3c9617bcadae18bfc28d909c184fc8cb6d4746548cd0f2d6b648
+    name: multicluster-operators-subscription-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: e85c1a2e0c312944e7c15ae38fccc0a7605da79c
+        url: https://github.com/stolostron/multicloud-operators-subscription
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-api-acm-52@sha256:67147d93d4f3a08f73c3914bd6204e11332d223080554b546330a0eafc2d328b
+    name: search-v2-api-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 472c32bd21f419bacbc1c05ffca74e05f0c5991a
+        url: https://github.com/stolostron/search-v2-api
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-52@sha256:4c3ad5a6ff9d53879c00f57dba2fe5e4c8266a6b938ce5f6debc546a2d2523a1
+    name: cert-policy-controller-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 8354e64ed2bca48b9e82207e40cc0554ee647b82
+        url: https://github.com/stolostron/cert-policy-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-52@sha256:8029ecf67ec3e4669133687cc9fd1591ab666f9450933028904969ade91bc762
+    name: multicluster-operators-application-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 0f3ba51ae81b500728e5a53f1e4c252267df0718
+        url: https://github.com/stolostron/multicloud-operators-application
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-role-assignment-acm-52@sha256:f7dddc4e02d23dfc7af5254ad7268132569e5c2164dcc14b9434f03657ea7a14
     name: multicluster-role-assignment-acm-52
     source:
@@ -310,13 +202,13 @@ spec:
         dockerfileUrl: Dockerfile.addon.rhtap
         revision: 2a714068269d28f9f260447705f674ffac9f417e
         url: https://github.com/stolostron/dynamic-scoring-framework
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-52@sha256:b6fee07b9855a53d9bd8921ac83b9487e39fd3354eab4ef97c293a613b4d266c
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-52@sha256:74b9f845ea99fea4ad4a7fcf6317387fb4afbdce6762e2de47f6654f588b9c1e
     name: multiclusterhub-operator-acm-52
     source:
       git:
         context: ./
         dockerfileUrl: build/Dockerfile.rhtap
-        revision: 200abc4a97b103ad04ad4a26916276c7c6c28c68
+        revision: 991fe2f9e3de4fca244cff0d4e1bb1475294b99f
         url: https://github.com/stolostron/multiclusterhub-operator
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/dynamic-scoring-controller-acm-52@sha256:d59e769540716e8c203e54597df956d884411bf14f6a2eed93a3364148bd5b06
     name: dynamic-scoring-controller-acm-52
@@ -398,20 +290,20 @@ spec:
         dockerfileUrl: Dockerfile.konflux
         revision: 26214973c4f29df708ce2c3227d1c1d1cb33ade0
         url: https://github.com/stolostron/submariner-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-52@sha256:6bf376e59c8157a4b4b4a52049eb7d44cd4fd84400a581a710100d50187122ab
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-52@sha256:1a2ef6dede75eff9048f63c0aa8a8e632c5f14022037bffba012b7f32c2d887c
     name: console-acm-52
     source:
       git:
         context: ./
-        revision: d29dda9e078797eb881d07d13200f9dc2bbdf77b
+        revision: 8ff471f05cdcf38bd4145ebe36c3de5fe60170a7
         url: https://github.com/stolostron/console
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-collector-acm-52@sha256:dbf065a6db8906c7ac36e54c68b20d45c155ea2f5b74e1cbf4f187871344e13c
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-collector-acm-52@sha256:aae86323bf354ef7998369910e2adc63f28606df6d200c3a5a0146f0e5666231
     name: search-collector-acm-52
     source:
       git:
         context: ./
         dockerfileUrl: Dockerfile.rhtap
-        revision: 74e34a961e3c452e01112d7ffbad1997aadb5003
+        revision: ec773f07a77ed36f3b521ee0026efdebaf1c6e5a
         url: https://github.com/stolostron/search-collector
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/insights-client-acm-52@sha256:7c98f5fac90e43993e134e3bc2ee52fb18970ef086ae207020d7cbbcfdb17824
     name: insights-client-acm-52
@@ -445,76 +337,20 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: 85ce3c7e914e96aa13622a4e79a3e3a2beb8ab76
         url: https://github.com/stolostron/search-v2-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-52@sha256:0d65a7b0d0ae803ba81bac9f28c6987c2ed65c342e224e1ff2a33ef58482f292
-    name: klusterlet-addon-controller-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 2d751c04050faad2030d0b5e5062903ea9a6c7e7
-        url: https://github.com/stolostron/klusterlet-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/insights-metrics-acm-52@sha256:46aeeda3d915ad0b9682b3291ffebf3b49c6109eb67f0aaf68ff9693fa8ba84d
-    name: insights-metrics-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: f7e602fb8b405cafe89667dde4e36d17e38298d2
-        url: https://github.com/stolostron/insights-metrics
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/mtv-integrations-acm-52@sha256:a86d86e1ad6d1769e5c6945259410c2964c877b6bb1070a396bfd5d5614c96ab
-    name: mtv-integrations-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile
-        revision: de5924382673eab536d47cec05d290347fecc528
-        url: https://github.com/stolostron/mtv-integrations
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-subscription-acm-52@sha256:e1ee04ea122d3c9617bcadae18bfc28d909c184fc8cb6d4746548cd0f2d6b648
-    name: multicluster-operators-subscription-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: e85c1a2e0c312944e7c15ae38fccc0a7605da79c
-        url: https://github.com/stolostron/multicloud-operators-subscription
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-api-acm-52@sha256:4a3c3d4324a0b574b33e4fe60918c80d563f77706738c045e0d84c0600251179
-    name: search-v2-api-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: d8aee8605a36c61c0e530e7d54e0f55edc70e03a
-        url: https://github.com/stolostron/search-v2-api
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-52@sha256:4c3ad5a6ff9d53879c00f57dba2fe5e4c8266a6b938ce5f6debc546a2d2523a1
-    name: cert-policy-controller-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 8354e64ed2bca48b9e82207e40cc0554ee647b82
-        url: https://github.com/stolostron/cert-policy-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-52@sha256:8029ecf67ec3e4669133687cc9fd1591ab666f9450933028904969ade91bc762
-    name: multicluster-operators-application-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 0f3ba51ae81b500728e5a53f1e4c252267df0718
-        url: https://github.com/stolostron/multicloud-operators-application
 status:
   conditions:
-  - lastTransitionTime: "2026-10-27T06:56:08Z"
+  - lastTransitionTime: "2026-10-27T14:44:52Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-10-27T06:56:08Z"
+  - lastTransitionTime: "2026-10-27T14:44:52Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-10-27T06:56:08Z"
+  - lastTransitionTime: "2026-10-27T14:44:53Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
