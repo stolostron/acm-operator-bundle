@@ -8,7 +8,7 @@ metadata:
     categories: Integration & Delivery
     certified: 'true'
     support: Red Hat
-    createdAt: '2026-10-27T19:08:39Z'
+    createdAt: '2026-10-29T19:08:03Z'
     description: Advanced provisioning and management of OpenShift and Kubernetes clusters
     operatorframework.io/suggested-namespace: open-cluster-management
     operatorframework.io/initialization-resource: '{"apiVersion":"operator.open-cluster-management.io/v1",
@@ -1934,7 +1934,7 @@ spec:
                 - name: OPERAND_IMAGE_NODE_EXPORTER
                   value: registry.redhat.io/rhacm2/node-exporter-rhel9@sha256:e29886715ca8f0be18f93a4ed8c259e50c6288693a68727f3bb6975115a7bb6e
                 - name: OPERAND_IMAGE_OBSERVATORIUM
-                  value: registry.redhat.io/rhacm2/observatorium-rhel9@sha256:0a8df3e75f92ade3bca5dea3f4396d69f4600ab779ad83e85369d9f8e537870f
+                  value: registry.redhat.io/rhacm2/observatorium-rhel9@sha256:4cac13424cf506624370d59f2a9713543c7d6d349c885dc2aca7071fefa8036d
                 - name: OPERAND_IMAGE_OBSERVATORIUM_OPERATOR
                   value: registry.redhat.io/rhacm2/observatorium-rhel9-operator@sha256:b77ccd5f872359127a8665a8a91536d44e051c731daa4ca12141a9ca6999d0af
                 - name: OPERAND_IMAGE_PROMETHEUS
@@ -1956,7 +1956,7 @@ spec:
                 - name: OPERAND_IMAGE_SEARCH_V2_OPERATOR
                   value: registry.redhat.io/rhacm2/acm-search-v2-rhel9@sha256:69b72e9348cf964e58169428a6b88e8a74efd0c4dcd9a96d74b48b36333a0173
                 - name: OPERAND_IMAGE_SITECONFIG_OPERATOR
-                  value: registry.redhat.io/rhacm2/acm-siteconfig-rhel9@sha256:928e53b57334d6d631c87c11e783dd5f2bc150063d51300ee3e8908e5bd10d6f
+                  value: registry.redhat.io/rhacm2/acm-siteconfig-rhel9@sha256:39433a385198b0e1ff9bf0d7731b72f14366c0b472ebb388b6e36e9eabf9751a
                 - name: OPERAND_IMAGE_SUBMARINER_ADDON
                   value: registry.redhat.io/rhacm2/submariner-addon-rhel9@sha256:c671b566bd92d19d5c3d0bfca3f7701905f34ff1fbbd33971b44b893bfb4a9de
                 - name: OPERAND_IMAGE_THANOS
@@ -1991,8 +1991,8 @@ spec:
                   value: image-registry.openshift-image-registry.svc:5000/open-cluster-management/ubi_minimal:latest
                 - name: OPERAND_IMAGE_ORIGIN_CLI
                   value: registry.redhat.io/openshift4/ose-cli-artifacts-rhel9@sha256:674cbea5a63bad5bf35e70837bbf0cd8c69f2c9faf2fc6487b2f84092ec30aa1
-                - name: OPERAND_IMAGE_REDIS_7_C9S
-                  value: image-registry.openshift-image-registry.svc:5000/open-cluster-management/redis_7_c9s:latest
+                - name: OPERAND_IMAGE_REDIS
+                  value: registry.redhat.io/rhel9/redis-7@sha256:87c097750ffdfe4d014d862351f7b530e5d79f8dc5e7b990f8d63a7ff0d44af3
                 - name: OPERAND_IMAGE_POSTGRESQL_16
                   value: registry.redhat.io/rhel8/postgresql-16@sha256:3c78edbfb3af2cf49e58f8bde56c1e152ffcf7510029a1824f191a4cd4bd9f6f
                 - name: OPERAND_IMAGE_MEMCACHED
@@ -2006,10 +2006,8 @@ spec:
                 - name: OPERATOR_PACKAGE
                   value: advanced-cluster-management
                 - name: OPERAND_IMAGE_MULTICLUSTERHUB_OPERATOR
-                  value: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:792e7c820e0e610e988fccd49ae4c53787376facf25d43828deceac3f9be2e41
-                - name: OPERAND_IMAGE_REDIS
-                  value: registry.redhat.io/rhel9/redis-7@sha256:87c097750ffdfe4d014d862351f7b530e5d79f8dc5e7b990f8d63a7ff0d44af3
-                image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:792e7c820e0e610e988fccd49ae4c53787376facf25d43828deceac3f9be2e41
+                  value: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:4b6741cc820ce4a42cab2d89e315625cf672e56e23942f416a0f411db0ca40d0
+                image: registry.redhat.io/rhacm2/multiclusterhub-rhel9@sha256:4b6741cc820ce4a42cab2d89e315625cf672e56e23942f416a0f411db0ca40d0
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -2109,7 +2107,7 @@ spec:
   - name: node_exporter
     image: registry.redhat.io/rhacm2/node-exporter-rhel9@sha256:e29886715ca8f0be18f93a4ed8c259e50c6288693a68727f3bb6975115a7bb6e
   - name: observatorium
-    image: registry.redhat.io/rhacm2/observatorium-rhel9@sha256:0a8df3e75f92ade3bca5dea3f4396d69f4600ab779ad83e85369d9f8e537870f
+    image: registry.redhat.io/rhacm2/observatorium-rhel9@sha256:4cac13424cf506624370d59f2a9713543c7d6d349c885dc2aca7071fefa8036d
   - name: observatorium_operator
     image: registry.redhat.io/rhacm2/observatorium-rhel9-operator@sha256:b77ccd5f872359127a8665a8a91536d44e051c731daa4ca12141a9ca6999d0af
   - name: prometheus
@@ -2131,7 +2129,7 @@ spec:
   - name: search_v2_operator
     image: registry.redhat.io/rhacm2/acm-search-v2-rhel9@sha256:69b72e9348cf964e58169428a6b88e8a74efd0c4dcd9a96d74b48b36333a0173
   - name: siteconfig_operator
-    image: registry.redhat.io/rhacm2/acm-siteconfig-rhel9@sha256:928e53b57334d6d631c87c11e783dd5f2bc150063d51300ee3e8908e5bd10d6f
+    image: registry.redhat.io/rhacm2/acm-siteconfig-rhel9@sha256:39433a385198b0e1ff9bf0d7731b72f14366c0b472ebb388b6e36e9eabf9751a
   - name: submariner_addon
     image: registry.redhat.io/rhacm2/submariner-addon-rhel9@sha256:c671b566bd92d19d5c3d0bfca3f7701905f34ff1fbbd33971b44b893bfb4a9de
   - name: thanos
