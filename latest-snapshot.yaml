@@ -2,132 +2,78 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/console?rev=4c785d86b04dbfb1acd83c9a58d48dc4d6fb3397
-    build.appstudio.redhat.com/commit_sha: 4c785d86b04dbfb1acd83c9a58d48dc4d6fb3397
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/multiclusterhub-operator?rev=bff166e94fcb9821a59367f236edfbbe6c9be26d
+    build.appstudio.redhat.com/commit_sha: bff166e94fcb9821a59367f236edfbbe6c9be26d
     build.appstudio.redhat.com/target_branch: release-5.2
     pac.test.appstudio.openshift.io/branch: release-5.2
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "123965421625"
+    pac.test.appstudio.openshift.io/check-run-id: "124120225806"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-okxaoh
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-cuhkzc
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/console-acm-52-on-push-brtqd
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/multiclusterhub-operator-acm-52-on-push-6nq8q
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-5.2"
-    pac.test.appstudio.openshift.io/original-prname: console-acm-52-on-push
-    pac.test.appstudio.openshift.io/pull-request: "7035"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/console
-    pac.test.appstudio.openshift.io/repository: console
+    pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-52-on-push
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/multiclusterhub-operator
+    pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
     pac.test.appstudio.openshift.io/sender: acm-cicd-prow-bot
-    pac.test.appstudio.openshift.io/sha: 4c785d86b04dbfb1acd83c9a58d48dc4d6fb3397
+    pac.test.appstudio.openshift.io/sha: bff166e94fcb9821a59367f236edfbbe6c9be26d
     pac.test.appstudio.openshift.io/sha-title: |-
-      ACM-49557 PolicyReports: switch Overview/Insights from policyreportState to getResource/listResources (#7035)
+      [create-pull-request] automated change (#4998)
 
-      * feat(overview): load PolicyReports via getResource/listResources
-
-      Stop Overview/Insights and StatusSummaryCount from reading SSE-backed
-      policyreportState. Fetch on demand with React Query (5m staleTime) so
-      Insights data is loaded only when those UIs need it.
-
-      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
-      Co-authored-by: Cursor <cursoragent@cursor.com>
-
-      * test(overview): cover PolicyReport getResource/listResources hooks
-
-      Update StatusSummaryCount and OverviewPage tests to nock one-shot
-      fetches, and add unit tests for policy-report helpers and React Query hooks.
-
-      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
-      Co-authored-by: Cursor <cursoragent@cursor.com>
-
-      * fix(overview): show loading/error on Cluster recommendations card
-
-      Pass PolicyReport list isLoading/isError into SummaryCard so pending or
-      failed fetches do not display misleading zero issue counts.
-
-      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
-      Co-authored-by: Cursor <cursoragent@cursor.com>
-
-      * fix(clusters): show unknown state while PolicyReport loads
-
-      Do not treat an in-flight or failed PolicyReport fetch as zero issues
-      in StatusSummaryCount; keep a neutral title and skip opening the sidebar.
-
-      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
-      Co-authored-by: Cursor <cursoragent@cursor.com>
-
-      * SummaryCard summaryTotalHeader.num loading
-
-      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
-
-      * missing translation
-
-      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
-
-      * fix(overview): add screenreader text to SummaryCard loading skeletons
-
-      Announce localized loading state for the total count and summary text
-      Skeletons so assistive tech is not left without a progress label.
-
-      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
-      Co-authored-by: Cursor <cursoragent@cursor.com>
-
-      ---------
-
-      Signed-off-by: Enrique Mingorance Cano <emingora@redhat.com>
-      Co-authored-by: Cursor <cursoragent@cursor.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/console/commit/4c785d86b04dbfb1acd83c9a58d48dc4d6fb3397
+      Signed-off-by: GitHub <noreply@github.com>
+      Co-authored-by: dislbenn <dislbenn@users.noreply.github.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/multiclusterhub-operator/commit/bff166e94fcb9821a59367f236edfbbe6c9be26d
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-5.2
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: console
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-10-30T08:58:28Z"}'
-    test.appstudio.openshift.io/create-snapshot-status: Component(s) 'multicluster-observability-operator-acm-52,
-      prometheus-operator-acm-52, observatorium-operator-acm-52, prometheus-acm-52,
-      endpoint-monitoring-operator-acm-52, prometheus-config-reloader-acm-52, thanos-acm-52,
-      memcached-exporter-acm-52, grafana-dashboard-loader-acm-52, grafana-acm-52,
-      rbac-query-proxy-acm-52, thanos-receive-controller-acm-52, obo-prometheus-operator-acm-52,
-      node-exporter-acm-52, kube-rbac-proxy-acm-52, multicluster-observability-addon-acm-52,
-      metrics-collector-acm-52, kube-state-metrics-acm-52, observatorium-acm-52, prometheus-alertmanager-acm-52'
+    pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-10-30T14:44:29Z"}'
+    test.appstudio.openshift.io/create-snapshot-status: Component(s) 'rbac-query-proxy-acm-52,
+      thanos-receive-controller-acm-52, obo-prometheus-operator-acm-52, node-exporter-acm-52,
+      kube-rbac-proxy-acm-52, multicluster-observability-addon-acm-52, metrics-collector-acm-52,
+      kube-state-metrics-acm-52, observatorium-acm-52, prometheus-alertmanager-acm-52,
+      multicluster-observability-operator-acm-52, prometheus-operator-acm-52, observatorium-operator-acm-52,
+      prometheus-acm-52, endpoint-monitoring-operator-acm-52, prometheus-config-reloader-acm-52,
+      thanos-acm-52, memcached-exporter-acm-52, grafana-dashboard-loader-acm-52, grafana-acm-52'
       is(are) not included in snapshot due to missing valid containerImage or git
       source
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-52-release-acm-52-20261030-083511-000":{"lastUpdateTime":"2026-10-30T08:59:06.541353599Z"}}}'
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-52-release-acm-52-20261030-143320-000":{"lastUpdateTime":"2026-10-30T14:45:09.717637643Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1793349311000"
-    test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/result-chains-git-commit: 4c785d86b04dbfb1acd83c9a58d48dc4d6fb3397
-    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/console
-    test.appstudio.openshift.io/result-image-digest: sha256:83e9d8e54e9f3501d1a0d42e07f620636080c0052f3b8d50b72df1cffc227442
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-52:4c785d86b04dbfb1acd83c9a58d48dc4d6fb3397
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-52","status":"BuildPLRInProgress","lastUpdateTime":"2026-10-30T08:59:06.541353599Z","details":"Integration
-      test passed with warnings","startTime":"2026-10-30T08:58:28.564309049Z","completionTime":"2026-10-30T08:59:06.541353599Z","testPipelineRunName":"enterprise-contract-acm-52-cvdw2"}]'
-  creationTimestamp: "2026-10-30T08:58:28Z"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1793370800000"
+    test.appstudio.openshift.io/result-chains-git-commit: bff166e94fcb9821a59367f236edfbbe6c9be26d
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/multiclusterhub-operator
+    test.appstudio.openshift.io/result-image-digest: sha256:f0d157e7faa012a6685125923036aa10c46ecdfe72cc5c33b856e7b9cb693f85
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-52:bff166e94fcb9821a59367f236edfbbe6c9be26d
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-52","status":"BuildPLRInProgress","lastUpdateTime":"2026-10-30T14:45:09.717637643Z","details":"Integration
+      test passed with warnings","startTime":"2026-10-30T14:44:29.37227475Z","completionTime":"2026-10-30T14:45:09.717637643Z","testPipelineRunName":"enterprise-contract-acm-52-v828d"}]'
+  creationTimestamp: "2026-10-30T14:44:29Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-52
-    appstudio.openshift.io/build-pipelinerun: console-acm-52-on-push-brtqd
-    appstudio.openshift.io/component: console-acm-52
+    appstudio.openshift.io/build-pipelinerun: multiclusterhub-operator-acm-52-on-push-6nq8q
+    appstudio.openshift.io/component: multiclusterhub-operator-acm-52
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "123965421625"
+    pac.test.appstudio.openshift.io/check-run-id: "124120225806"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: console-acm-52-on-push
-    pac.test.appstudio.openshift.io/pull-request: "7035"
-    pac.test.appstudio.openshift.io/repository: console
-    pac.test.appstudio.openshift.io/sha: 4c785d86b04dbfb1acd83c9a58d48dc4d6fb3397
+    pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-52-on-push
+    pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
+    pac.test.appstudio.openshift.io/sha: bff166e94fcb9821a59367f236edfbbe6c9be26d
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: console
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1793350699"
+    pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1793371462"
     test.appstudio.openshift.io/type: component
-  name: release-acm-52-20261030-083511-000
+  name: release-acm-52-20261030-143320-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -136,12 +82,139 @@ metadata:
     kind: Application
     name: release-acm-52
     uid: cfc033ef-9dfc-426e-9763-dbb135f75288
-  resourceVersion: "12072029859"
-  uid: 6ce1b5dc-265c-425b-bf2a-f3c37b96e191
+  resourceVersion: "12077393779"
+  uid: 8406ee7e-55f2-4c4f-b615-e382de9e89a2
 spec:
   application: release-acm-52
   artifacts: {}
   components:
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/dynamic-scoring-addon-acm-52@sha256:6db9abab8644361769e7379749d65637605e2c81952f8e488c3b5d0b1e36a069
+    name: dynamic-scoring-addon-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.addon.rhtap
+        revision: 2a714068269d28f9f260447705f674ffac9f417e
+        url: https://github.com/stolostron/dynamic-scoring-framework
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-52@sha256:f0d157e7faa012a6685125923036aa10c46ecdfe72cc5c33b856e7b9cb693f85
+    name: multiclusterhub-operator-acm-52
+    source:
+      git:
+        context: ./
+        revision: bff166e94fcb9821a59367f236edfbbe6c9be26d
+        url: https://github.com/stolostron/multiclusterhub-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/dynamic-scoring-controller-acm-52@sha256:d59e769540716e8c203e54597df956d884411bf14f6a2eed93a3364148bd5b06
+    name: dynamic-scoring-controller-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 024017a46f8fa276725e449281055296e3924216
+        url: https://github.com/stolostron/dynamic-scoring-framework
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/must-gather-acm-52@sha256:ee92f67dfb665c99357e9b91ee6f14fc3a4b9564812bbf803c44dfc0932d7224
+    name: must-gather-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 41479894400ce20effcfe9cd9f56ec336ba89d66
+        url: https://github.com/stolostron/must-gather
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-addon-controller-acm-52@sha256:91a7eff18587f3f61ad81a7c617c3dd2abaeb03bdbc397b1a33a7c2daad230bd
+    name: governance-policy-addon-controller-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: b1f596210cfe6f713e74a908c568ee9e92d6a074
+        url: https://github.com/stolostron/governance-policy-addon-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-propagator-acm-52@sha256:cb4fc606b411b9f4670d129fcbe67263b0b2e85898f0846187cd263896c2e0c1
+    name: governance-policy-propagator-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 031fcbb7a6bc29e3155ebffa79ccc12a7570dc25
+        url: https://github.com/stolostron/governance-policy-propagator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-framework-addon-acm-52@sha256:439232854b47855edf2587306a40966da8ba63482722a8f9136a5bd2d368dbef
+    name: governance-policy-framework-addon-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 5037d513e15bdf93935dd67565f595cccf32db8e
+        url: https://github.com/stolostron/governance-policy-framework-addon
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-52@sha256:65e11f13d6ac081ff2dad6bb2414e4a6b85771ef2cc46ea4fbf16acf22a1b0f8
+    name: search-indexer-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: fcb9043df98b85353820ae484598ae5c66fd42f4
+        url: https://github.com/stolostron/search-indexer
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/volsync-addon-controller-acm-52@sha256:6d2f8fa8f1333b87616e3b1baa6f2d6decd80903a10ae50e92af78aaeedf7814
+    name: volsync-addon-controller-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 0d8e1caca44a437e62b61611cfbb02687655028c
+        url: https://github.com/stolostron/volsync-addon-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicloud-integrations-acm-52@sha256:b2bccc3d1b432d2c52c520e4a5ce575eecc32e7c7a219b4b44ab72c05a1710a3
+    name: multicloud-integrations-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 59cd69e044806b036a577aa74cfe10ff22787864
+        url: https://github.com/stolostron/multicloud-integrations
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-backup-operator-acm-52@sha256:5c481a61b2c9c63b46f272eb932325db1306cd821b410ea4d101a3427a0e0801
+    name: cluster-backup-operator-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: cc5caa9237f13e3706648eb72960e004d81e86f4
+        url: https://github.com/stolostron/cluster-backup-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-52@sha256:2be66789359db7d7fb6b4759d7e91611bb6e36986e6b9f70f292c35b89ccfa13
+    name: submariner-addon-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.konflux
+        revision: 26214973c4f29df708ce2c3227d1c1d1cb33ade0
+        url: https://github.com/stolostron/submariner-addon
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-52@sha256:83e9d8e54e9f3501d1a0d42e07f620636080c0052f3b8d50b72df1cffc227442
+    name: console-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Containerfile.acm.konflux
+        revision: 4c785d86b04dbfb1acd83c9a58d48dc4d6fb3397
+        url: https://github.com/stolostron/console
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-collector-acm-52@sha256:88ecb9cb60c9b8ee7ce6791ea1452e552ce8f11f87af8176780e36d33f4ef97e
+    name: search-collector-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 79553c945919f504e857d6cfcd7c920844946b5e
+        url: https://github.com/stolostron/search-collector
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/insights-client-acm-52@sha256:16f1293fa425711dda92def7ccc138c672447cc928061ff26e08e4ce87a154d8
+    name: insights-client-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 79f991c65c96c7e166a8b5fc210590615022a3d2
+        url: https://github.com/stolostron/insights-client
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/siteconfig-acm-52@sha256:762a87c73c1b2c0a1c0399595470cd59b0c7b145fe12f3fb5f215b1a8fc235e5
+    name: siteconfig-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: f7beda7fbb2fcf9d58f4d0d28fce8c2ec7e1efba
+        url: https://github.com/stolostron/siteconfig
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/config-policy-controller-acm-52@sha256:46c3228eff873f3115a2e45d8065adc5e5b4208bd469b8222c65d9805d502ec3
     name: config-policy-controller-acm-52
     source:
@@ -238,147 +311,20 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: 2f6a061a14af1ea99b48f2067c8bca370b42a86f
         url: https://github.com/stolostron/multicloud-operators-channel
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/dynamic-scoring-addon-acm-52@sha256:6db9abab8644361769e7379749d65637605e2c81952f8e488c3b5d0b1e36a069
-    name: dynamic-scoring-addon-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.addon.rhtap
-        revision: 2a714068269d28f9f260447705f674ffac9f417e
-        url: https://github.com/stolostron/dynamic-scoring-framework
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-52@sha256:4e2998cfbbb6a0fb052bd746344699fb831b0d1e613aaf3f9ec1508d5b57539c
-    name: multiclusterhub-operator-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 2bd257d36b94a8c392d2022d98949b352206686d
-        url: https://github.com/stolostron/multiclusterhub-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/dynamic-scoring-controller-acm-52@sha256:d59e769540716e8c203e54597df956d884411bf14f6a2eed93a3364148bd5b06
-    name: dynamic-scoring-controller-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 024017a46f8fa276725e449281055296e3924216
-        url: https://github.com/stolostron/dynamic-scoring-framework
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/must-gather-acm-52@sha256:ee92f67dfb665c99357e9b91ee6f14fc3a4b9564812bbf803c44dfc0932d7224
-    name: must-gather-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 41479894400ce20effcfe9cd9f56ec336ba89d66
-        url: https://github.com/stolostron/must-gather
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-addon-controller-acm-52@sha256:91a7eff18587f3f61ad81a7c617c3dd2abaeb03bdbc397b1a33a7c2daad230bd
-    name: governance-policy-addon-controller-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: b1f596210cfe6f713e74a908c568ee9e92d6a074
-        url: https://github.com/stolostron/governance-policy-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-propagator-acm-52@sha256:cb4fc606b411b9f4670d129fcbe67263b0b2e85898f0846187cd263896c2e0c1
-    name: governance-policy-propagator-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 031fcbb7a6bc29e3155ebffa79ccc12a7570dc25
-        url: https://github.com/stolostron/governance-policy-propagator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-framework-addon-acm-52@sha256:439232854b47855edf2587306a40966da8ba63482722a8f9136a5bd2d368dbef
-    name: governance-policy-framework-addon-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 5037d513e15bdf93935dd67565f595cccf32db8e
-        url: https://github.com/stolostron/governance-policy-framework-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-52@sha256:65e11f13d6ac081ff2dad6bb2414e4a6b85771ef2cc46ea4fbf16acf22a1b0f8
-    name: search-indexer-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: fcb9043df98b85353820ae484598ae5c66fd42f4
-        url: https://github.com/stolostron/search-indexer
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/volsync-addon-controller-acm-52@sha256:6d2f8fa8f1333b87616e3b1baa6f2d6decd80903a10ae50e92af78aaeedf7814
-    name: volsync-addon-controller-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 0d8e1caca44a437e62b61611cfbb02687655028c
-        url: https://github.com/stolostron/volsync-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicloud-integrations-acm-52@sha256:b2bccc3d1b432d2c52c520e4a5ce575eecc32e7c7a219b4b44ab72c05a1710a3
-    name: multicloud-integrations-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 59cd69e044806b036a577aa74cfe10ff22787864
-        url: https://github.com/stolostron/multicloud-integrations
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cluster-backup-operator-acm-52@sha256:fcd71f45cdda526710a19511668f4000daad8261506a2466db701fdb88f6b8b0
-    name: cluster-backup-operator-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 7625c31d4fd4aa91f9a8873bba2afd0e8895842b
-        url: https://github.com/stolostron/cluster-backup-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/submariner-addon-acm-52@sha256:2be66789359db7d7fb6b4759d7e91611bb6e36986e6b9f70f292c35b89ccfa13
-    name: submariner-addon-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.konflux
-        revision: 26214973c4f29df708ce2c3227d1c1d1cb33ade0
-        url: https://github.com/stolostron/submariner-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-52@sha256:83e9d8e54e9f3501d1a0d42e07f620636080c0052f3b8d50b72df1cffc227442
-    name: console-acm-52
-    source:
-      git:
-        context: ./
-        revision: 4c785d86b04dbfb1acd83c9a58d48dc4d6fb3397
-        url: https://github.com/stolostron/console
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-collector-acm-52@sha256:88ecb9cb60c9b8ee7ce6791ea1452e552ce8f11f87af8176780e36d33f4ef97e
-    name: search-collector-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 79553c945919f504e857d6cfcd7c920844946b5e
-        url: https://github.com/stolostron/search-collector
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/insights-client-acm-52@sha256:16f1293fa425711dda92def7ccc138c672447cc928061ff26e08e4ce87a154d8
-    name: insights-client-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 79f991c65c96c7e166a8b5fc210590615022a3d2
-        url: https://github.com/stolostron/insights-client
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/siteconfig-acm-52@sha256:762a87c73c1b2c0a1c0399595470cd59b0c7b145fe12f3fb5f215b1a8fc235e5
-    name: siteconfig-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: f7beda7fbb2fcf9d58f4d0d28fce8c2ec7e1efba
-        url: https://github.com/stolostron/siteconfig
 status:
   conditions:
-  - lastTransitionTime: "2026-10-30T08:59:06Z"
+  - lastTransitionTime: "2026-10-30T14:45:09Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-10-30T08:59:06Z"
+  - lastTransitionTime: "2026-10-30T14:45:09Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-10-30T08:59:06Z"
+  - lastTransitionTime: "2026-10-30T14:45:09Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
