@@ -2,193 +2,101 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: Snapshot
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/stolostron/console?rev=671991b14a8c828edb54b6ba5e2cf7d78757b468
-    build.appstudio.redhat.com/commit_sha: 671991b14a8c828edb54b6ba5e2cf7d78757b468
+    build.appstudio.openshift.io/repo: https://github.com/stolostron/multiclusterhub-operator?rev=f5bd3b12595eaf7648fce6eab8bcbc6dbd2c9efc
+    build.appstudio.redhat.com/commit_sha: f5bd3b12595eaf7648fce6eab8bcbc6dbd2c9efc
     build.appstudio.redhat.com/target_branch: release-5.2
     pac.test.appstudio.openshift.io/branch: release-5.2
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "127325732637"
+    pac.test.appstudio.openshift.io/check-run-id: "127467129504"
     pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
       "gRepo": "pipelines-as-code"}'
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-enuece
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-fywlfb
     pac.test.appstudio.openshift.io/git-provider: github
     pac.test.appstudio.openshift.io/installation-id: "35324288"
-    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/console-acm-52-on-push-vjmxj
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/crt-redhat-acm-tenant/pipelinerun/multiclusterhub-operator-acm-52-on-push-pgqj4
     pac.test.appstudio.openshift.io/max-keep-runs: "3"
     pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
       == "release-5.2"
-    pac.test.appstudio.openshift.io/original-prname: console-acm-52-on-push
-    pac.test.appstudio.openshift.io/pull-request: "7076"
-    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/console
-    pac.test.appstudio.openshift.io/repository: console
+    pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-52-on-push
+    pac.test.appstudio.openshift.io/pull-request: "5014"
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/stolostron/multiclusterhub-operator
+    pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
     pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
     pac.test.appstudio.openshift.io/secret-created: "true"
     pac.test.appstudio.openshift.io/sender: acm-cicd-prow-bot
-    pac.test.appstudio.openshift.io/sha: 671991b14a8c828edb54b6ba5e2cf7d78757b468
+    pac.test.appstudio.openshift.io/sha: f5bd3b12595eaf7648fce6eab8bcbc6dbd2c9efc
     pac.test.appstudio.openshift.io/sha-title: |-
-      ACM-50052 Recover informers from a stale discovery cache without a restart (#7076)
+      [ACM-48507] Remove dead PVC/StatefulSet storage-class guard from applyTemplate (#5014)
 
-      * fix(backend): refresh cached discovery when informer GVR lookup fails
+      * [ACM-48507] Remove dead PVC/StatefulSet storage-class guard from applyTemplate
 
-      The informer factory resolves each WatchSpec through a memory-cached
-      discovery client, which snapshots the whole discovery document on first
-      use and only drops it on Invalidate. A pod that starts while the hub is
-      still establishing CRDs therefore caches a snapshot that is missing them.
+      The PVC/StatefulSet storage-class check in applyTemplate only fired for resources that already existed and carried an explicit storageClassName, comparing it against the DEFAULT_STORAGE_CLASS_NAME environment variable. When that variable was unset, every reconcile of such a resource returned early with no error, condition, event, or requeue, silently skipping updates.
 
-      Both failure shapes are served from that snapshot without any API call:
-      memory.ErrCacheNotFound ("not found") when the groupVersion is absent,
-      and errKindNotFound when a cached resource list does not carry the kind.
-      isUnavailable classified both as unavailable, and that branch was the one
-      that did not invalidate, so the retry loop re-read the same stale snapshot
-      forever and only a pod restart recovered it.
+      No component chart template produces a PVC or StatefulSet anymore. flight-control (the original consumer, added with ACM-17651) was removed for ACM 2.15.1/2.16, and the cluster-backup PVC templates were removed earlier. Removing the guard eliminates the dead code and the silent-stall path it introduced.
 
-      Resolve now asks for a discovery refresh on any failure and re-resolves
-      when the refresh is granted, keeping the refetch and the retry in one
-      critical section. Invalidation is coalesced so a hub legitimately missing
-      CRDs does not refetch discovery once per missing spec per retry round.
+      Signed-off-by: dislbenn <dbennett@redhat.com>
 
-      Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
+      * [ACM-48507] Remove dead storage-class plumbing
 
-      * test(backend): cover stale discovery snapshot recovery
+      With no chart consuming global.storageClassName and no PVC/StatefulSet templates left, the remaining storage-class machinery is write-only.
 
-      Add regression coverage for the informer GVR retry path:
+      - Delete controllers/storage.go (Get/SetDefaultStorageClassName) and its reconcile call.
+      - Remove helpers.DefaultStorageClassName, values.Global.StorageClassName, and the renderer assignment.
+      - Remove the default-storage-class annotation, its helper, and the related tests.
 
-      - TestUnavailableCRDRefreshIsCoalesced asserts that 20 permanently
-        missing specs trigger exactly one discovery refetch, so a hub without
-        AAP or without the ACM CRDs does not hammer discovery every round.
-      - TestStaleDiscoverySnapshotRecoversWithoutRestart drives the ACM-50052
-        scenario end to end: a mapper whose cached snapshot predates the CRD
-        fails every lookup until invalidated, and the informer must still sync
-        without a pod restart.
+      DEFAULT_STORAGE_CLASS_NAME only ever fed values.Global.StorageClassName, which no chart references.
 
-      Both fail without the preceding fix.
-
-      Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-
-      * docs(backend): correct resolveGVR note on how the refresh is serialized
-
-      The comment claimed that re-resolving after a granted refresh keeps the
-      refetch and the retry in the same critical section. It does not: the
-      discoveryRefresh mutex only guards the invalidation decision and the
-      Invalidate call, and is released before the second lookup. The refetch
-      happens inside the discovery client, whose own lock is what collapses
-      concurrent callers into a single fetch.
-
-      The behaviour the comment describes still holds, so this is a comment-only
-      change, but the stated mechanism would have left a future reader relying on
-      a lock guarantee that is not there.
-
-      Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-
-      * test(backend): wait for every spec instead of sleeping in coalescing test
-
-      TestUnavailableCRDRefreshIsCoalesced asserted the invalidation count after a
-      flat 300ms sleep while its sibling tests poll with deadlines. On a loaded
-      runner that risks a misleading failure, and it is also too weak: a spec whose
-      goroutine has not started cannot have invalidated, so a short sleep could
-      count one invalidation and pass for the wrong reason.
-
-      Poll SpecStatuses until all 20 specs have recorded a resolve error, then
-      assert exactly one invalidation. Verified it still fails (20 invalidations)
-      when discoveryRefreshInterval is forced to 0.
-
-      Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-
-      * fix(backend): re-resolve after a denied discovery refresh grant
-
-      Only the spec granted the Invalidate re-resolved, so a sibling that failed
-      while the winner was still refetching was denied the grant and returned its
-      stale failure, sleeping a full retryBase even though the document it needed
-      had just been refreshed.
-
-      Every spec backed by a caching mapper now re-resolves once after a failure.
-      Invalidate deliberately stays inside the throttle lock: a denied caller blocks
-      until the winner's invalidation has completed, so "denied" also means "the
-      document is already being refreshed", which is what makes the immediate
-      re-read safe rather than racy.
-
-      The cost is one extra lookup per failing spec per round — a map read while the
-      cached document is valid, a refetch attempt while it is not.
-
-      Also records the retryBase / discoveryRefreshInterval coupling as a comment so
-      the two constants are not moved independently.
-
-      Co-authored-by: Enrique Mingorance Cano <emingora@redhat.com>
-      Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-
-      * test(backend): cover same-round re-resolve and the refresh throttle
-
-      TestDeniedSpecReresolvesInSameRound drives two specs that fail together, so
-      exactly one wins the Invalidate grant and the other must still recover in the
-      same round. The mapper latches its wave decision before the barrier instead of
-      re-reading it after, so a sibling parked on the barrier cannot be rescued by a
-      refresh that landed while it waited; without that, the test measures goroutine
-      scheduling rather than the behavior under test. Verified it fails 15/15 runs
-      when resolveGVR re-resolves only on a granted request.
-
-      TestDiscoveryRefreshAllowsAfterInterval covers discoveryRefresh.request
-      directly: denied inside the interval without invalidating, granted after it.
-
-      Co-authored-by: Enrique Mingorance Cano <emingora@redhat.com>
-      Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
+      Signed-off-by: dislbenn <dbennett@redhat.com>
 
       ---------
 
-      Signed-off-by: Kevin Cormier <kcormier@redhat.com>
-      Co-authored-by: Claude Opus 5 <noreply@anthropic.com>
-      Co-authored-by: Enrique Mingorance Cano <emingora@redhat.com>
-    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/console/commit/671991b14a8c828edb54b6ba5e2cf7d78757b468
+      Signed-off-by: dislbenn <dbennett@redhat.com>
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stolostron/multiclusterhub-operator/commit/f5bd3b12595eaf7648fce6eab8bcbc6dbd2c9efc
     pac.test.appstudio.openshift.io/source-branch: refs/heads/release-5.2
-    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: console
-    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-11-05T15:21:15Z"}'
-    test.appstudio.openshift.io/create-snapshot-status: Component(s) 'observatorium-acm-52,
-      kube-rbac-proxy-acm-52, obo-prometheus-operator-acm-52, prometheus-operator-acm-52,
-      node-exporter-acm-52, grafana-acm-52, memcached-exporter-acm-52, observatorium-operator-acm-52,
-      grafana-dashboard-loader-acm-52, multicluster-observability-addon-acm-52, multicluster-observability-operator-acm-52,
-      kube-state-metrics-acm-52, rbac-query-proxy-acm-52, prometheus-alertmanager-acm-52,
-      endpoint-monitoring-operator-acm-52, prometheus-config-reloader-acm-52, prometheus-acm-52,
-      thanos-acm-52, metrics-collector-acm-52, thanos-receive-controller-acm-52' is(are)
-      not included in snapshot due to missing valid containerImage or git source
-    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-52-release-acm-52-20261105-150121-000":{"lastUpdateTime":"2026-11-05T15:21:56.487203242Z"}}}'
+    pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
+    test.appstudio.openshift.io/added-to-global-candidate-list: '{"result":true,"reason":"Success","lastupdatedtime":"2026-11-05T19:15:14Z"}'
+    test.appstudio.openshift.io/create-snapshot-status: Component(s) 'memcached-exporter-acm-52,
+      observatorium-operator-acm-52, grafana-dashboard-loader-acm-52, multicluster-observability-addon-acm-52,
+      multicluster-observability-operator-acm-52, kube-state-metrics-acm-52, rbac-query-proxy-acm-52,
+      prometheus-alertmanager-acm-52, endpoint-monitoring-operator-acm-52, prometheus-config-reloader-acm-52,
+      prometheus-acm-52, thanos-acm-52, metrics-collector-acm-52, thanos-receive-controller-acm-52,
+      observatorium-acm-52, kube-rbac-proxy-acm-52, obo-prometheus-operator-acm-52,
+      prometheus-operator-acm-52, node-exporter-acm-52, grafana-acm-52' is(are) not
+      included in snapshot due to missing valid containerImage or git source
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"enterprise-contract-acm-52-release-acm-52-20261105-190539-000":{"lastUpdateTime":"2026-11-05T19:15:53.492943806Z"}}}'
     test.appstudio.openshift.io/integration-workflow: push
-    test.appstudio.openshift.io/pipelinerunstarttime: "1793890881000"
+    test.appstudio.openshift.io/pipelinerunstarttime: "1793905539000"
     test.appstudio.openshift.io/pr-status: merged
-    test.appstudio.openshift.io/result-chains-git-commit: 671991b14a8c828edb54b6ba5e2cf7d78757b468
-    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/console
-    test.appstudio.openshift.io/result-image-digest: sha256:7fc872502eb1994e7126ce79fadec9342f8ef8add62a27fd93330749b86fc6fc
-    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-52:671991b14a8c828edb54b6ba5e2cf7d78757b468
-    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/console
-    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-52","status":"BuildPLRInProgress","lastUpdateTime":"2026-11-05T15:21:56.487203242Z","details":"Integration
-      test passed with warnings","startTime":"2026-11-05T15:21:16.063261965Z","completionTime":"2026-11-05T15:21:56.487203242Z","testPipelineRunName":"enterprise-contract-acm-52-49b4x"}]'
-  creationTimestamp: "2026-11-05T15:21:15Z"
+    test.appstudio.openshift.io/result-chains-git-commit: f5bd3b12595eaf7648fce6eab8bcbc6dbd2c9efc
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/stolostron/multiclusterhub-operator
+    test.appstudio.openshift.io/result-image-digest: sha256:8b951cee282b6b156ba0bc0f99b07ca9b48e809b3a7d77b8f490d17050edb847
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-52:f5bd3b12595eaf7648fce6eab8bcbc6dbd2c9efc
+    test.appstudio.openshift.io/source-repo-url: https://github.com/stolostron/multiclusterhub-operator
+    test.appstudio.openshift.io/status: '[{"scenario":"enterprise-contract-acm-52","status":"BuildPLRInProgress","lastUpdateTime":"2026-11-05T19:15:53.492943806Z","details":"Integration
+      test passed with warnings","startTime":"2026-11-05T19:15:14.408476445Z","completionTime":"2026-11-05T19:15:53.492943806Z","testPipelineRunName":"enterprise-contract-acm-52-pj9dr"}]'
+  creationTimestamp: "2026-11-05T19:15:14Z"
   generation: 1
   labels:
     appstudio.openshift.io/application: release-acm-52
-    appstudio.openshift.io/build-pipelinerun: console-acm-52-on-push-vjmxj
-    appstudio.openshift.io/component: console-acm-52
+    appstudio.openshift.io/build-pipelinerun: multiclusterhub-operator-acm-52-on-push-pgqj4
+    appstudio.openshift.io/component: multiclusterhub-operator-acm-52
     pac.test.appstudio.openshift.io/cancel-in-progress: "false"
-    pac.test.appstudio.openshift.io/check-run-id: "127325732637"
+    pac.test.appstudio.openshift.io/check-run-id: "127467129504"
     pac.test.appstudio.openshift.io/event-type: push
-    pac.test.appstudio.openshift.io/original-prname: console-acm-52-on-push
-    pac.test.appstudio.openshift.io/pull-request: "7076"
-    pac.test.appstudio.openshift.io/repository: console
-    pac.test.appstudio.openshift.io/sha: 671991b14a8c828edb54b6ba5e2cf7d78757b468
+    pac.test.appstudio.openshift.io/original-prname: multiclusterhub-operator-acm-52-on-push
+    pac.test.appstudio.openshift.io/pull-request: "5014"
+    pac.test.appstudio.openshift.io/repository: multiclusterhub-operator-acm-210
+    pac.test.appstudio.openshift.io/sha: f5bd3b12595eaf7648fce6eab8bcbc6dbd2c9efc
     pac.test.appstudio.openshift.io/state: completed
     pac.test.appstudio.openshift.io/url-org: stolostron
-    pac.test.appstudio.openshift.io/url-repository: console
-    test.appstudio.openshift.io/pipelinerunfinishtime: "1793892069"
+    pac.test.appstudio.openshift.io/url-repository: multiclusterhub-operator
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1793906108"
     test.appstudio.openshift.io/type: component
-  name: release-acm-52-20261105-150121-000
+  name: release-acm-52-20261105-190539-000
   namespace: crt-redhat-acm-tenant
   ownerReferences:
   - apiVersion: appstudio.redhat.com/v1alpha1
@@ -197,76 +105,12 @@ metadata:
     kind: Application
     name: release-acm-52
     uid: cfc033ef-9dfc-426e-9763-dbb135f75288
-  resourceVersion: "12188627168"
-  uid: dc596bb1-429b-4405-ae3f-35989b65968e
+  resourceVersion: "12191830226"
+  uid: 86fbcc0f-12b5-4857-a5bb-5ca3314ace70
 spec:
   application: release-acm-52
   artifacts: {}
   components:
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-52@sha256:ea88a353f373533fb807fa17a263a0a4b8d328963f28fc9969e66790a013509f
-    name: multiclusterhub-operator-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: aeb3a49baeea9886709f5ffe90d14138997bcd1f
-        url: https://github.com/stolostron/multiclusterhub-operator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-role-assignment-acm-52@sha256:f7dddc4e02d23dfc7af5254ad7268132569e5c2164dcc14b9434f03657ea7a14
-    name: multicluster-role-assignment-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile
-        revision: dfc114f3ba7594af5114d398f0b772eb81fd08d7
-        url: https://github.com/stolostron/multicluster-role-assignment
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-52@sha256:491d0f3ed5cff17cc942179fb52e3dcb643410d717052a6d7c6460b8d06806cf
-    name: cert-policy-controller-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 8354e64ed2bca48b9e82207e40cc0554ee647b82
-        url: https://github.com/stolostron/cert-policy-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-52@sha256:8029ecf67ec3e4669133687cc9fd1591ab666f9450933028904969ade91bc762
-    name: multicluster-operators-application-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: 0f3ba51ae81b500728e5a53f1e4c252267df0718
-        url: https://github.com/stolostron/multicloud-operators-application
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-cli-acm-52@sha256:ccc895b38dafb47f6756e4d5e359ff33b7b9f433190d04a2b5b1f89141c241c4
-    name: acm-cli-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: df48ba04c213cc66ae4ba20e816e69eaabf5b427
-        url: https://github.com/stolostron/acm-cli
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-propagator-acm-52@sha256:a29315f91aa22c4f9666a8241bbe6b2e97cbf52d1d73f13691db946a0e45166f
-    name: governance-policy-propagator-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: build/Dockerfile.rhtap
-        revision: fb19268ff230fa8adb05824efdef201b2d66140d
-        url: https://github.com/stolostron/governance-policy-propagator
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-52@sha256:1920a92e8f7372b032ad0375e079e967faf038855aec63f3e27020be913c5acd
-    name: klusterlet-addon-controller-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: 3393a2a32f030cb26c2e46ef00fa22b3451c7e1d
-        url: https://github.com/stolostron/klusterlet-addon-controller
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-52@sha256:a8994fc7b8f140ee2517ecefa387da4178c6468d49452d9b69331515c0fcf06f
-    name: search-indexer-acm-52
-    source:
-      git:
-        context: ./
-        dockerfileUrl: Dockerfile.rhtap
-        revision: f8fa9bb0a5f959c556133962493aa7eef28136e3
-        url: https://github.com/stolostron/search-indexer
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-subscription-acm-52@sha256:35b70909ed16dd1704253719de1a20c63ea382eb494beaeee0a24969718e1b93
     name: multicluster-operators-subscription-acm-52
     source:
@@ -355,12 +199,13 @@ spec:
         dockerfileUrl: build/Dockerfile.rhtap
         revision: 5037d513e15bdf93935dd67565f595cccf32db8e
         url: https://github.com/stolostron/governance-policy-framework-addon
-  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-52@sha256:7fc872502eb1994e7126ce79fadec9342f8ef8add62a27fd93330749b86fc6fc
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/console-acm-52@sha256:6ab37e560c97101099fc430889031864eb554cc9d439df2057f195e207bde01a
     name: console-acm-52
     source:
       git:
         context: ./
-        revision: 671991b14a8c828edb54b6ba5e2cf7d78757b468
+        dockerfileUrl: Containerfile.acm.konflux
+        revision: 371d3797508e8b9171bb8fae0eab0ac006cc4fca
         url: https://github.com/stolostron/console
   - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-v2-operator-acm-52@sha256:0fdfc1d78f70d57284083559ee82f837912e4e772ac962fe70aab488e4ec330a
     name: search-v2-operator-acm-52
@@ -426,20 +271,83 @@ spec:
         dockerfileUrl: Dockerfile.rhtap
         revision: 372d18b7f8eefe8705fcb35ecc70b3c9e6afc890
         url: https://github.com/stolostron/insights-metrics
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multiclusterhub-operator-acm-52@sha256:8b951cee282b6b156ba0bc0f99b07ca9b48e809b3a7d77b8f490d17050edb847
+    name: multiclusterhub-operator-acm-52
+    source:
+      git:
+        context: ./
+        revision: f5bd3b12595eaf7648fce6eab8bcbc6dbd2c9efc
+        url: https://github.com/stolostron/multiclusterhub-operator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-role-assignment-acm-52@sha256:bbc724e48c7fd8914842e431664fe7332846e59b8854e5b0f8a3e4bf623c8509
+    name: multicluster-role-assignment-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile
+        revision: 9124a2bd16f95190169a041096a5013f91be357f
+        url: https://github.com/stolostron/multicluster-role-assignment
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/cert-policy-controller-acm-52@sha256:491d0f3ed5cff17cc942179fb52e3dcb643410d717052a6d7c6460b8d06806cf
+    name: cert-policy-controller-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 8354e64ed2bca48b9e82207e40cc0554ee647b82
+        url: https://github.com/stolostron/cert-policy-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/multicluster-operators-application-acm-52@sha256:8029ecf67ec3e4669133687cc9fd1591ab666f9450933028904969ade91bc762
+    name: multicluster-operators-application-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: 0f3ba51ae81b500728e5a53f1e4c252267df0718
+        url: https://github.com/stolostron/multicloud-operators-application
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/acm-cli-acm-52@sha256:ccc895b38dafb47f6756e4d5e359ff33b7b9f433190d04a2b5b1f89141c241c4
+    name: acm-cli-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: df48ba04c213cc66ae4ba20e816e69eaabf5b427
+        url: https://github.com/stolostron/acm-cli
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/governance-policy-propagator-acm-52@sha256:a29315f91aa22c4f9666a8241bbe6b2e97cbf52d1d73f13691db946a0e45166f
+    name: governance-policy-propagator-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: build/Dockerfile.rhtap
+        revision: fb19268ff230fa8adb05824efdef201b2d66140d
+        url: https://github.com/stolostron/governance-policy-propagator
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/klusterlet-addon-controller-acm-52@sha256:1920a92e8f7372b032ad0375e079e967faf038855aec63f3e27020be913c5acd
+    name: klusterlet-addon-controller-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: 3393a2a32f030cb26c2e46ef00fa22b3451c7e1d
+        url: https://github.com/stolostron/klusterlet-addon-controller
+  - containerImage: quay.io/redhat-user-workloads/crt-redhat-acm-tenant/search-indexer-acm-52@sha256:a8994fc7b8f140ee2517ecefa387da4178c6468d49452d9b69331515c0fcf06f
+    name: search-indexer-acm-52
+    source:
+      git:
+        context: ./
+        dockerfileUrl: Dockerfile.rhtap
+        revision: f8fa9bb0a5f959c556133962493aa7eef28136e3
+        url: https://github.com/stolostron/search-indexer
 status:
   conditions:
-  - lastTransitionTime: "2026-11-05T15:21:56Z"
+  - lastTransitionTime: "2026-11-05T19:15:53Z"
     message: Snapshot integration status condition is finished since all testing pipelines
       completed
     reason: Finished
     status: "True"
     type: AppStudioIntegrationStatus
-  - lastTransitionTime: "2026-11-05T15:21:56Z"
+  - lastTransitionTime: "2026-11-05T19:15:53Z"
     message: All Integration Pipeline tests passed
     reason: Passed
     status: "True"
     type: AppStudioTestSucceeded
-  - lastTransitionTime: "2026-11-05T15:21:58Z"
+  - lastTransitionTime: "2026-11-05T19:15:53Z"
     message: The Snapshot was auto-released
     reason: AutoReleased
     status: "True"
