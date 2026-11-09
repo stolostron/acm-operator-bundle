@@ -14,7 +14,7 @@ LABEL com.redhat.delivery.operator.bundle="true" \
       com.redhat.openshift.versions="v5.0-v5.2"
 
 LABEL com.redhat.component="acm-operator-bundle-container" \
-      name="rhacm5/acm-operator-bundle" \
+      name="rhacm2/acm-operator-bundle" \
       version="5.1.0-175" \
       summary="acm-operator-bundle" \
       io.openshift.expose-services="" \
