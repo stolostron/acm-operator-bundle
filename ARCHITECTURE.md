@@ -10,7 +10,7 @@ ClusterServiceVersion (CSV), the `MultiClusterHub` CRD, a supporting webhook
 `advanced-cluster-management`.
 
 The operator this bundle installs is `multiclusterhub-operator`
-(`registry.redhat.io/rhacm2/multiclusterhub-rhel9`). Once installed, creating
+(`registry.redhat.io/rhacm5/multiclusterhub-rhel9`). Once installed, creating
 a `MultiClusterHub` custom resource triggers deployment of the full ACM hub
 stack — roughly 45 component images spanning governance, observability,
 search, application lifecycle, submariner, siteconfig, and more.
